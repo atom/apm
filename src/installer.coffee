@@ -72,24 +72,6 @@ class Installer extends Command
         process.stdout.write '\u2717\n'.red
         callback(stdout.red + stderr.red)
 
-  installModules: (options, callback) =>
-    process.stdout.write 'Installing modules '
-
-    installArgs = ['--userconfig', config.getUserConfigPath(), 'install']
-    installArgs.push("--target=#{config.getNodeVersion()}")
-    installArgs.push('--arch=ia32')
-    installArgs.push('--silent') if options.argv.silent
-    installArgs.push('--msvs_version=2012') if config.isWin32()
-    env = _.extend({}, process.env, HOME: @atomNodeDirectory)
-
-    @fork @atomNpmPath, installArgs, {env}, (code, stderr='', stdout='') ->
-      if code is 0
-        process.stdout.write '\u2713\n'.green
-        callback()
-      else
-        process.stdout.write '\u2717\n'.red
-        callback(stdout.red + stderr.red)
-
   installPackage: (options, modulePath) ->
     commands = []
     commands.push(@installNode)
@@ -99,8 +81,31 @@ class Installer extends Command
 
   installDependencies: (options) ->
     commands = []
-    commands.push(@installNode)
-    commands.push (callback) => @installModules(options, callback)
+    commands.push(@installNode) if options.installNode
+    commands.push (callback) =>
+      process.stdout.write 'Installing dependencies for '
+
+      installArgs = ['--userconfig', config.getUserConfigPath(), 'install']
+      installArgs.push("--target=#{config.getNodeVersion()}")
+      installArgs.push('--arch=ia32')
+      installArgs.push('--silent') if options.argv.silent
+      installArgs.push('--msvs_version=2012') if config.isWin32()
+      env = _.extend({}, process.env, HOME: @atomNodeDirectory)
+
+      @fork @atomNpmPath, installArgs, {env, cwd: options.directory}, (code, stderr='', stdout='') ->
+        if code is 0
+          process.stdout.write '\u2713\n'.green
+          callback()
+        else
+          process.stdout.write '\u2717\n'.red
+          callback(stdout.red + stderr.red)
+
+    submodulesPath = path.join(options.directory, 'node_submodules')
+    if fs.existsSync(submodulesPath)
+      for submodule in fs.readdirSync(submodulesPath)
+        commands.push (callback) =>
+          directory = path.join(options.directory, 'node_submodules', submodule)
+          @installDependencies({argv: options.argv, directory, callback})
 
     async.waterfall commands, options.callback
 
@@ -126,6 +131,9 @@ class Installer extends Command
     @createAtomDirectories()
     modulePath = options.commandArgs.shift() ? '.'
     if modulePath is '.'
+      options = _.clone(options)
+      options.directory = process.cwd()
+      options.installNode = true
       @installDependencies(options)
     else if @isTextMateBundlePath(modulePath)
       @installTextMateBundle(options, modulePath)

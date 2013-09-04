@@ -116,11 +116,15 @@ describe 'apm command line interface', ->
             expect(callback.mostRecentCall.args[0]).toBeUndefined()
 
       describe 'when no path is specified', ->
-        it 'installs all dependent modules', ->
+        [submoduleDirectory, moduleDirectory, callback] = []
+
+        beforeEach ->
           moduleDirectory = path.join(temp.mkdirSync('apm-test-module-'), 'test-module-with-dependencies')
           wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
           process.chdir(moduleDirectory)
           callback = jasmine.createSpy('callback')
+
+        it 'installs all dependent modules', ->
           apm.run(['install'], callback)
 
           waitsFor 'waiting for install to complete', 600000, ->
@@ -130,6 +134,25 @@ describe 'apm command line interface', ->
             expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module', 'index.js'))).toBeTruthy()
             expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module', 'package.json'))).toBeTruthy()
             expect(callback.mostRecentCall.args[0]).toBeUndefined()
+
+        describe 'when the current directory contains a node_submodules directory', ->
+          beforeEach ->
+            fs.mkdirSync(path.join(moduleDirectory, 'node_submodules'))
+            submoduleDirectory = path.join(moduleDirectory, 'node_submodules', 'test-module-with-dependencies')
+            wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), submoduleDirectory)
+
+          it 'installs the dependencies of all submodules', ->
+            apm.run(['install'], callback)
+
+            waitsFor 'waiting for install to complete', 600000, ->
+              callback.callCount > 0
+
+            runs ->
+              expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module', 'index.js'))).toBeTruthy()
+              expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module', 'package.json'))).toBeTruthy()
+              expect(fs.existsSync(path.join(submoduleDirectory, 'node_modules', 'test-module', 'index.js'))).toBeTruthy()
+              expect(fs.existsSync(path.join(submoduleDirectory, 'node_modules', 'test-module', 'package.json'))).toBeTruthy()
+              expect(callback.mostRecentCall.args[0]).toBeUndefined()
 
       describe "when the packages directory does not exist", ->
         it "creates the packages directory and any intermediate directories that do not exist", ->
