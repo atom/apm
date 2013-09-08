@@ -2,6 +2,7 @@ path = require 'path'
 
 _ = require 'underscore'
 require 'colors'
+optimist = require 'optimist'
 
 config = require './config'
 Command = require './command'
@@ -9,9 +10,24 @@ Installer = require './installer'
 
 module.exports =
 class Rebuilder extends Command
+  @commandNames: ['rebuild']
+
   constructor: ->
     @atomNodeDirectory = path.join(config.getAtomDirectory(), '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
+
+  parseOptions: (argv) ->
+    options = optimist(argv)
+    options.usage """
+
+      Usage: apm rebuild
+
+      Rebuild all the modules currently installed in the node_modules folder
+      in the current working directory.
+    """
+    options.alias('h', 'help').describe('help', 'Print this usage message')
+
+  showHelp: (argv) -> @parseOptions(argv).showHelp()
 
   run: ({callback}) ->
     new Installer().installNode (error) =>

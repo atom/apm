@@ -1,6 +1,7 @@
 path = require 'path'
 
 require 'colors'
+optimist = require 'optimist'
 
 config = require './config'
 fs = require './fs'
@@ -8,9 +9,24 @@ tree = require './tree'
 
 module.exports =
 class LinkLister
+  @commandNames: ['linked', 'links']
+
   constructor: ->
     @devPackagesPath = path.join(config.getAtomDirectory(), 'dev', 'packages')
     @packagesPath = path.join(config.getAtomDirectory(), 'packages')
+
+  parseOptions: (argv) ->
+    options = optimist(argv)
+    options.usage """
+
+      Usage: apm links
+
+      List all of the symlinked atom packages in ~/.atom/packages and
+      ~/.atom/dev/packages.
+    """
+    options.alias('h', 'help').describe('help', 'Print this usage message')
+
+  showHelp: (argv) -> @parseOptions(argv).showHelp()
 
   getDevPackagePath: (packageName) -> path.join(@devPackagesPath, packageName)
 

@@ -1,14 +1,10 @@
 fs = require 'fs'
 path = require 'path'
 
-async = require 'async'
 _ = require 'underscore'
-mkdir = require('mkdirp').sync
 npm = require 'npm'
 npmconf = require 'npmconf'
-temp = require 'temp'
-cp = require('wrench').copyDirSyncRecursive
-rm = require('rimraf').sync
+optimist = require 'optimist'
 require 'colors'
 
 config = require './config'
@@ -17,12 +13,30 @@ Linker = require './linker'
 
 module.exports =
 class Developer extends Command
+  @commandNames: ['dev', 'develop']
+
   atomDirectory: null
   atomDevPackagesDirectory: null
 
   constructor: ->
     @atomDirectory = config.getAtomDirectory()
     @atomDevPackagesDirectory = path.join(@atomDirectory, 'dev', 'packages')
+
+  parseOptions: (argv) ->
+    options = optimist(argv)
+
+    options.usage """
+      Usage: apm develop <package_name>
+
+      Clone the given package's Git repository to ~/github/<package_name> and
+      link it for development to ~/.atom/packages/dev/<package_name>.
+
+      Once this command completes you can open a dev window from atom using
+      cmd-shift-o to run the package out of the newly cloned repository.
+    """
+    options.alias('h', 'help').describe('help', 'Print this usage message')
+
+  showHelp: (argv) -> @parseOptions(argv).showHelp()
 
   loadNpm: (callback) ->
     npmOptions =
@@ -60,8 +74,7 @@ class Developer extends Command
 
   linkPackage: (packageDirectory, options) ->
     linkOptions = _.clone(options)
-    linkOptions.commandArgs = [packageDirectory]
-    linkOptions.argv = {dev: true}
+    linkOptions.commandArgs = [packageDirectory, '--dev']
     new Linker().run(linkOptions)
 
   run: (options) ->

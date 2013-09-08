@@ -1,39 +1,45 @@
 fs = require 'fs'
 
 optimist = require 'optimist'
+wordwrap = require 'wordwrap'
 
-Cleaner = require './cleaner'
-Developer = require './developer'
-Installer = require './installer'
-Uninstaller = require './uninstaller'
-Lister = require './lister'
-LinkLister = require './link-lister'
-Publisher = require './publisher'
-Fetcher = require './fetcher'
-Linker = require './linker'
-Unlinker = require './unlinker'
-Rebuilder = require './rebuilder'
-Updater = require './updater'
+commandClasses = [
+  require './cleaner'
+  require './developer'
+  require './fetcher'
+  require './installer'
+  require './link-lister'
+  require './linker'
+  require './lister'
+  require './publisher'
+  require './rebuilder'
+  require './uninstaller'
+  require './unlinker'
+  require './updater'
+]
+
+commands = {}
+for commandClass in commandClasses
+  for name in commandClass.commandNames ? []
+    commands[name] = commandClass
 
 parseOptions = (args=[]) ->
   options = optimist(args)
-  options.usage """
+  usage = """
 
     Usage: apm <command>
 
-    where <command> is one of:
-        available, develop, help, install, link, links, list, publish, rebuild, uninstall, unlink
+    where <command> is one of:\n
   """
+  usage += wordwrap(4, 80)(Object.keys(commands).sort().join(', '))
+  usage += ".\n\nRun `apm help <command>` to see the more details about a specific command."
+  options.usage(usage)
   options.alias('v', 'version').describe('version', 'Print the apm version')
   options.alias('h', 'help').describe('help', 'Print this usage message')
-  options.alias('d', 'dev').boolean('dev')
-  options.alias('a', 'all').boolean('all')
-  options.boolean('hard')
-  options.boolean('force')
-  options.string('tag')
-  remainingArguments = options.argv._
-  options.command = remainingArguments.shift()
-  options.commandArgs = remainingArguments
+  options.command = options.argv._[0]
+  for arg, index in args when arg is options.command
+    options.commandArgs = args[index+1..]
+    break
   options
 
 module.exports =
@@ -55,23 +61,19 @@ module.exports =
     if args.version
       console.log require('../package.json').version
     else if args.help
-      options.showHelp()
+      if Command = commands[options.command]
+        new Command().showHelp(options.command)
+      else
+        options.showHelp()
     else if command
-      switch command
-        when 'available' then new Fetcher().run(options)
-        when 'clean' then new Cleaner().run(options)
-        when 'develop', 'dev' then new Developer().run(options)
-        when 'help' then options.showHelp()
-        when 'install' then new Installer().run(options)
-        when 'link' then new Linker().run(options)
-        when 'linked', 'links' then new LinkLister().run(options)
-        when 'list', 'ls' then new Lister().run(options)
-        when 'publish' then new Publisher().run(options)
-        when 'rebuild' then new Rebuilder().run(options)
-        when 'uninstall' then new Uninstaller().run(options)
-        when 'unlink' then new Unlinker().run(options)
-        when 'update' then new Updater().run(options)
+      if command is 'help'
+        if Command = commands[options.commandArgs]
+          new Command().showHelp(options.commandArgs)
         else
-          options.callback("Unrecognized command: #{command}")
+          options.showHelp()
+      else if Command = commands[command]
+        new Command().run(options)
+      else
+        options.callback("Unrecognized command: #{command}")
     else
       options.showHelp()
