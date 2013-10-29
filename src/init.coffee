@@ -39,10 +39,10 @@ class Generator extends Command
       callback()
     else if options.argv.dark?
       themePath = path.resolve(options.argv.dark)
-      Develop::cloneRepository("https://github.com/atom/atom-dark-ui", themePath, {callback})
+      Develop::cloneRepository("https://github.com/atom/atom-dark-ui", themePath, {callback, noLink: true})
     else if options.argv.light?
       themePath = path.resolve(options.argv.light)
-      Develop::cloneRepository("https://github.com/atom/atom-light-ui", themePath, {callback})
+      Develop::cloneRepository("https://github.com/atom/atom-light-ui", themePath, {callback, noLink: true})
     else if options.argv.theme?
       themePath = path.resolve(options.argv.theme)
       templatePath = path.resolve(__dirname, '..', 'templates', 'theme')

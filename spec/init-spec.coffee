@@ -56,7 +56,7 @@ describe "apm init", ->
   describe "when creating an interface theme", ->
     it "generates the proper file structure for dark themes", ->
       callback = jasmine.createSpy('callback')
-      apm.run(['init', '--theme', '--light', 'fake-theme'], callback)
+      apm.run(['init', '--theme', '--dark', 'fake-theme'], callback)
 
       waitsFor 'waiting for init to complete', ->
         callback.callCount is 1
@@ -71,7 +71,7 @@ describe "apm init", ->
 
     it "generates the proper file structure for light themes", ->
       callback = jasmine.createSpy('callback')
-      apm.run(['init', '--theme', '--dark', 'fake-theme'], callback)
+      apm.run(['init', '--theme', '--light', 'fake-theme'], callback)
 
       waitsFor 'waiting for init to complete', ->
         callback.callCount is 1
