@@ -3,6 +3,7 @@ path = require 'path'
 optimist = require 'optimist'
 
 Command = require './command'
+Develop = require './develop'
 fs = require './fs'
 
 module.exports =
@@ -15,13 +16,15 @@ class Generator extends Command
     options.usage """
       Usage:
         apm init -p <package-name>
-        apm init -t <theme-name>
+        apm init -t [--dark | --light] <theme-name>
 
       Generates code scaffolding for either a theme or package depending
       on option selected.
     """
     options.alias('p', 'package').string('package').describe('package', 'Generates a basic package')
-    options.alias('t', 'theme').string('theme').describe('theme', 'Generates a basic theme')
+    options.alias('t', 'theme').string('theme').describe('theme', 'Generates a basic syntax theme')
+    options.string('dark').describe('dark', 'Generates a basic dark interface theme')
+    options.string('light').describe('light', 'Generates a basic light interface theme')
     options.alias('h', 'help').describe('help', 'Print this usage message')
 
   showHelp: (argv) -> @parseOptions(argv).showHelp()
@@ -34,6 +37,12 @@ class Generator extends Command
       templatePath = path.resolve(__dirname, '..', 'templates', 'package')
       @generateFromTemplate(packagePath, templatePath)
       callback()
+    else if options.argv.dark?
+      themePath = path.resolve(options.argv.dark)
+      Develop::cloneRepository("https://github.com/atom/atom-dark-ui", themePath, {callback})
+    else if options.argv.light?
+      themePath = path.resolve(options.argv.dark)
+      Develop::cloneRepository("https://github.com/atom/atom-dark-ui", themePath, {callback})
     else if options.argv.theme?
       themePath = path.resolve(options.argv.theme)
       templatePath = path.resolve(__dirname, '..', 'templates', 'theme')
