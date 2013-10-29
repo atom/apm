@@ -52,3 +52,34 @@ describe "apm init", ->
         expect(fs.existsSync(path.join(themePath, 'index.less'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'README.md'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'package.json'))).toBeTruthy()
+
+  describe "when creating an interface theme", ->
+    it "generates the proper file structure for dark themes", ->
+      callback = jasmine.createSpy('callback')
+      apm.run(['init', '--theme', '--light', 'fake-theme'], callback)
+
+      waitsFor 'waiting for init to complete', ->
+        callback.callCount is 1
+
+      runs ->
+        expect(fs.existsSync(themePath)).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'stylesheets'))).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'stylesheets', 'ui-variables.less'))).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'index.less'))).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'README.md'))).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'package.json'))).toBeTruthy()
+
+    it "generates the proper file structure for light themes", ->
+      callback = jasmine.createSpy('callback')
+      apm.run(['init', '--theme', '--dark', 'fake-theme'], callback)
+
+      waitsFor 'waiting for init to complete', ->
+        callback.callCount is 1
+
+      runs ->
+        expect(fs.existsSync(themePath)).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'stylesheets'))).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'stylesheets', 'ui-variables.less'))).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'index.less'))).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'README.md'))).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'package.json'))).toBeTruthy()
