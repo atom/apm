@@ -53,10 +53,16 @@ describe "apm init", ->
         expect(fs.existsSync(path.join(themePath, 'README.md'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'package.json'))).toBeTruthy()
 
-  describe "when creating an interface theme", ->
+  fdescribe "when creating an interface theme", ->
+    Develop = require '../lib/develop'
+
     it "generates the proper file structure for dark themes", ->
+      spyOn(Develop.prototype, "getRepositoryUrl").andCallFake (packageName, callback) ->
+        repoUrl = path.join(__dirname, 'fixtures', 'atom-dark-ui')
+        callback(null, repoUrl)
+
       callback = jasmine.createSpy('callback')
-      apm.run(['init', '--theme', '--dark', 'fake-theme'], callback)
+      apm.run(['init', '--dark-interface', 'fake-theme'], callback)
 
       waitsFor 'waiting for init to complete', ->
         callback.callCount is 1
@@ -67,11 +73,18 @@ describe "apm init", ->
         expect(fs.existsSync(path.join(themePath, 'stylesheets', 'ui-variables.less'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'index.less'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'README.md'))).toBeTruthy()
-        expect(fs.existsSync(path.join(themePath, 'package.json'))).toBeTruthy()
+        packageJsonPath = path.join(themePath, 'package.json')
+        expect(fs.existsSync(packageJsonPath)).toBeTruthy()
+        expect(require(packageJsonPath).name).toBe 'atom-dark-ui'
 
     it "generates the proper file structure for light themes", ->
+      Develop = require '../lib/develop'
+      spyOn(Develop.prototype, "getRepositoryUrl").andCallFake (packageName, callback) ->
+        repoUrl = path.join(__dirname, 'fixtures', 'atom-light-ui')
+        callback(null, repoUrl)
+
       callback = jasmine.createSpy('callback')
-      apm.run(['init', '--theme', '--light', 'fake-theme'], callback)
+      apm.run(['init', '--light-interface', 'fake-theme'], callback)
 
       waitsFor 'waiting for init to complete', ->
         callback.callCount is 1
@@ -82,4 +95,6 @@ describe "apm init", ->
         expect(fs.existsSync(path.join(themePath, 'stylesheets', 'ui-variables.less'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'index.less'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'README.md'))).toBeTruthy()
-        expect(fs.existsSync(path.join(themePath, 'package.json'))).toBeTruthy()
+        packageJsonPath = path.join(themePath, 'package.json')
+        expect(fs.existsSync(packageJsonPath)).toBeTruthy()
+        expect(require(packageJsonPath).name).toBe 'atom-light-ui'
