@@ -58,14 +58,12 @@ describe "apm init", ->
     Develop = require '../lib/develop'
 
     it "generates the proper file structure for dark themes", ->
-      spyOn(Develop.prototype, "getRepositoryUrl").andCallFake (packageName, callback) ->
-        repoUrl = path.join(__dirname, 'fixtures', 'atom-dark-ui')
-        callback(null, repoUrl)
-
       callback = jasmine.createSpy('callback')
+      spyOn(Develop.prototype, "getRepositoryUrl").andCallFake callback
+
       apm.run(['init', '--dark-interface', 'fake-interface'], callback)
 
-      waitsFor 'waiting for init to complete', ->
+      waitsFor 'init to complete', ->
         callback.callCount is 1
 
       runs ->
@@ -79,14 +77,12 @@ describe "apm init", ->
         expect(require(packageJsonPath).name).toBe 'atom-dark-ui'
 
     it "generates the proper file structure for light themes", ->
-      spyOn(Develop.prototype, "getRepositoryUrl").andCallFake (packageName, callback) ->
-        repoUrl = path.join(__dirname, 'fixtures', 'atom-light-ui')
-        callback(null, repoUrl)
-
       callback = jasmine.createSpy('callback')
+      spyOn(Develop.prototype, "getRepositoryUrl").andCallFake callback
+
       apm.run(['init', '--light-interface', 'fake-interface'], callback)
 
-      waitsFor 'waiting for init to complete', ->
+      waitsFor 'init to complete', ->
         callback.callCount is 1
 
       runs ->
