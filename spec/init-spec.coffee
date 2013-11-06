@@ -4,7 +4,7 @@ temp = require 'temp'
 apm = require '../lib/apm-cli'
 
 describe "apm init", ->
-  [packagePath, themePath] = []
+  [packagePath, themePath, interfacePath] = []
 
   beforeEach ->
     silenceOutput()
@@ -14,6 +14,7 @@ describe "apm init", ->
     spyOn(process, 'cwd').andReturn(currentDir)
     packagePath = path.join(currentDir, 'fake-package')
     themePath = path.join(currentDir, 'fake-theme')
+    interfacePath = path.join(currentDir, 'fake-interface')
 
   describe "when creating a package", ->
     it "generates the proper file structure", ->
@@ -52,3 +53,48 @@ describe "apm init", ->
         expect(fs.existsSync(path.join(themePath, 'index.less'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'README.md'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'package.json'))).toBeTruthy()
+
+  describe "when creating an interface theme", ->
+    Develop = require '../lib/develop'
+
+    it "generates the proper file structure for dark themes", ->
+      repoUrl = path.join(__dirname, 'fixtures', 'atom-dark-ui.git')
+      cloneRepository = spyOn(Develop.prototype, "cloneRepository").andCallThrough (repoUrl, interfacePath, options) ->
+        options.callback(null)
+
+      callback = jasmine.createSpy('callback')
+      apm.run(['init', '--dark-interface', 'fake-interface'], callback)
+
+      waitsFor 'init to complete', ->
+        callback.callCount is 1
+
+      runs ->
+        expect(fs.existsSync(interfacePath)).toBeTruthy()
+        expect(fs.existsSync(path.join(interfacePath, 'stylesheets'))).toBeTruthy()
+        expect(fs.existsSync(path.join(interfacePath, 'stylesheets', 'ui-variables.less'))).toBeTruthy()
+        expect(fs.existsSync(path.join(interfacePath, 'index.less'))).toBeTruthy()
+        expect(fs.existsSync(path.join(interfacePath, 'README.md'))).toBeTruthy()
+        packageJsonPath = path.join(interfacePath, 'package.json')
+        expect(fs.existsSync(packageJsonPath)).toBeTruthy()
+        expect(require(packageJsonPath).name).toBe 'atom-dark-ui'
+
+    it "generates the proper file structure for light themes", ->
+      repoUrl = path.join(__dirname, 'fixtures', 'atom-light-ui.git')
+      cloneRepository = spyOn(Develop.prototype, "cloneRepository").andCallThrough (repoUrl, interfacePath, options) ->
+        options.callback(null)
+
+      callback = jasmine.createSpy('callback')
+      apm.run(['init', '--light-interface', 'fake-interface'], callback)
+
+      waitsFor 'init to complete', ->
+        callback.callCount is 1
+
+      runs ->
+        expect(fs.existsSync(interfacePath)).toBeTruthy()
+        expect(fs.existsSync(path.join(interfacePath, 'stylesheets'))).toBeTruthy()
+        expect(fs.existsSync(path.join(interfacePath, 'stylesheets', 'ui-variables.less'))).toBeTruthy()
+        expect(fs.existsSync(path.join(interfacePath, 'index.less'))).toBeTruthy()
+        expect(fs.existsSync(path.join(interfacePath, 'README.md'))).toBeTruthy()
+        packageJsonPath = path.join(interfacePath, 'package.json')
+        expect(fs.existsSync(packageJsonPath)).toBeTruthy()
+        expect(require(packageJsonPath).name).toBe 'atom-light-ui'

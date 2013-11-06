@@ -79,7 +79,10 @@ class Develop extends Command
     @spawn command, args, (code, stderr='', stdout='') =>
       if code is 0
         process.stdout.write '\u2713\n'.green
-        @linkPackage(packageDirectory, options)
+        if options.noLink
+          options.callback("#{stdout}\n#{stderr}")
+        else
+          @linkPackage(packageDirectory, options)
       else
         process.stdout.write '\u2717\n'.red
         options.callback("#{stdout}\n#{stderr}")
