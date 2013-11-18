@@ -11,10 +11,10 @@ module.exports =
       callback(null, token)
       return
 
-    tokenName = 'GitHub API Token'
+    tokenName = 'GitHub Atom API Token'
     token = keytar.findPassword(tokenName)
 
     if error? or not token
-      callback('No "GitHub API Token" in keychain')
+      callback('No "GitHub Atom API Token" in keychain')
     else
       callback(null, token)
