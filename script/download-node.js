@@ -25,7 +25,7 @@ var downloadTarballAndExtract = function(url, location, callback) {
   stream.on('error', callback);
   var requestOptions = {
     url: url,
-    proxy: process.env.http_proxy || process.env.https_proxy
+    proxy: process.env.http_proxy || process.env.https_proxy || process.env.HTTP_PROXY || process.env.HTTPS_PROXY
   };
   return request(requestOptions).pipe(zlib.createGunzip()).pipe(stream);
 };
