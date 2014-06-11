@@ -3,6 +3,7 @@ var fs = require('fs');
 var mv = require('mv');
 var zlib = require('zlib');
 var path = require('path');
+var semver = require('semver');
 
 // Use whichever version of the local request helper is available
 // This might be the JavaScript or CoffeeScript version depending
@@ -78,7 +79,16 @@ var downloadNode = function(version, done) {
   }
 };
 
-downloadNode('v0.10.26', function(error) {
+var nodeVersion = function () {
+  var version;
+  if (semver.satisfies(process.version, '>0.10.26')) {
+    return process.version;
+  } else {
+    return 'v0.10.26';
+  }
+}
+
+downloadNode(nodeVersion(), function(error) {
   if (error != null) {
     console.error('Failed to download node', error);
     return process.exit(1);
