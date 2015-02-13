@@ -1,40 +1,76 @@
-#!/bin/bash
+#!/bin/sh -e #  apm  - Atom Package Manager powered by https://atom.io
 
-set -e
+# node_flags="--harmony_collections"       ## Uncomment for node < 0.12.0.
 
-initialCwd=`pwd -P`
+unset -f cd 2>/dev/null ||: alias cd=\cd   ## Kill heinous cd hooks (rvm).
 
-apmPath=$0
-builtin cd "`dirname "$apmPath"`"
-binDir=`basename "$apmPath"`
+[ -"$BASH_VERSION"- != -""- ] && set -o posix  ## Try to get a sane shell.
+[ -"$ZSH_VERSION"-  != -""- ] && emulate sh && setopt shwordsplit
 
-# Detect CPU arch.
-archs=`uname -m`
-case "$archs" in
-  i?86) archs='ia32' ;;
-  x86_64) archs='x64' ;;
-  *) archs='arm' ;;
-esac
+#===------------------------------------------------------- readlink() -===##
+readlink(){ ## Pure XSI/POSIX shellreadlink(1), with GNU extensions (minifed).
+## 2014, Geoff Nixon. Public domain. Find it at http://github.com/geoff-codes.
 
-# Detect current OS, see http://stackoverflow.com/q/3466166/682252.
-if [ "`uname`" == 'Darwin' ]; then
-  nodeBin="node"
-elif [ "`expr substr $(uname -s) 1 5`" == 'Linux' ]; then
-  nodeBin="node"
-elif [ "`expr substr $(uname -s) 1 10`" == 'MINGW32_NT' ]; then
-  nodeBin="node.exe"
-else
-  echo "Your platform (`uname -a`) is not supported."
-  exit 1
-fi
+  readlink_exists=1; readlink_dirs_exist=1
+  readlink_sep=''; readlink_print=echo
+  OPTIND=1; while getopts "efhmnqsvz?" readlink_opt; do
+      case "$readlink_opt" in
+        e) readlink_realpath=1; readlink_dirs_exist=1; readlink_exists=1 ;;
+        f) readlink_realpath=1; readlink_dirs_exist=1; readlink_exists=  ;;
+        m) readlink_realpath=1; readlink_dirs_exist= ; readlink_exists=  ;;
+        n) readlink_print=printf                                         ;;
+        z) readlink_print=printf; readlink_sep='\0';;
+      esac
+  done; shift $((OPTIND - 1))
 
-while [ -L "$binDir" ]
-do
-  binDir=`readlink "$binDir"`
-  builtin cd "`dirname "$binDir"`"
-  binDir=`basename "$binDir"`
-done
+  readlink_readlink () {
+    readlink_readlink="$(ls -ld "$@" | sed 's|.* -> ||')"
+    [ -$readlink_realpath- != -- ]                        &&
+      [ "$(echo "$readlink_readlink" | cut -c1)" != "/" ] &&
+      readlink_readlink="$(pwd -P)/$readlink_readlink"
+    echo "$readlink_readlink" ;}
 
-binDir=`pwd -P`
-builtin cd "$initialCwd"
-"$binDir/$nodeBin" --harmony_collections "$binDir/../lib/cli.js" "$@"
+  readlink_canonicalize () {
+    readlink_canon="$(pwd -P)/$(basename "$@")"
+    readlink_canonical="$(echo "$readlink_canon" | sed 's|//|/|g')"
+    echo "$readlink_canonical" ;}
+
+  readlink_no_dir () {
+    [ -$readlink_dirs_exist- = -- ] &&
+      $readlink_print "$@$readlink_sep" && exit 0 ;}
+
+  readlink_no_target () {
+    [ -$readlink_exists- = -- ]                                    &&
+      $readlink_print "$(readlink_canonicalize "$@")$readlink_sep" && exit 0;}
+
+  readlink_not_link () {
+    [ -$readlink_realpath- != -- ]                       &&
+      readlink_canonical="$(readlink_canonicalize "$@")" &&
+      $readlink_print "$readlink_canonical$readlink_sep" && exit 0 ;}
+
+  readlink_try (){
+    readlink_cur_dir="$(dirname "$@")"; readlink_cur_base="$(basename "$@")"
+    cd "$readlink_cur_dir" 2>/dev/null || readlink_no_dir             "$@"
+
+    [ -e "$readlink_cur_base" ] || readlink_no_target "$(pwd -P)/$@"
+    [ -L "$readlink_cur_base" ] || readlink_not_link            "$@"
+
+    readlink_readlink="$(readlink_readlink "$readlink_cur_base")"
+
+    [ -$readlink_realpath- = -- ]                                 &&
+      $readlink_print "$readlink_readlink$readlink_sep" && exit 0 ||
+      readlink_try "$readlink_readlink" ;}
+
+  for readlink_target; do :; done; readlink_try "$readlink_target"
+} ##===---------------------------------------------------- readlink() -===##
+
+apmroot="$(dirname "$(readlink -f ""$("$(dirname "$0")")")"
+
+node="$apmroot/bin/node" ; clijs="$apmroot/lib/cli.js"
+
+uname | grep MINGW >/dev/null && exec "$node.exe" $node_flags "$clijs" "$@"
+
+[ -"$(uname)"- != -"Darwin"- ] && [ -"$(uname)"- != -Linux- ]  &&
+echo "Sorry, $(uname) is not a supported platform." >&2 && exit 1
+
+exec "$node" $node_flags "$apmroot/lib/cli.js" "$@"
