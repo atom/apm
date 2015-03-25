@@ -54,7 +54,7 @@ strict-ssl = false
 ```
 
 If you are using a proxy you can configure `apm` to use it by setting the
-`https-proxy` config in your `~/.atom/.apmrc` file like so:
+`https-proxy` config in your `~/.atom/.apm/.apmrc` file like so:
 
 ```
 https-proxy = https://9.0.2.1:0
