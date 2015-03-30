@@ -5,6 +5,7 @@ Command = require './command'
 config = require './apm'
 Install = require './install'
 Login = require './login'
+List = require './list'
 request = require './request'
 tree = require './tree'
 
@@ -60,8 +61,24 @@ class Stars extends Command
   installPackages: (packages, callback) ->
     return callback() if packages.length is 0
 
-    commandArgs = packages.map ({name}) -> name
-    new Install().run({commandArgs, callback})
+    toName = ({name}) -> name
+
+
+    list = new List()
+    listOptions =
+      argv:
+        dev: true
+        bare: true
+
+    list.listDevPackages listOptions, (error, devPackages) ->
+      devPackages = devPackages.map(toName)
+      list.listUserPackages listOptions, (error, userPackages) ->
+        userPackages = userPackages.map(toName)
+
+        commandArgs = packages.map(toName).filter (name) ->
+          ( name not in devPackages ) and ( name not in userPackages )
+
+        new Install().run({commandArgs, callback})
 
   logPackagesAsJson: (packages, callback) ->
     console.log(JSON.stringify(packages))
