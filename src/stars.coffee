@@ -70,15 +70,13 @@ class Stars extends Command
         dev: true
         bare: true
 
-    list.listDevPackages listOptions, (error, devPackages) ->
-      devPackages = devPackages.map(toName)
-      list.listUserPackages listOptions, (error, userPackages) ->
-        userPackages = userPackages.map(toName)
+    list.listUserPackages listOptions, (error, userPackages) ->
+      userPackages = userPackages.map(toName)
 
-        commandArgs = packages.map(toName).filter (name) ->
-          ( name not in devPackages ) and ( name not in userPackages )
+      commandArgs = packages.map(toName).filter (name) ->
+        return name not in userPackages
 
-        new Install().run({commandArgs, callback})
+      new Install().run({commandArgs, callback})
 
   logPackagesAsJson: (packages, callback) ->
     console.log(JSON.stringify(packages))
