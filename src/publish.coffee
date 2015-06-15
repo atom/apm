@@ -286,6 +286,95 @@ class Publish extends Command
       # Just fall through if the name is empty
       callback()
 
+  # Check if Git working directory is clean
+  # callback - The callback function to invoke when done with an error as the
+  #            first argument, clean status as second argument.
+  #            The clean status is true if the Git working directory is clean.
+  checkCleanGit: (callback) ->
+    config.getSetting 'git', (gitCommand) =>
+      gitCommand ?= 'git'
+      # Add all changes to Git staging area
+      @spawn gitCommand, ['status', '--porcelain'], (code, stderr='', stdout='') =>
+        unless code is 0
+          @logFailure()
+          addOutput = "#{stdout}\n#{stderr}".trim()
+          return callback("`git status --porcelain` failed: #{addOutput}")
+
+        lines = stdout.trim()
+          .split("\n")
+          .filter((line) ->
+            line.trim() && !line.match(/^\?\? /)
+          ).map((line) -> line.trim() )
+        if lines.length
+          # Not clean
+          callback(null, false)
+        else
+          # is clean
+          callback(null, true)
+
+  # Run prepublish script for package
+  #
+  prepublishPackage: (pack, version, callback) ->
+    # Check if prepublish script exists
+    if pack.scripts?.prepublish?
+      message = "Prepublish #{pack.name} for #{version} release"
+      process.stdout.write(message)
+      # Run prepublish script with npm
+      runArgs = ['run', 'prepublish']
+      @fork @atomNpmPath, runArgs, (code, stderr='', stdout='') =>
+        unless code is 0
+          @logFailure()
+          callback("#{stdout}\n#{stderr}".trim())
+
+        # Prepublish was successful
+        config.getSetting 'git', (gitCommand) =>
+          gitCommand ?= 'git'
+
+          # Check for Git changes
+          @checkCleanGit (error, clean) =>
+            return callback(error) if error?
+
+            # Callback if Git working directory is clean
+            return callback() if clean
+
+            # The Git working directory is not clean
+            # Add all changes to Git staging area
+            @spawn gitCommand, ['add', '--all'], (code, stderr='', stdout='') =>
+              unless code is 0
+                @logFailure()
+                addOutput = "#{stdout}\n#{stderr}".trim()
+                return callback("`git add --all` failed: #{addOutput}")
+
+              @spawn gitCommand, ['commit', '-m', message], (code, stderr='', stdout='') =>
+                if code is 0
+                  @logSuccess()
+                  callback()
+                else
+                  @logFailure()
+                  commitOutput = "#{stdout}\n#{stderr}".trim()
+                  callback("Failed to commit all changes after prepublish script: #{commitOutput}")
+
+    else
+      # Just fall through if the scripts.prepublish is empty
+      callback()
+
+  # Run postpublish script for package
+  postpublishPackage: (pack, callback) ->
+    # Check if postpublish script is set
+    if pack.scripts?.postpublish?
+      # Run prepublish script with npm
+      runArgs = ['run', 'postpublish']
+      @fork @atomNpmPath, runArgs, (code, stderr='', stdout='') =>
+        if code is 0
+          @logSuccess()
+          callback()
+        else
+          @logFailure()
+          callback("#{stdout}\n#{stderr}".trim())
+    else
+      # Just fall through if the scripts.postpublish is empty
+      callback()
+
   setPackageName: (pack, name, callback) ->
     pack.name = name
     @saveMetadata(pack, callback)
@@ -344,33 +433,46 @@ class Publish extends Command
       @registerPackage pack, (error, firstTimePublishing) =>
         return callback(error) if error?
 
-        @renamePackage pack, rename, (error) =>
+        @prepublishPackage pack, version, (error) =>
           return callback(error) if error?
 
-          @versionPackage version, (error, tag) =>
+          @renamePackage pack, rename, (error) =>
             return callback(error) if error?
 
-            @pushVersion tag, (error) =>
+            @versionPackage version, (error, tag) =>
               return callback(error) if error?
 
-              @waitForTagToBeAvailable pack, tag, =>
+              @pushVersion tag, (error) =>
+                return callback(error) if error?
 
-                if originalName?
-                  # If we're renaming a package, we have to hit the API with the
-                  # current name, not the new one, or it will 404.
-                  rename = pack.name
-                  pack.name = originalName
-                @publishPackage pack, tag, {rename},  (error) =>
-                  if firstTimePublishing and not error?
-                    @logFirstTimePublishMessage(pack)
-                  callback(error)
+                @waitForTagToBeAvailable pack, tag, =>
+
+                  if originalName?
+                    # If we're renaming a package, we have to hit the API with the
+                    # current name, not the new one, or it will 404.
+                    rename = pack.name
+                    pack.name = originalName
+                  @publishPackage pack, tag, {rename},  (error) =>
+                    if firstTimePublishing and not error?
+                      @logFirstTimePublishMessage(pack)
+                    return callback(error) if error?
+                    
+                    @postpublishPackage pack, (error) =>
+                      callback(error)
+
     else if tag?.length > 0
       @registerPackage pack, (error, firstTimePublishing) =>
         return callback(error) if error?
 
-        @publishPackage pack, tag, (error) =>
-          if firstTimePublishing and not error?
-            @logFirstTimePublishMessage(pack)
-          callback(error)
+        @prepublishPackage pack, version, (error) =>
+          return callback(error) if error?
+
+          @publishPackage pack, tag, (error) =>
+            if firstTimePublishing and not error?
+              @logFirstTimePublishMessage(pack)
+            return callback(error) if error?
+
+            @postpublishPackage pack, (error) =>
+              callback(error)
     else
       callback('A version, tag, or new package name is required')
