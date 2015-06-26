@@ -74,12 +74,11 @@ class List extends Command
       manifest ?= {}
       manifest.name = child
       if options.argv.themes
-        packages.push(manifest) if manifest.theme
+        packages.push(manifest) if (manifest.type is 'syntax-theme') or (manifest.type is 'ui-theme')
       else if options.argv.packages
-        packages.push(manifest) unless manifest.theme
+        packages.push(manifest) unless (manifest.type is 'syntax-theme') or (manifest.type is 'ui-theme')
       else
         packages.push(manifest)
-
     packages
 
   listUserPackages: (options, callback) ->
@@ -97,6 +96,13 @@ class List extends Command
         console.log "#{@devPackagesDirectory.cyan} (#{devPackages.length})"
     callback?(null, devPackages)
 
+  isTheme: (metadata) ->
+    return false unless metadata?.theme?
+    metadata.type is 'syntax-theme' or metadata.type is 'ui-theme'
+
+  isPackage: (metadata) ->
+    return true unless metadata.type is 'syntax-theme' or metadata.type is 'ui-theme'
+
   listBundledPackages: (options, callback) ->
     config.getResourcePath (resourcePath) ->
       try
@@ -107,9 +113,9 @@ class List extends Command
 
       packages = packages.filter (metadata) ->
         if options.argv.themes
-          metadata.theme
+          @isTheme(metadata)
         else if options.argv.packages
-          not metadata.theme
+          @isPackage(metadata)
         else
           true
 

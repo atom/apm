@@ -29,7 +29,7 @@
     "metadata": {
       "name": "duckblur",
       "version": "19.92",
-      "theme": true,
+      "type": "ui-theme",
       "description": "Racecars, lasers, airplanes"
     }
   },
