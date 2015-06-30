@@ -1,0 +1,17 @@
+{
+  "releases": {
+    "latest": "1.0.0"
+  },
+  "name": "supercomplete-plus",
+  "versions": {
+    "1.0.0": {
+      "dist": {
+        "tarball": "http://localhost:3000/tarball/test-module-1.0.0.tgz"
+      }
+    }
+  },
+  "services": {
+    "provides": [],
+    "consumes": ["supercomplete"]
+  }
+}

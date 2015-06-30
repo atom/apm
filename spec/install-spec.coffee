@@ -55,6 +55,18 @@ describe 'apm install', ->
       app.get '/packages/atom-2048', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'atom-2048.json')
 
+      # Services
+      app.get '/services', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'services.json')
+      app.get '/services/supercomplete', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'service-supercomplete.json')
+      app.get '/services/delinter', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'service-delinter.json')
+      app.get '/packages/autocomplete-superawesome', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'autocomplete-superawesome.json')
+      app.get '/packages/supercomplete-plus', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'supercomplete-plus.json')
+
       server =  http.createServer(app)
       server.listen(3000)
 
@@ -320,3 +332,16 @@ describe 'apm install', ->
 
         runs ->
           expect(callback.mostRecentCall.args[0]).toBeTruthy()
+
+    fdescribe 'when a package has a required service dependency', ->
+      it 'fails if no services are installed with a required service', ->
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', "autocomplete-superawesome"], callback)
+
+        waitsFor 'waiting for install to complete', 600000, ->
+          callback.callCount is 1
+
+        runs ->
+          console.log 'hello'
+          console.log JSON.stringify(callback)
+          expect(callback.mostRecentCall.args[0]).toBeFalsy()
