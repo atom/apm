@@ -73,10 +73,10 @@ class List extends Command
           manifest = CSON.readFileSync(manifestPath)
       manifest ?= {}
       manifest.name = child
-      if options.argv.themes
-        packages.push(manifest) if (manifest.type is 'syntax-theme') or (manifest.type is 'ui-theme')
-      else if options.argv.packages
-        packages.push(manifest) unless (manifest.type is 'syntax-theme') or (manifest.type is 'ui-theme')
+      if options.argv.themes and @isTheme(manifest)
+        packages.push(manifest)
+      else if options.argv.packages and @isPackage(manifest)
+        packages.push(manifest)
       else
         packages.push(manifest)
     packages
