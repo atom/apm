@@ -97,8 +97,8 @@ class List extends Command
     callback?(null, devPackages)
 
   isTheme: (metadata) ->
-    return false unless metadata?.theme?
-    metadata.type is 'syntax-theme' or metadata.type is 'ui-theme'
+    return false unless metadata? and (metadata.theme? or metadata.type?)
+    metadata.theme or metadata.type is 'syntax-theme' or metadata.type is 'ui-theme'
 
   isPackage: (metadata) ->
     return true unless metadata.type is 'syntax-theme' or metadata.type is 'ui-theme'
