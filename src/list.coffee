@@ -75,6 +75,8 @@ class List extends Command
       manifest.name = child
       if options.argv.themes and @isTheme(manifest)
         packages.push(manifest)
+      else if options.argv.packagesets and @isPackageSet(manifest)
+        packages.push(manifest)
       else if options.argv.packages and @isPackage(manifest)
         packages.push(manifest)
       else
@@ -100,8 +102,11 @@ class List extends Command
     return false unless metadata? and (metadata.theme? or metadata.type?)
     metadata.theme or metadata.type is 'syntax-theme' or metadata.type is 'ui-theme'
 
+  isPackageSet: (metadata) ->
+    metadata?.type is 'package-set'
+
   isPackage: (metadata) ->
-    return true unless metadata.type is 'syntax-theme' or metadata.type is 'ui-theme'
+    not (@isTheme(metadata) or @isPackageSet(metadata))
 
   listBundledPackages: (options, callback) ->
     config.getResourcePath (resourcePath) ->
@@ -114,6 +119,8 @@ class List extends Command
       packages = packages.filter (metadata) ->
         if options.argv.themes
           @isTheme(metadata)
+        else if options.argv.packagesets
+          @isPackageSet(metadata)
         else if options.argv.packages
           @isPackage(metadata)
         else
