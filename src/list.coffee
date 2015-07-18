@@ -8,6 +8,7 @@ Command = require './command'
 fs = require './fs'
 config = require './apm'
 tree = require './tree'
+{isTheme, isPackageSet, isPackage} = require './metadata-helpers'
 
 module.exports =
 class List extends Command
@@ -73,11 +74,11 @@ class List extends Command
           manifest = CSON.readFileSync(manifestPath)
       manifest ?= {}
       manifest.name = child
-      if options.argv.themes and @isTheme(manifest)
+      if options.argv.themes and isTheme(manifest)
         packages.push(manifest)
-      else if options.argv.packagesets and @isPackageSet(manifest)
+      else if options.argv.packagesets and isPackageSet(manifest)
         packages.push(manifest)
-      else if options.argv.packages and @isPackage(manifest)
+      else if options.argv.packages and isPackage(manifest)
         packages.push(manifest)
       else
         packages.push(manifest)
@@ -98,16 +99,6 @@ class List extends Command
         console.log "#{@devPackagesDirectory.cyan} (#{devPackages.length})"
     callback?(null, devPackages)
 
-  isTheme: (metadata) ->
-    return false unless metadata? and (metadata.theme? or metadata.type?)
-    metadata.theme or metadata.type is 'syntax-theme' or metadata.type is 'ui-theme'
-
-  isPackageSet: (metadata) ->
-    metadata?.type is 'package-set'
-
-  isPackage: (metadata) ->
-    not (@isTheme(metadata) or @isPackageSet(metadata))
-
   listBundledPackages: (options, callback) ->
     config.getResourcePath (resourcePath) ->
       try
@@ -118,11 +109,11 @@ class List extends Command
 
       packages = packages.filter (metadata) ->
         if options.argv.themes
-          @isTheme(metadata)
+          isTheme(metadata)
         else if options.argv.packagesets
-          @isPackageSet(metadata)
+          isPackageSet(metadata)
         else if options.argv.packages
-          @isPackage(metadata)
+          isPackage(metadata)
         else
           true
 
