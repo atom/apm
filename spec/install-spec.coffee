@@ -55,14 +55,25 @@ describe 'apm install', ->
       app.get '/packages/atom-2048', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'atom-2048.json')
 
+      app.get '/tarball/test-package-set-0.1.0.tgz', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'test-package-set-0.1.0.tgz')
+      app.get '/tarball/test-package-set-0.2.0.tgz', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'test-package-set-0.2.0.tgz')
+      app.get '/packages/test-package-set', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'install-package-set.json')
+
       server =  http.createServer(app)
       server.listen(3000)
 
       atomHome = temp.mkdirSync('apm-home-dir-')
+      atomApp = temp.mkdirSync('apm-app-dir-')
       process.env.ATOM_HOME = atomHome
       process.env.ATOM_NODE_URL = "http://localhost:3000/node"
       process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
       process.env.ATOM_NODE_VERSION = 'v0.10.3'
+      process.env.ATOM_RESOURCE_PATH = atomApp
+
+      fs.writeFileSync(path.join(atomApp, 'package.json'), JSON.stringify(version: '1.0.0'))
 
     afterEach ->
       server.close()
@@ -320,3 +331,23 @@ describe 'apm install', ->
 
         runs ->
           expect(callback.mostRecentCall.args[0]).toBeTruthy()
+
+    fdescribe 'when a package has a package-set package type', ->
+      describe 'when a package name is specified', ->
+        it 'installs the package', ->
+          testModuleDirectory = path.join(atomHome, 'packages', 'test-package-set')
+          fs.makeTreeSync(testModuleDirectory)
+          existingTestModuleFile = path.join(testModuleDirectory, 'will-be-deleted.js')
+          fs.writeFileSync(existingTestModuleFile, '')
+          expect(fs.existsSync(existingTestModuleFile)).toBeTruthy()
+
+          callback = jasmine.createSpy('callback')
+          apm.run(['install', "test-package-set"], callback)
+
+          waitsFor 'waiting for install to complete', 600000, ->
+            callback.callCount is 1
+
+          runs ->
+            expect(fs.existsSync(existingTestModuleFile)).toBeFalsy()
+            expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
+            expect(callback.mostRecentCall.args[0]).toBeNull()

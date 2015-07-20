@@ -1,0 +1,14 @@
+{
+  "name": "test-package-set",
+  "version": "0.2.0",
+  "type": "package-set",
+  "description": "A curated set of awesome packages.",
+  "repository": "https://github.com/atom/test-package-set",
+  "engines": {
+    "atom": "*"
+  },
+  "includedPackages":  {
+    "test-module": ">=0.2.0",
+    "test-module-with-symlink": ">=5.0.0"
+  }
+}

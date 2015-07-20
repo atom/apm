@@ -14,6 +14,7 @@ git = require './git'
 RebuildModuleCache = require './rebuild-module-cache'
 request = require './request'
 {isDeprecatedPackage} = require './deprecated-packages'
+{isPackageSet} = require './metadata-helpers'
 
 module.exports =
 class Install extends Command
@@ -352,7 +353,7 @@ class Install extends Command
         @logFailure()
         callback(error)
       else
-        packageVersion ?= @getLatestCompatibleVersion(pack)
+        packageVersion = @getLatestCompatibleVersion(pack, packageVersion)
         unless packageVersion
           @logFailure()
           callback("No available version compatible with the installed Atom version: #{@installedAtomVersion}")
@@ -371,11 +372,15 @@ class Install extends Command
             else
               @downloadPackage(tarball, installGlobally, callback)
         installNode = options.installNode ? true
+        installNode = false if pack.metadata? and isPackageSet(pack.metadata)
         if installNode
           commands.push (packagePath, callback) =>
             @installNode (error) -> callback(error, packagePath)
         commands.push (packagePath, callback) =>
           @installModule(options, pack, packagePath, callback)
+        if pack.metadata? and isPackageSet(pack.metadata)
+          commands.push (packagePath, callback) =>
+            @installAtomPackages(options, pack, callback)
 
         async.waterfall commands, (error) =>
           unless installGlobally
@@ -394,6 +399,23 @@ class Install extends Command
     options = _.extend({}, options, installGlobally: false, installNode: false)
     commands = []
     for name, version of @getPackageDependencies()
+      do (name, version) =>
+        commands.push (callback) =>
+          @installPackage({name, version}, options, callback)
+
+    async.waterfall(commands, callback)
+
+  # Install the atom packages found in the package.json file, if the package
+  # type is package-set.
+  #
+  # options - The installation options
+  # pack - The package metadata
+  # callback - The callback function to invoke when done with an error as the
+  #            first argument.
+  installAtomPackages: (options, pack, callback) ->
+    commands = []
+    callback(null) unless pack.metadata?.includedPackages?
+    for name, version of pack.metadata.includedPackages
       do (name, version) =>
         commands.push (callback) =>
           @installPackage({name, version}, options, callback)
@@ -501,8 +523,10 @@ class Install extends Command
 
       callback(atomMetadata?.packageDependencies?.hasOwnProperty(packageName))
 
-  getLatestCompatibleVersion: (pack) ->
-    unless @installedAtomVersion
+  getLatestCompatibleVersion: (pack, requestedVersion = null) ->
+    requestedVersion = if (requestedVersion? and requestedVersion.trim().length > 0) then requestedVersion.trim() else null
+
+    unless @installedAtomVersion or requestedVersion?
       if isDeprecatedPackage(pack.name, pack.releases.latest)
         return null
       else
@@ -516,8 +540,8 @@ class Install extends Command
 
       engine = metadata.engines?.atom ? '*'
       continue unless semver.validRange(engine)
-      continue unless semver.satisfies(@installedAtomVersion, engine)
-
+      continue unless semver.satisfies(@installedAtomVersion, engine) if @installedAtomVersion
+      continue unless semver.satisfies(version, requestedVersion) if requestedVersion?
       latestVersion ?= version
       latestVersion = version if semver.gt(version, latestVersion)
 
