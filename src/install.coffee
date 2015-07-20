@@ -356,7 +356,11 @@ class Install extends Command
         packageVersion = @getLatestCompatibleVersion(pack, packageVersion)
         unless packageVersion
           @logFailure()
-          callback("No available version compatible with the installed Atom version: #{@installedAtomVersion}")
+          if metadata.version?
+            callback("No available version compatible with the installed Atom version: #{@installedAtomVersion} and requested package version: #{metadata.version}")
+          else
+            callback("No available version compatible with the installed Atom version: #{@installedAtomVersion}")
+          return
 
         {tarball} = pack.versions[packageVersion]?.dist ? {}
         unless tarball
@@ -379,7 +383,7 @@ class Install extends Command
         commands.push (packagePath, callback) =>
           @installModule(options, pack, packagePath, callback)
         if pack.metadata? and isPackageSet(pack.metadata)
-          commands.push (packagePath, callback) =>
+          commands.push (callback) =>
             @installAtomPackages(options, pack, callback)
 
         async.waterfall commands, (error) =>
@@ -414,7 +418,7 @@ class Install extends Command
   #            first argument.
   installAtomPackages: (options, pack, callback) ->
     commands = []
-    callback(null) unless pack.metadata?.includedPackages?
+    return unless pack.metadata?.includedPackages?
     for name, version of pack.metadata.includedPackages
       do (name, version) =>
         commands.push (callback) =>
