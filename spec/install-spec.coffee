@@ -332,14 +332,21 @@ describe 'apm install', ->
         runs ->
           expect(callback.mostRecentCall.args[0]).toBeTruthy()
 
-    fdescribe 'when a package has a package-set package type', ->
+    describe 'when a package has a package-set package type', ->
       describe 'when a package name is specified', ->
         it 'installs the package', ->
-          testModuleDirectory = path.join(atomHome, 'packages', 'test-package-set')
+          # test-module is included in the test-package-set package set
+          testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
           fs.makeTreeSync(testModuleDirectory)
           existingTestModuleFile = path.join(testModuleDirectory, 'will-be-deleted.js')
           fs.writeFileSync(existingTestModuleFile, '')
           expect(fs.existsSync(existingTestModuleFile)).toBeTruthy()
+
+          testPackageSetDirectory = path.join(atomHome, 'packages', 'test-package-set')
+          fs.makeTreeSync(testPackageSetDirectory)
+          existingTestPackageSetFile = path.join(testPackageSetDirectory, 'will-be-deleted.js')
+          fs.writeFileSync(existingTestPackageSetFile, '')
+          expect(fs.existsSync(existingTestPackageSetFile)).toBeTruthy()
 
           callback = jasmine.createSpy('callback')
           apm.run(['install', "test-package-set"], callback)
@@ -348,6 +355,12 @@ describe 'apm install', ->
             callback.callCount is 1
 
           runs ->
+            expect(fs.existsSync(existingTestPackageSetFile)).toBeFalsy()
+            expect(fs.existsSync(path.join(testPackageSetDirectory, 'package.json'))).toBeTruthy()
+            expect(callback.mostRecentCall.args[0]).toBeNull()
+            expect(fs.existsSync(path.join()))
+
             expect(fs.existsSync(existingTestModuleFile)).toBeFalsy()
+            expect(fs.existsSync(path.join(testModuleDirectory, 'index.js'))).toBeTruthy()
             expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
             expect(callback.mostRecentCall.args[0]).toBeNull()
