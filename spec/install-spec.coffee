@@ -65,15 +65,9 @@ describe 'apm install', ->
       server =  http.createServer(app)
       server.listen(3000)
 
-      atomHome = temp.mkdirSync('apm-home-dir-')
-      atomApp = temp.mkdirSync('apm-app-dir-')
-      process.env.ATOM_HOME = atomHome
       process.env.ATOM_NODE_URL = "http://localhost:3000/node"
       process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
       process.env.ATOM_NODE_VERSION = 'v0.10.3'
-      process.env.ATOM_RESOURCE_PATH = atomApp
-
-      fs.writeFileSync(path.join(atomApp, 'package.json'), JSON.stringify(version: '1.0.0'))
 
     afterEach ->
       server.close()
@@ -335,6 +329,8 @@ describe 'apm install', ->
     describe 'when a package has a package-set package type', ->
       describe 'when a package name is specified', ->
         it 'installs the package', ->
+          fs.writeFileSync(path.join(resourcePath, 'package.json'), JSON.stringify(version: '1.0.0'))
+
           # test-module is included in the test-package-set package set
           testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
           fs.makeTreeSync(testModuleDirectory)
