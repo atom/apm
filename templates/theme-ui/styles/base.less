@@ -1,1 +1,23 @@
-@import "ui-variables";
+
+// Base
+// -------------------
+
+atom-workspace {
+  font-size: @font-size;
+  color: @text-color;
+  background-color: @app-background-color;
+}
+
+atom-pane {
+  border-right: 1px solid @base-border-color;
+  &:last-child {
+    border-right: none;
+  }
+}
+
+
+
+.find-and-replace {
+  border-top: 1px solid @base-border-color;
+  //border-left: 1px solid @base-border-color;
+}
