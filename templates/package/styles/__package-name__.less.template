@@ -1,8 +1,13 @@
-// The ui-variables file is provided by base themes provided by Atom.
-//
-// See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
-// for a full listing of what's available.
+
+// Styles
+// -------------------
+
+// The ui-variables file is provided by UI themes and available to import.
+// For a full listing of what variables are available, see:
+// https://github.com/atom/apm/blob/master/templates/theme-ui/styles/ui-variables.less
+
 @import "ui-variables";
 
 .__package-name__ {
+  // Your package styles
 }
