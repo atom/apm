@@ -31,8 +31,13 @@ _Atom > Install Shell Commands_ menu option to install it again if you aren't
 able to run it from a terminal.
 
 ## Building
+### Prerequisites
+* Node 0.10.x
+ * Other versions of Node won't work
+* :penguin: `libgnome-keyring-dev` if you are on Linux
+
+### Instructions
   * Clone the repository
-  * :penguin: Install `libgnome-keyring-dev` if you are on Linux
   * Run `npm install`
   * Run `grunt` to compile the CoffeeScript code
   * Run `npm test` to run the specs
