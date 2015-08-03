@@ -19,6 +19,7 @@
     "install": "node ./script/download-node.js",
     "test": "grunt test"
   },
+  "electronVersion": "0.30.2",
   "dependencies": {
     "asar-require": "0.2.0",
     "async": "~0.2.8",
