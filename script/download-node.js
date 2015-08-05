@@ -73,6 +73,11 @@ var getInstallNodeVersion = function(filename, callback) {
 
 var downloadNode = function(version, done) {
   var arch, downloadURL, filename;
+
+  if (version.indexOf('v') !== 0) {
+    version = 'v' + version;
+  }
+
   if (process.platform === 'win32') {
     if (process.env.JANKY_SHA1)
       arch = ''; // Always download 32-bit node on Atom Windows CI builds
@@ -110,7 +115,8 @@ var downloadNode = function(version, done) {
   }
 };
 
-downloadNode('v0.10.35', function(error) {
+var apmNodeVersion = process.env.APM_NODE_VERSION || '0.10.35';
+downloadNode(apmNodeVersion, function(error) {
   if (error != null) {
     console.error('Failed to download node', error);
     return process.exit(1);
