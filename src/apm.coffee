@@ -67,6 +67,7 @@ module.exports =
     @getResourcePath (resourcePath) ->
       electronVersion = require(path.join(resourcePath, 'package.json'))?.electronVersion
 
+    # TODO: Remove fallback once we have shipped an Atom running on Electron.
     electronVersion ? '0.22.3'
 
   getNodeArch: ->
