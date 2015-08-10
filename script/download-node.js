@@ -115,8 +115,8 @@ var downloadNode = function(version, done) {
   }
 };
 
-var apmNodeVersion = process.env.APM_NODE_VERSION || '0.10.35';
-downloadNode(apmNodeVersion, function(error) {
+var nodeVersion = require("../package.json").nodeVersion;
+downloadNode(nodeVersion, function(error) {
   if (error != null) {
     console.error('Failed to download node', error);
     return process.exit(1);
