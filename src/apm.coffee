@@ -61,7 +61,13 @@ module.exports =
     process.env.ATOM_API_URL ? 'https://atom.io/api'
 
   getNodeVersion: ->
-    process.env.ATOM_NODE_VERSION ? require(path.join(@getResourcePath(), 'package.json'))?.electronVersion
+    return process.env.ATOM_NODE_VERSION if process.env.ATOM_NODE_VERSION
+
+    electronVersion = null
+    @getResourcePath (resourcePath) ->
+      electronVersion = require(path.join(resourcePath, 'package.json'))?.electronVersion
+
+    electronVersion
 
   getNodeArch: ->
     switch process.platform
