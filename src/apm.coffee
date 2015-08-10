@@ -67,7 +67,7 @@ module.exports =
     @getResourcePath (resourcePath) ->
       electronVersion = require(path.join(resourcePath, 'package.json'))?.electronVersion
 
-    electronVersion
+    electronVersion ? '0.22.3'
 
   getNodeArch: ->
     switch process.platform
