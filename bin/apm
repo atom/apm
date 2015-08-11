@@ -25,4 +25,10 @@ done
 
 binDir=`pwd -P`
 builtin cd "$initialCwd"
-"$binDir/$nodeBin" --harmony_collections "$binDir/../lib/cli.js" "$@"
+
+nodeVersion=`$binDir/$nodeBin -v`
+if [[ $nodeVersion == "v0.10.35" ]]; then
+  nodeFlags="--harmony_collections"
+fi
+
+eval "$binDir/$nodeBin $nodeFlags $binDir/../lib/cli.js $@"
