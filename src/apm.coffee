@@ -48,7 +48,7 @@ module.exports =
           programFilesPath = path.join(process.env.ProgramFiles, 'Atom', 'resources', 'app.asar')
           callback(programFilesPath)
 
-  getResourcePathSync: (callback) ->
+  getResourcePathSync: ->
     return process.env.ATOM_RESOURCE_PATH if process.env.ATOM_RESOURCE_PATH
 
     apmFolder = path.resolve(__dirname, '..')
