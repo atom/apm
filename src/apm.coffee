@@ -48,6 +48,34 @@ module.exports =
           programFilesPath = path.join(process.env.ProgramFiles, 'Atom', 'resources', 'app.asar')
           callback(programFilesPath)
 
+  getResourcePathSync: (callback) ->
+    return process.env.ATOM_RESOURCE_PATH if process.env.ATOM_RESOURCE_PATH
+
+    apmFolder = path.resolve(__dirname, '..')
+    appFolder = path.dirname(apmFolder)
+    if path.basename(apmFolder) is 'apm' and path.basename(appFolder) is 'app'
+      asarPath = "#{appFolder}.asar"
+      return asarPath if fs.existsSync(asarPath)
+
+    apmFolder = path.resolve(__dirname, '..', '..', '..')
+    appFolder = path.dirname(apmFolder)
+    if path.basename(apmFolder) is 'apm' and path.basename(appFolder) is 'app'
+      asarPath = "#{appFolder}.asar"
+      return asarPath if fs.existsSync(asarPath)
+
+    switch process.platform
+      when 'darwin'
+        {stdout, error} = child_process.spawnSync('mdfind', ["kMDItemCFBundleIdentifier == 'com.github.atom'"])
+        [appLocation] = stdout.toString().split('\n') unless error
+        appLocation = '/Applications/Atom.app' unless appLocation
+        "#{appLocation}/Contents/Resources/app.asar"
+      when 'linux'
+        appLocation = '/usr/local/share/atom/resources/app.asar'
+        return appLocation if fs.existsSync(appLocation)
+        '/usr/share/atom/resources/app.asar'
+      when 'win32'
+        path.join(process.env.ProgramFiles, 'Atom', 'resources', 'app.asar')
+
   getReposDirectory: ->
     process.env.ATOM_REPOS_HOME ? path.join(@getHomeDirectory(), 'github')
 
@@ -63,9 +91,8 @@ module.exports =
   getNodeVersion: ->
     return process.env.ATOM_NODE_VERSION if process.env.ATOM_NODE_VERSION
 
-    electronVersion = null
-    @getResourcePath (resourcePath) ->
-      electronVersion = require(path.join(resourcePath, 'package.json'))?.electronVersion
+    resourcePath = @getResourcePathSync()
+    electronVersion = require(path.join(resourcePath, 'package.json'))?.electronVersion
 
     # TODO: Remove fallback once we have shipped an Atom running on Electron.
     electronVersion ? '0.22.3'
