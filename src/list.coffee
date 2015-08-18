@@ -8,6 +8,7 @@ Command = require './command'
 fs = require './fs'
 config = require './apm'
 tree = require './tree'
+{isTheme, isPackageSet, isPackage} = require './metadata-helpers'
 
 module.exports =
 class List extends Command
@@ -73,13 +74,14 @@ class List extends Command
           manifest = CSON.readFileSync(manifestPath)
       manifest ?= {}
       manifest.name = child
-      if options.argv.themes
-        packages.push(manifest) if manifest.theme
-      else if options.argv.packages
-        packages.push(manifest) unless manifest.theme
+      if options.argv.themes and isTheme(manifest)
+        packages.push(manifest)
+      else if options.argv.packagesets and isPackageSet(manifest)
+        packages.push(manifest)
+      else if options.argv.packages and isPackage(manifest)
+        packages.push(manifest)
       else
         packages.push(manifest)
-
     packages
 
   listUserPackages: (options, callback) ->
@@ -107,9 +109,11 @@ class List extends Command
 
       packages = packages.filter (metadata) ->
         if options.argv.themes
-          metadata.theme
+          isTheme(metadata)
+        else if options.argv.packagesets
+          isPackageSet(metadata)
         else if options.argv.packages
-          not metadata.theme
+          isPackage(metadata)
         else
           true
 

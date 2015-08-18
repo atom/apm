@@ -1,0 +1,60 @@
+{
+  "name": "test-package-set",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/atom/test-package-set"
+  },
+  "releases": {
+    "latest": "0.2.0"
+  },
+  "readme": "# Test Package Set\n",
+  "metadata": {
+    "name": "test-package-set",
+    "version": "0.2.0",
+    "type": "package-set",
+    "description": "A curated set of awesome packages.",
+    "repository": "https://github.com/atom/test-package-set",
+    "engines": {
+      "atom": "*"
+    },
+    "includedPackages":  {
+      "test-module": ">=0.2.0",
+      "test-module-with-symlink": ">=5.0.0"
+    }
+  },
+  "versions": {
+    "0.2.0": {
+      "name": "test-package-set",
+      "version": "0.2.0",
+      "type": "package-set",
+      "description": "A curated set of awesome packages.",
+      "repository": "https://github.com/atom/test-package-set",
+      "engines": {
+        "atom": "*"
+      },
+      "includedPackages":  {
+        "test-module": ">=0.2.0",
+        "test-module-with-symlink": ">=5.0.0"
+      },
+      "dist": {
+        "tarball": "http://localhost:3000/tarball/test-package-set-0.2.0.tgz"
+      }
+    },
+    "0.1.0": {
+      "name": "test-package-set",
+      "version": "0.1.0",
+      "type": "package-set",
+      "description": "A curated set of awesome packages.",
+      "repository": "https://github.com/atom/test-package-set",
+      "engines": {
+        "atom": "*"
+      },
+      "includedPackages":  {
+        "test-module": ">=0.2.0"
+      },
+      "dist": {
+        "tarball": "http://localhost:3000/tarball/test-package-set-0.1.0.tgz"
+      }
+    }
+  }
+}

@@ -96,7 +96,7 @@ class Stars extends Command
       return callback(error) if error?
 
       if options.argv.themes
-        packages = packages.filter ({theme}) -> theme
+        packages = packages.filter ({theme, type}) -> theme or type is 'ui-theme' or type is 'syntax-theme'
 
       if options.argv.install
         @installPackages(packages, callback)

@@ -55,11 +55,16 @@ describe 'apm install', ->
       app.get '/packages/atom-2048', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'atom-2048.json')
 
+      app.get '/tarball/test-package-set-0.1.0.tgz', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'test-package-set-0.1.0.tgz')
+      app.get '/tarball/test-package-set-0.2.0.tgz', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'test-package-set-0.2.0.tgz')
+      app.get '/packages/test-package-set', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'install-package-set.json')
+
       server =  http.createServer(app)
       server.listen(3000)
 
-      atomHome = temp.mkdirSync('apm-home-dir-')
-      process.env.ATOM_HOME = atomHome
       process.env.ATOM_NODE_URL = "http://localhost:3000/node"
       process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
       process.env.ATOM_NODE_VERSION = 'v0.10.3'
@@ -320,3 +325,38 @@ describe 'apm install', ->
 
         runs ->
           expect(callback.mostRecentCall.args[0]).toBeTruthy()
+
+    describe 'when a package has a package-set package type', ->
+      describe 'when a package name is specified', ->
+        it 'installs the package', ->
+          fs.writeFileSync(path.join(resourcePath, 'package.json'), JSON.stringify(version: '1.0.0'))
+
+          # test-module is included in the test-package-set package set
+          testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
+          fs.makeTreeSync(testModuleDirectory)
+          existingTestModuleFile = path.join(testModuleDirectory, 'will-be-deleted.js')
+          fs.writeFileSync(existingTestModuleFile, '')
+          expect(fs.existsSync(existingTestModuleFile)).toBeTruthy()
+
+          testPackageSetDirectory = path.join(atomHome, 'packages', 'test-package-set')
+          fs.makeTreeSync(testPackageSetDirectory)
+          existingTestPackageSetFile = path.join(testPackageSetDirectory, 'will-be-deleted.js')
+          fs.writeFileSync(existingTestPackageSetFile, '')
+          expect(fs.existsSync(existingTestPackageSetFile)).toBeTruthy()
+
+          callback = jasmine.createSpy('callback')
+          apm.run(['install', "test-package-set"], callback)
+
+          waitsFor 'waiting for install to complete', 600000, ->
+            callback.callCount is 1
+
+          runs ->
+            expect(fs.existsSync(existingTestPackageSetFile)).toBeFalsy()
+            expect(fs.existsSync(path.join(testPackageSetDirectory, 'package.json'))).toBeTruthy()
+            expect(callback.mostRecentCall.args[0]).toBeNull()
+            expect(fs.existsSync(path.join()))
+
+            expect(fs.existsSync(existingTestModuleFile)).toBeFalsy()
+            expect(fs.existsSync(path.join(testModuleDirectory, 'index.js'))).toBeTruthy()
+            expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
+            expect(callback.mostRecentCall.args[0]).toBeNull()
