@@ -32,7 +32,10 @@ On a Mac you can run the _Atom > Install Shell Commands_ menu option to install 
 able to run it from a terminal.
 
 On Windows you will need to add it too your path enviroment variable youself, from commandline run
->set path=%path%;%localappdata%\atom\app-**atom version**\resources\app\apm\bin
+
+```
+set path=%path%;%localappdata%\atom\app-*atom version*\resources\app\apm\bin
+```
 
 ## Building
   * Clone the repository
