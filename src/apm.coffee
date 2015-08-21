@@ -8,8 +8,25 @@ module.exports =
   getHomeDirectory: ->
     if process.platform is 'win32' then process.env.USERPROFILE else process.env.HOME
 
+  isPortableInstall: ->
+    return false unless process.platform is 'win32'
+
+    return false unless (process and process.type)
+
+    ourPath = process.execPath.toLowerCase()
+    return (ourPath.indexOf(process.env.LOCALAPPDATA.toLowerCase()) is 0)
+
   getAtomDirectory: ->
-    process.env.ATOM_HOME ? path.join(@getHomeDirectory(), '.atom')
+    ret = process.env.ATOM_HOME ? path.join(@getHomeDirectory(), '.atom')
+
+    # Does the non-Portable settings folder exist? Exit
+    return ret if fs.statSyncNoException(ret)
+
+    # Are we installed in a portable way?
+    return ret unless @isPortableInstall()
+
+    # Portable Mode!
+    return path.join(path.dirname(process.execPath), '.atom')
 
   getCacheDirectory: ->
     path.join(@getAtomDirectory(), '.apm')
