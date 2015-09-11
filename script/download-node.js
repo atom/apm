@@ -49,9 +49,11 @@ var downloadTarballAndExtract = function(url, location, callback) {
 };
 
 var copyNodeBinToLocation = function(callback, version, targetFilename, fromDirectory) {
-  var arch = process.arch === 'ia32' ? 'x86' : process.arch;
+ if (process.arch === 'arm') var arch = 'armv7l'
+ else var arch = process.arch === 'ia32' ? 'x86' : process.arch;
   var subDir = "node-" + version + "-" + process.platform + "-" + arch;
   var fromPath = path.join(fromDirectory, subDir, 'bin', 'node');
+  console.log('fp', fromPath, 'tF', targetFilename)
   return mv(fromPath, targetFilename, function(err) {
     if (err) {
       callback(err);
@@ -73,7 +75,11 @@ var getInstallNodeVersion = function(filename, callback) {
 
 var downloadNode = function(version, done) {
   var arch, downloadURL, filename;
-  if (process.platform === 'win32') {
+  if (process.arch === 'arm') {
+    arch = 'armv7l'
+    downloadURL = "http://nodejs.org/dist/" + version + "/node-" + version + "-" + process.platform + "-" + arch + ".tar.gz";
+    filename = path.join('bin', "node")
+  } else if (process.platform === 'win32') {
     if (process.env.JANKY_SHA1)
       arch = ''; // Always download 32-bit node on Atom Windows CI builds
     else
@@ -110,7 +116,7 @@ var downloadNode = function(version, done) {
   }
 };
 
-downloadNode('v0.10.40', function(error) {
+downloadNode('v4.0.0', function(error) {
   if (error != null) {
     console.error('Failed to download node', error);
     return process.exit(1);
