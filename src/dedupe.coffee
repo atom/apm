@@ -101,6 +101,7 @@ class Dedupe extends Command
 
     commands = []
     commands.push (callback) => @loadInstalledAtomMetadata(callback)
+    commands.push (callback) => @assertElectronVersionDefined(callback)
     commands.push (callback) => @installNode(callback)
     commands.push (callback) => @dedupeModules(options, callback)
     async.waterfall commands, callback
