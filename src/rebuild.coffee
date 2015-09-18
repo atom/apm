@@ -1,5 +1,6 @@
 path = require 'path'
 
+async = require 'async'
 _ = require 'underscore-plus'
 yargs = require 'yargs'
 
@@ -61,8 +62,11 @@ class Rebuild extends Command
     {callback} = options
     options = @parseOptions(options.commandArgs)
 
-    config.loadNpm (error, @npm) =>
-      @loadInstalledAtomMetadata =>
+    async.waterfall([
+      (callback) => config.loadNpm((error, @npm) => callback(error)),
+      (callback) => @loadInstalledAtomMetadata(callback),
+      (callback) => @assertElectronVersionDefined(callback),
+      (callback) =>
         @installNode (error) =>
           return callback(error) if error?
 
@@ -73,3 +77,4 @@ class Rebuild extends Command
             else
               @logFailure()
               callback(stderr)
+    ], callback)

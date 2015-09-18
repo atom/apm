@@ -527,6 +527,7 @@ class Install extends Command
     commands = []
     commands.push (callback) => config.loadNpm (error, @npm) => callback()
     commands.push (callback) => @loadInstalledAtomMetadata(callback)
+    commands.push (callback) => @assertElectronVersionDefined(callback)
     packageNames.forEach (packageName) ->
       commands.push (callback) -> installPackage(packageName, callback)
     async.waterfall(commands, callback)
