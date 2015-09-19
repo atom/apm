@@ -24,6 +24,9 @@ class Init extends Command
         apm init -t <theme-name> -c https://raw.github.com/chriskempson/tomorrow-theme/master/textmate/Tomorrow-Night-Eighties.tmTheme
         apm init -t <theme-name> --template /path/to/your/theme/template
 
+        apm init -u <ui-theme-name>
+        apm init -u <ui-theme-name> --template /path/to/your/ui-theme/template
+
         apm init -l <language-name>
 
       Generates code scaffolding for either a theme or package depending
@@ -31,6 +34,7 @@ class Init extends Command
     """
     options.alias('p', 'package').string('package').describe('package', 'Generates a basic package')
     options.alias('t', 'theme').string('theme').describe('theme', 'Generates a basic theme')
+    options.alias('u', 'ui-theme').string('ui-theme').describe('ui-theme', 'Generates a basic UI theme')
     options.alias('l', 'language').string('language').describe('language', 'Generates a basic language package')
     options.alias('c', 'convert').string('convert').describe('convert', 'Path or URL to TextMate bundle/theme to convert')
     options.alias('h', 'help').describe('help', 'Print this usage message')
@@ -55,6 +59,12 @@ class Init extends Command
         templatePath = @getTemplatePath(options.argv, 'theme')
         @generateFromTemplate(themePath, templatePath)
         callback()
+    else if options.argv.ui-theme?.length > 0
+      themePath = path.resolve(options.argv.ui-theme)
+      templatePath = @getTemplatePath(options.argv, 'ui-theme')
+      @generateFromTemplate(themePath, templatePath)
+      callback()
+
     else if options.argv.language?.length > 0
       languagePath = path.resolve(options.argv.language)
       languageName = path.basename(languagePath).replace(/^language-/, '')
@@ -66,8 +76,10 @@ class Init extends Command
       callback('You must specify a path after the --package argument')
     else if options.argv.theme?
       callback('You must specify a path after the --theme argument')
+    else if options.argv.ui-theme?
+      callback('You must specify a path after the --ui-theme argument')
     else
-      callback('You must specify either --package, --theme or --language to `apm init`')
+      callback('You must specify either --package, --theme, --ui-theme or --language to `apm init`')
 
   convertPackage: (sourcePath, destinationPath, callback) ->
     unless destinationPath
