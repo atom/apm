@@ -259,6 +259,8 @@ atom-text-editor .search-results .marker.current-result .region,
 }
 
 .markup {
+  -webkit-font-smoothing: auto;
+
   &.bold {
     color: @orange;
     font-weight: bold;
@@ -277,6 +279,7 @@ atom-text-editor .search-results .marker.current-result .region,
     font-style: italic;
   }
 
+  &.heading,
   &.heading .punctuation.definition.heading {
     color: @blue;
   }
@@ -285,8 +288,15 @@ atom-text-editor .search-results .marker.current-result .region,
     color: @green;
   }
 
+  &.link {
+    color: @blue;
+  }
+
   &.list {
-    color: @red;
+    .punctuation,
+    .variable {
+      color: @red;
+    }
   }
 
   &.quote {
@@ -294,13 +304,6 @@ atom-text-editor .search-results .marker.current-result .region,
   }
 
   &.raw.inline {
-    color: @green;
-  }
-}
-
-.source.gfm .markup {
-  -webkit-font-smoothing: auto;
-  &.heading {
     color: @green;
   }
 }
