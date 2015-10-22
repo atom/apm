@@ -50,6 +50,7 @@
     "grunt-shell": "~0.2.2",
     "express": "~3.2.3",
     "grunt-coffeelint": "0.0.13",
+    "coffeelint": "^1",
     "coffee-script": "^1.8.0"
   }
 }
