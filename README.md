@@ -10,7 +10,7 @@ editing the `~/.atom/.apmrc` file as per the [npm config](https://docs.npmjs.com
 
 ## Relation to npm
 
-apm comes with [npm](https://github.com/npm/npm) and spawns `npm` processes to
+apm bundles [npm](https://github.com/npm/npm) with it and spawns `npm` processes to
 install Atom packages. The major difference is that `apm` sets multiple command
 line arguments to `npm` to ensure that native modules are built against
 Chromium's v8 headers instead of node's v8 headers.
