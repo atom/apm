@@ -1,0 +1,22 @@
+{
+  "name": "supercomplete",
+  "versions": {
+    "latest": "1.2.3",
+    "1.2.2": "1.2.2",
+    "1.2.1": "1.2.1",
+    "1.2.0": "1.2.0",
+    "1.1.0": "1.1.0",
+    "1.0.0": "1.0.0"
+  },
+  "metadata": {
+    "name": "supercomplete",
+    "providers": {
+      "1.0.0": ["autocomplete-superawesome"],
+      "1.2.0": ["autocomplete-superawesome", "autocomplete-ludicrouslyawesome"]
+    },
+    "consumers": {
+      "1.0.0": ["supercomplete-plus"],
+      "1.2.0": ["supercomplete-plus", "supercomplete-squared"]
+    }
+  }
+}

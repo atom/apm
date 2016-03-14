@@ -1,0 +1,46 @@
+[
+  {
+    "name": "supercomplete",
+    "versions": {
+      "latest": "1.2.3",
+      "1.2.2": "1.2.2",
+      "1.2.1": "1.2.1",
+      "1.2.0": "1.2.0",
+      "1.1.0": "1.1.0",
+      "1.0.0": "1.0.0"
+    },
+    "metadata": {
+      "name": "supercomplete",
+      "providers": {
+        "1.0.0": ["autocomplete-superawesome"],
+        "1.2.0": ["autocomplete-superawesome", "autocomplete-ludicrouslyawesome"]
+      },
+      "consumers": {
+        "1.0.0": ["supercomplete-plus"],
+        "1.2.0": ["supercomplete-plus", "supercomplete-squared"]
+      }
+    }
+  },
+  {
+    "name": "delinter",
+    "versions": {
+      "latest": "1.0.2",
+      "1.0.2": "1.0.2",
+      "1.0.1": "1.0.1",
+      "1.0.0": "1.0.0"
+    },
+    "metadata": {
+      "name": "delinter",
+      "providers": {
+        "1.0.0": ["delinter-superawesome"],
+        "1.0.1": ["delinter-superawesome", "delinter-ludicrouslyawesome"],
+        "1.0.2": ["delinter-ludicrouslyawesome"]
+      },
+      "consumers": {
+        "1.0.0": ["delinter"],
+        "1.0.1": ["delinter", "delinter-cubed"],
+        "1.0.2": ["delinter-cubed"]
+      }
+    }
+  }
+]
