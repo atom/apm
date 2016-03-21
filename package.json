@@ -1,7 +1,7 @@
 {
   "name": "atom-package-manager",
   "description": "Atom package manager",
-  "version": "1.9.1",
+  "version": "1.10.0-beta.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -31,7 +31,7 @@
     "keytar": "^3.0",
     "mv": "2.0.0",
     "ncp": "~0.5.1",
-    "npm": "2.13.3",
+    "npm": "2.14.12",
     "open": "0.0.4",
     "plist": "git+https://github.com/nathansobo/node-plist.git",
     "q": "~0.9.7",
@@ -51,6 +51,7 @@
     "grunt-shell": "~0.2.2",
     "express": "~3.2.3",
     "grunt-coffeelint": "0.0.15",
+    "coffeelint": "^1",
     "coffee-script": "^1.8.0"
   }
 }

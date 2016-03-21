@@ -74,10 +74,7 @@ var getInstallNodeVersion = function(filename, callback) {
 var downloadNode = function(version, done) {
   var arch, downloadURL, filename;
   if (process.platform === 'win32') {
-    if (process.env.JANKY_SHA1)
-      arch = ''; // Always download 32-bit node on Atom Windows CI builds
-    else
-      arch = process.arch === 'x64' ? 'x64/' : '';
+    arch = process.arch === 'x64' ? 'win-x64/' : 'win-x86/';
     downloadURL = "http://nodejs.org/dist/" + version + "/" + arch + "node.exe";
     filename = path.join('bin', "node.exe");
   } else {
@@ -110,7 +107,7 @@ var downloadNode = function(version, done) {
   }
 };
 
-downloadNode('v0.10.40', function(error) {
+downloadNode('v4.2.4', function(error) {
   if (error != null) {
     console.error('Failed to download node', error);
     return process.exit(1);
