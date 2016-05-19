@@ -179,12 +179,30 @@ class Upgrade extends Command
     @getAvailableUpdates packages, (error, updates) =>
       return callback(error) if error?
 
+      installIfPrompted = =>
+        return callback() if options.command is 'outdated'
+        return callback() if options.argv.list
+        return callback() if updates.length is 0
+
+        console.log()
+        if options.argv.confirm
+          @promptForConfirmation (error, confirmed) =>
+            return callback(error) if error?
+
+            if confirmed
+              console.log()
+              @installUpdates(updates, callback)
+            else
+              callback()
+        else
+          @installUpdates(updates, callback)
+
       if options.argv.json
         packagesWithLatestVersionOrSha = updates.map ({pack, latestVersion, sha}) ->
           pack.latestVersion = latestVersion if latestVersion
           pack.latestSha = sha if sha
           pack
-        console.log JSON.stringify(packagesWithLatestVersionOrSha)
+        process.stdout.write JSON.stringify(packagesWithLatestVersionOrSha) + '\n', installIfPrompted
       else
         console.log "Package Updates Available".cyan + " (#{updates.length})"
         tree updates, ({pack, latestVersion, sha}) ->
@@ -198,20 +216,4 @@ class Upgrade extends Command
             latestVersion = latestVersion.green
           latestVersion = latestVersion?.green or apmInstallSource?.sha?.green
           "#{name} #{version} -> #{latestVersion}"
-
-      return callback() if options.command is 'outdated'
-      return callback() if options.argv.list
-      return callback() if updates.length is 0
-
-      console.log()
-      if options.argv.confirm
-        @promptForConfirmation (error, confirmed) =>
-          return callback(error) if error?
-
-          if confirmed
-            console.log()
-            @installUpdates(updates, callback)
-          else
-            callback()
-      else
-        @installUpdates(updates, callback)
+        installIfPrompted()

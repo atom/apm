@@ -64,8 +64,7 @@ class Stars extends Command
     new Install().run({commandArgs, callback})
 
   logPackagesAsJson: (packages, callback) ->
-    console.log(JSON.stringify(packages))
-    callback()
+    process.stdout.write JSON.stringify(packages) + '\n', callback
 
   logPackagesAsText: (user, packagesAreThemes, packages, callback) ->
     userLabel = user ? 'you'
