@@ -1,0 +1,4 @@
+ELECTRON_RUN_AS_NODE=1 "/Applications/Atom.app/Contents/Frameworks/Atom Helper.app/Contents/MacOS/Atom Helper" $@
+
+# TODO: Make this run Electron as node on the various platforms
+# What if there is no Atom yet? How do we find the downloaded electron? The answer may be just a hard-coded environment variable
