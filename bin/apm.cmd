@@ -9,7 +9,7 @@ if not defined apm_git_path (
     if exist %%d\cmd\git.exe set apm_git_path=%%d\cmd
   )
   :: Found one, add it to the path
-  if defined apm_git_path set "Path=!apm_git_path!;%PATH%"
+  if defined apm_git_path set "Path=!apm_git_path!;!PATH!"
 )
 
 set maybe_node_gyp_path=%~dp0\..\node_modules\node-gyp\bin\node-gyp.js
