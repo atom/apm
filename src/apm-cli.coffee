@@ -100,33 +100,36 @@ printVersions = (args, callback) ->
 
   getPythonVersion (pythonVersion) ->
     git.getGitVersion (gitVersion) ->
-      if args.json
-        versions =
-          apm: apmVersion
-          npm: npmVersion
-          node: nodeVersion
-          python: pythonVersion
-          git: gitVersion
-        if config.isWin32()
-          versions.visualStudio = config.getInstalledVisualStudioFlag()
-        console.log JSON.stringify(versions)
-      else
-        pythonVersion ?= ''
-        gitVersion ?= ''
-        versions =  """
-          #{'apm'.red}  #{apmVersion.red}
-          #{'npm'.green}  #{npmVersion.green}
-          #{'node'.blue} #{nodeVersion.blue}
-          #{'python'.yellow} #{pythonVersion.yellow}
-          #{'git'.magenta} #{gitVersion.magenta}
-        """
+      getAtomVersion (atomVersion) ->
+        if args.json
+          versions =
+            apm: apmVersion
+            npm: npmVersion
+            node: nodeVersion
+            python: pythonVersion
+            git: gitVersion
+            atom: atomVersion
+          if config.isWin32()
+            versions.visualStudio = config.getInstalledVisualStudioFlag()
+          console.log JSON.stringify(versions)
+        else
+          pythonVersion ?= ''
+          gitVersion ?= ''
+          versions =  """
+            #{'apm'.red}  #{apmVersion.red}
+            #{'npm'.green}  #{npmVersion.green}
+            #{'node'.blue} #{nodeVersion.blue}
+            #{'python'.yellow} #{pythonVersion.yellow}
+            #{'git'.magenta} #{gitVersion.magenta}
+            #{'atom'.green} #{atomVersion.green}
+          """
 
-        if config.isWin32()
-          visualStudioVersion = config.getInstalledVisualStudioFlag() ? ''
-          versions += "\n#{'visual studio'.cyan} #{visualStudioVersion.cyan}"
+          if config.isWin32()
+            visualStudioVersion = config.getInstalledVisualStudioFlag() ? ''
+            versions += "\n#{'visual studio'.cyan} #{visualStudioVersion.cyan}"
 
-        console.log versions
-      callback()
+          console.log versions
+        callback()
 
 getPythonVersion = (callback) ->
   npmOptions =
@@ -152,6 +155,11 @@ getPythonVersion = (callback) ->
         [name, version] = Buffer.concat(outputChunks).toString().split(' ')
         version = version?.trim()
       callback(version)
+
+getAtomVersion = (callback) ->
+  config.getResourcePath (resourcePath) ->
+    {version} = require(path.join(resourcePath, 'package.json')) ? {}
+    callback(version)
 
 module.exports =
   run: (args, callback) ->
