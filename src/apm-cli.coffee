@@ -100,33 +100,49 @@ printVersions = (args, callback) ->
 
   getPythonVersion (pythonVersion) ->
     git.getGitVersion (gitVersion) ->
-      if args.json
-        versions =
-          apm: apmVersion
-          npm: npmVersion
-          node: nodeVersion
-          python: pythonVersion
-          git: gitVersion
-        if config.isWin32()
-          versions.visualStudio = config.getInstalledVisualStudioFlag()
-        console.log JSON.stringify(versions)
-      else
-        pythonVersion ?= ''
-        gitVersion ?= ''
-        versions =  """
-          #{'apm'.red}  #{apmVersion.red}
-          #{'npm'.green}  #{npmVersion.green}
-          #{'node'.blue} #{nodeVersion.blue}
-          #{'python'.yellow} #{pythonVersion.yellow}
-          #{'git'.magenta} #{gitVersion.magenta}
-        """
+      getAtomVersion (atomVersion) ->
+        if args.json
+          versions =
+            apm: apmVersion
+            npm: npmVersion
+            node: nodeVersion
+            python: pythonVersion
+            git: gitVersion
+            atom: atomVersion
+          if config.isWin32()
+            versions.visualStudio = config.getInstalledVisualStudioFlag()
+          console.log JSON.stringify(versions)
+        else
+          pythonVersion ?= ''
+          gitVersion ?= ''
+          versions =  """
+            #{'apm'.red}  #{apmVersion.red}
+            #{'npm'.green}  #{npmVersion.green}
+            #{'node'.blue} #{nodeVersion.blue}
+            #{'python'.yellow} #{pythonVersion.yellow}
+            #{'git'.magenta} #{gitVersion.magenta}
+            #{'atom'.cyan} #{atomVersion.cyan}
+          """
 
-        if config.isWin32()
-          visualStudioVersion = config.getInstalledVisualStudioFlag() ? ''
-          versions += "\n#{'visual studio'.cyan} #{visualStudioVersion.cyan}"
+          if config.isWin32()
+            visualStudioVersion = config.getInstalledVisualStudioFlag() ? ''
+            versions += "\n#{'visual studio'.cyan} #{visualStudioVersion.cyan}"
 
-        console.log versions
-      callback()
+          console.log versions
+        callback()
+
+getAtomVersion = (callback) ->
+  atom = 'atom'
+  spawned = spawn(atom, ['--version'])
+  outputChunks = []
+  spawned.stderr.on 'data', (chunk) -> outputChunks.push(chunk)
+  spawned.stdout.on 'data', (chunk) -> outputChunks.push(chunk)
+  spawned.on 'error', ->
+  spawned.on 'close', (code) ->
+    if code is 0
+      version = Buffer.concat(outputChunks).toString()
+      version = version?.trim()
+    callback(version)
 
 getPythonVersion = (callback) ->
   npmOptions =
