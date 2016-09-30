@@ -10,7 +10,7 @@ You can configure apm by using the `apm config` command line option (recommended
 
 ## Relation to npm
 
-apm comes with [npm](https://github.com/npm/npm) and spawns `npm` processes to install Atom packages. The major difference is that `apm` sets multiple command line arguments to `npm` to ensure that native modules are built against Chromium's v8 headers instead of node's v8 headers.
+apm bundles [npm](https://github.com/npm/npm) with it and spawns `npm` processes to install Atom packages. The major difference is that `apm` sets multiple command line arguments to `npm` to ensure that native modules are built against Chromium's v8 headers instead of node's v8 headers.
 
 The other major difference is that Atom packages are installed to `~/.atom/packages` instead of a local `node_modules` folder and Atom packages are published to and installed from GitHub repositories instead of [npmjs.com](https://www.npmjs.com/)
 
