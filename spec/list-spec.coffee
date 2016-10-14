@@ -3,6 +3,7 @@ fs = require 'fs-plus'
 temp = require 'temp'
 wrench = require 'wrench'
 apm = require '../lib/apm-cli'
+CSON = require 'season'
 
 listPackages = (args, doneCallback) ->
   callback = jasmine.createSpy('callback')
@@ -78,7 +79,8 @@ describe 'apm list', ->
     fs.makeTreeSync(packagesPath)
     wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module'), path.join(packagesPath, 'test-module'))
     configPath = path.join(atomHome, 'config.cson')
-    fs.writeFileSync(configPath, 'core: disabledPackages: ["test-module"]')
+    CSON.writeFileSync configPath, '*':
+      core: disabledPackages: ["test-module"]
 
     listPackages [], ->
       expect(console.log.argsForCall[1][0]).toContain 'test-module@1.0.0 (disabled)'

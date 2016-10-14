@@ -19,7 +19,7 @@ class List extends Command
     @devPackagesDirectory = path.join(config.getAtomDirectory(), 'dev', 'packages')
     if configPath = CSON.resolve(path.join(config.getAtomDirectory(), 'config'))
       try
-        @disabledPackages = CSON.readFileSync(configPath)?.core?.disabledPackages
+        @disabledPackages = CSON.readFileSync(configPath)?['*']?.core?.disabledPackages
     @disabledPackages ?= []
 
   parseOptions: (argv) ->
