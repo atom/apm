@@ -157,12 +157,12 @@ describe "apm init", ->
           expect(fs.readFileSync(path.join(themePath, 'styles', 'base.less'), 'utf8')).toContain """
             @import "syntax-variables";
 
-            atom-text-editor, :host {
+            atom-text-editor {
               background-color: @syntax-background-color;
               color: @syntax-text-color;
             }
 
-            atom-text-editor .gutter, :host .gutter {
+            atom-text-editor .gutter {
               background-color: @syntax-gutter-background-color;
               color: @syntax-gutter-text-color;
             }
