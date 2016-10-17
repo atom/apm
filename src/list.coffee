@@ -68,6 +68,17 @@ class List extends Command
         packageLine
     console.log()
 
+  isPackageVisible: (options, manifest) ->
+    if options.argv.themes
+      if manifest.theme and not (options.argv.enabled and @isPackageDisabled(manifest.name))
+        return true
+    else if options.argv.packages
+      unless manifest.theme or (options.argv.enabled and @isPackageDisabled(manifest.name))
+        return true
+    else
+      unless options.argv.enabled and @isPackageDisabled(manifest.name)
+        return true
+
   listPackages: (directoryPath, options) ->
     packages = []
     for child in fs.list(directoryPath)
@@ -82,15 +93,9 @@ class List extends Command
           manifest = CSON.readFileSync(manifestPath)
       manifest ?= {}
       manifest.name = child
-      if options.argv.themes
-        if manifest.theme and not (options.argv.enabled and @isPackageDisabled(manifest.name))
-          packages.push(manifest)
-      else if options.argv.packages
-        unless manifest.theme or (options.argv.enabled and @isPackageDisabled(manifest.name))
-          packages.push(manifest)
-      else
-        unless options.argv.enabled and @isPackageDisabled(manifest.name)
-          packages.push(manifest)
+
+      continue unless @isPackageVisible(options, manifest)
+      packages.push(manifest)
 
     packages
 
@@ -127,14 +132,7 @@ class List extends Command
       packages = (metadata for packageName, {metadata} of _atomPackages)
 
       packages = packages.filter (metadata) =>
-        if options.argv.themes
-          metadata.theme
-        else if options.argv.packages
-          not metadata.theme
-        else if options.argv.enabled
-          not @isPackageDisabled(metadata.name)
-        else
-          true
+        @isPackageVisible(options, metadata)
 
       unless options.argv.bare or options.argv.json
         if options.argv.themes
