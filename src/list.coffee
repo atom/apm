@@ -53,7 +53,7 @@ class List extends Command
         packageLine = pack.name
         packageLine += "@#{pack.version}" if pack.version?
         console.log packageLine
-    else
+    else if packages.length > 0
       tree packages, (pack) =>
         packageLine = pack.name
         packageLine += "@#{pack.version}" if pack.version?

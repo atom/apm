@@ -20,6 +20,15 @@ createFakePackage = (type, metadata) ->
   fs.makeTreeSync targetFolder
   fs.writeFileSync path.join(targetFolder, 'package.json'), JSON.stringify(metadata)
 
+createFakeGitPackage = ->
+  createFakePackage "git",
+    name: "git-package"
+    version: "1.0.0"
+    apmInstallSource:
+      type: "git"
+      source: "git+ssh://git@github.com:user/repo.git"
+      sha: "abcdef1234567890"
+
 describe 'apm list', ->
   [resourcePath, atomHome] = []
 
@@ -44,13 +53,6 @@ describe 'apm list', ->
     createFakePackage "dev",
       name: "dev-package"
       version: "1.0.0"
-    createFakePackage "git",
-      name: "git-package"
-      version: "1.0.0"
-      apmInstallSource:
-        type: "git"
-        source: "git+ssh://git@github.com:user/repo.git"
-        sha: "abcdef1234567890"
 
     badPackagePath = path.join(process.env.ATOM_HOME, "packages", ".bin")
     fs.makeTreeSync badPackagePath
@@ -69,9 +71,15 @@ describe 'apm list', ->
       expect(lines[4]).toMatch /dev-package@1\.0\.0/
       expect(lines[6]).toMatch /Community Packages.*1/
       expect(lines[7]).toMatch /user-package@1\.0\.0/
-      expect(lines[9]).toMatch /Git Packages.*1/
+      output = lines.join("\n")
+      expect(output).not.toContain '.bin' # ensure invalid packages aren't listed
+      expect(output).not.toContain '(empty)' # ensure issue #621 doesn't regress
+
+  it 'lists installed packages including git packages', ->
+    createFakeGitPackage()
+    listPackages [], ->
+      lines = console.log.argsForCall.map((arr) -> arr.join(' '))
       expect(lines[10]).toMatch /git-package@1\.0\.0/
-      expect(lines.join("\n")).not.toContain '.bin' # ensure invalid packages aren't listed
 
   it 'labels disabled packages', ->
     packagesPath = path.join(atomHome, 'packages')
@@ -84,6 +92,7 @@ describe 'apm list', ->
       expect(console.log.argsForCall[1][0]).toContain 'test-module@1.0.0 (disabled)'
 
   it 'lists packages in json format when --json is passed', ->
+    createFakeGitPackage()
     listPackages ['--json'], ->
       json = JSON.parse(console.log.argsForCall[0][0])
       apmInstallSource =
