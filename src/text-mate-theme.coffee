@@ -137,7 +137,7 @@ class TextMateTheme
         properties: @translateScopeSelectorSettings(settings)
 
   translateScopeSelector: (textmateScopeSelector) ->
-    new ScopeSelector(textmateScopeSelector).toCssSyntaxSelector()
+    new ScopeSelector(textmateScopeSelector).toCssSelector()
 
   translateScopeSelectorSettings: ({foreground, background, fontStyle}) ->
     properties = {}
