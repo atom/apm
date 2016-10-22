@@ -70,10 +70,7 @@ var copyNodeBinToLocation = function(callback, version, targetFilename, fromDire
 var downloadNode = function(version, done) {
   var arch, downloadURL, filename;
   if (process.platform === 'win32') {
-    if (process.env.JANKY_SHA1)
-      arch = ''; // Always download 32-bit node on Atom Windows CI builds
-    else
-      arch = process.arch === 'x64' ? 'x64/' : 'x86/';
+    arch = process.arch === 'x64' ? 'x64/' : 'x86/';
     downloadURL = "http://nodejs.org/dist/" + version + "/win-" + arch + "node.exe";
     filename = path.join(__dirname, '..', 'bin', "node.exe");
   } else {
