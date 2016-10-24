@@ -19,7 +19,7 @@ module.exports = (grunt) ->
 
     shell:
       test:
-        command: 'node node_modules/.bin/jasmine-focused --coffee --captureExceptions --forceexit spec'
+        command: 'node node_modules/jasmine-focused/bin/jasmine-focused --captureExceptions --coffee spec'
         options:
           stdout: true
           stderr: true
