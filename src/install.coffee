@@ -67,7 +67,7 @@ class Install extends Command
     installNodeArgs.push("--ensure")
     installNodeArgs.push("--verbose") if @verbose
 
-    env = _.extend({}, process.env, HOME: @atomNodeDirectory)
+    env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     env.USERPROFILE = env.HOME if config.isWin32()
 
     fs.makeTreeSync(@atomDirectory)
@@ -107,7 +107,7 @@ class Install extends Command
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
 
-    env = _.extend({}, process.env, HOME: @atomNodeDirectory)
+    env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
     installOptions = {env}
     installOptions.streaming = true if @verbose
@@ -201,7 +201,7 @@ class Install extends Command
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
 
-    env = _.extend({}, process.env, HOME: @atomNodeDirectory)
+    env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @updateWindowsEnv(env) if config.isWin32()
     @addNodeBinToEnv(env)
     @addProxyToEnv(env)
@@ -428,7 +428,7 @@ class Install extends Command
       if vsArgs = @getVisualStudioFlags()
         buildArgs.push(vsArgs)
 
-      env = _.extend({}, process.env, HOME: @atomNodeDirectory)
+      env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
       @updateWindowsEnv(env) if config.isWin32()
       @addNodeBinToEnv(env)
       @addProxyToEnv(env)

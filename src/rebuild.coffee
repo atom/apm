@@ -52,7 +52,7 @@ class Rebuild extends Command
     if vsArgs = @getVisualStudioFlags()
       rebuildArgs.push(vsArgs)
 
-    env = _.extend({}, process.env, HOME: @atomNodeDirectory)
+    env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     env.USERPROFILE = env.HOME if config.isWin32()
     @addBuildEnvVars(env)
 
