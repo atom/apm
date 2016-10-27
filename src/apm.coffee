@@ -11,6 +11,12 @@ module.exports =
   getAtomDirectory: ->
     process.env.ATOM_HOME ? path.join(@getHomeDirectory(), '.atom')
 
+  getRustupHomeDirPath: ->
+    if process.env.RUSTUP_HOME
+      process.env.RUSTUP_HOME
+    else
+      path.join(@getHomeDirectory(), '.multirust')
+
   getCacheDirectory: ->
     path.join(@getAtomDirectory(), '.apm')
 
