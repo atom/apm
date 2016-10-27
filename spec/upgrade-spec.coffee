@@ -172,7 +172,7 @@ describe "apm upgrade", ->
     beforeEach ->
       delete process.env.ATOM_ELECTRON_URL
       delete process.env.ATOM_PACKAGES_URL
-      delete process.env.ATOM_ELECTRON_VERSION
+      process.env.ATOM_ELECTRON_VERSION = "0.22.0"
 
       gitRepo = path.join(__dirname, "fixtures", "test-git-repo.git")
       cloneUrl = "file://#{gitRepo}"
