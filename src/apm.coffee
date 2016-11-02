@@ -49,10 +49,6 @@ module.exports =
         unless fs.existsSync(appLocation)
           appLocation = '/usr/share/atom/resources/app.asar'
         process.nextTick -> callback(appLocation)
-      when 'win32'
-        process.nextTick ->
-          programFilesPath = path.join(process.env.ProgramFiles, 'Atom', 'resources', 'app.asar')
-          callback(programFilesPath)
 
   getReposDirectory: ->
     process.env.ATOM_REPOS_HOME ? path.join(@getHomeDirectory(), 'github')
