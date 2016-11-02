@@ -77,9 +77,6 @@ module.exports =
   isWin32: ->
     process.platform is 'win32'
 
-  isWindows64Bit: ->
-    fs.existsSync "C:\\Windows\\SysWow64\\Notepad.exe"
-
   x86ProgramFilesDirectory: ->
     process.env["ProgramFiles(x86)"] or process.env["ProgramFiles"]
 
