@@ -2,7 +2,9 @@ version: "{build}"
 
 os: Windows Server 2012 R2
 
-platform: x86
+platform:
+  - x86
+  - x64
 
 environment:
   nodejs_version: "4.4.5"
