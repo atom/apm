@@ -65,8 +65,7 @@ module.exports =
   getElectronArch: ->
     switch process.platform
       when 'darwin' then 'x64'
-      when 'win32' then 'ia32'
-      else process.arch  # On BSD and Linux we use current machine's arch.
+      else process.env.ATOM_ARCH ? process.arch
 
   getUserConfigPath: ->
     path.resolve(@getAtomDirectory(), '.apmrc')
