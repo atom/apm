@@ -9,6 +9,7 @@ node_js:
   - "0.10"
   - "4"
   - "6"
+  - "7"
 
 script: ./bin/npm test
 
