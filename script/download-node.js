@@ -68,13 +68,12 @@ var copyNodeBinToLocation = function(callback, version, targetFilename, fromDire
 };
 
 var downloadNode = function(version, done) {
-  var arch, downloadURL, filename;
+  const arch = identifyArch();
+  var downloadURL, filename;
   if (process.platform === 'win32') {
-    arch = process.arch === 'x64' ? 'x64/' : 'x86/';
-    downloadURL = "http://nodejs.org/dist/" + version + "/win-" + arch + "node.exe";
+    downloadURL = "http://nodejs.org/dist/" + version + "/win-" + arch + "/node.exe";
     filename = path.join(__dirname, '..', 'bin', "node.exe");
   } else {
-    arch = identifyArch();
     downloadURL = "http://nodejs.org/dist/" + version + "/node-" + version + "-" + process.platform + "-" + arch + ".tar.gz";
     filename = path.join(__dirname, '..', 'bin', "node");
   }
