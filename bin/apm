@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 initialCwd=`pwd -P`
@@ -7,6 +6,18 @@ initialCwd=`pwd -P`
 apmPath=$0
 builtin cd "`dirname "$apmPath"`"
 binDir=`basename "$apmPath"`
+
+# Set Electron version and arch
+if [ -e "./apm.vars" ]
+then
+  while IFS='= ' read var val
+  do
+    if [ -n "$var" ]
+    then
+      export "$var=$val"
+    fi
+  done < "./apm.vars"
+fi
 
 # Detect node binary name
 osName=`uname -s`
