@@ -13,3 +13,10 @@ module.exports =
       [name, owner] = repoPath.split('/')[-2..]
       return "#{name}/#{owner}" if name and owner
     null
+
+  # Determine remote from package metadata.
+  #
+  # pack - The package metadata object.
+  # Returns a the remote or 'origin' if not parseable.
+  getRemote: (pack={}) ->
+    pack.repository?.url or pack.repository or 'origin'

@@ -65,11 +65,12 @@ class Publish extends Command
   # Push a tag to the remote repository.
   #
   #  tag - The tag to push.
+  #  pack - The package metadata.
   #  callback - The callback function to invoke with an error as the first
   #             argument.
-  pushVersion: (tag, callback) ->
+  pushVersion: (tag, pack, callback) ->
     process.stdout.write "Pushing #{tag} tag "
-    pushArgs = ['push', 'origin', 'HEAD', tag]
+    pushArgs = ['push', Packages.getRemote(pack), 'HEAD', tag]
     @spawn 'git', pushArgs, (args...) =>
       @logCommandResults(callback, args...)
 
@@ -350,7 +351,7 @@ class Publish extends Command
           @versionPackage version, (error, tag) =>
             return callback(error) if error?
 
-            @pushVersion tag, (error) =>
+            @pushVersion tag, pack, (error) =>
               return callback(error) if error?
 
               @waitForTagToBeAvailable pack, tag, =>
