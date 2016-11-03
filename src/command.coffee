@@ -111,7 +111,7 @@ class Command
       "--msvs_version=#{vsVersion}"
 
   getNpmBuildFlags: ->
-    ["--runtime=electron", "--target=#{@electronVersion}", "--dist-url=#{config.getElectronUrl()}", "--arch=#{config.getElectronArch()}"]
+    ["--runtime=electron", "--target=#{@electronVersion}", "--dist-url=#{config.getElectronUrl()}", "--arch=#{config.getElectronArch()}", "--build-from-source"]
 
   updateWindowsEnv: (env) ->
     env.USERPROFILE = env.HOME
