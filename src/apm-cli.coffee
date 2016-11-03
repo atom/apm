@@ -107,6 +107,7 @@ printVersions = (args, callback) ->
           node: nodeVersion
           python: pythonVersion
           git: gitVersion
+          nodeArch: process.arch
         if config.isWin32()
           versions.visualStudio = config.getInstalledVisualStudioFlag()
         console.log JSON.stringify(versions)
@@ -116,7 +117,7 @@ printVersions = (args, callback) ->
         versions =  """
           #{'apm'.red}  #{apmVersion.red}
           #{'npm'.green}  #{npmVersion.green}
-          #{'node'.blue} #{nodeVersion.blue}
+          #{'node'.blue} #{nodeVersion.blue} #{process.arch.blue}
           #{'python'.yellow} #{pythonVersion.yellow}
           #{'git'.magenta} #{gitVersion.magenta}
         """
