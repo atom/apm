@@ -1,11 +1,5 @@
 @echo off
-
 setlocal enabledelayedexpansion
-
-:: Set Electron version and arch
-if exist "%~dp0\apm.vars" (
-  for /f "tokens=1,2 delims==" %%v in (%~dp0\apm.vars) do set "%%v=%%w"
-)
 
 :: Try to find git.exe in path
 for /f "tokens=*" %%G in ('where git 2^>nul') do set "apm_git_path=%%~dpG"
