@@ -53,7 +53,7 @@ class List extends Command
         packageLine = pack.name
         packageLine += "@#{pack.version}" if pack.version?
         console.log packageLine
-    else if packages.length > 0
+    else
       tree packages, (pack) =>
         packageLine = pack.name
         packageLine += "@#{pack.version}" if pack.version?
@@ -145,7 +145,7 @@ class List extends Command
         @logPackages(packages, options)
 
         @listGitPackages options, (error, packages) =>
-          @logPackages(packages, options)
+          @logPackages(packages, options) if packages.length > 0
 
   listPackagesAsJson: (options, callback = ->) ->
     output =
