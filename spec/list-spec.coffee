@@ -58,10 +58,6 @@ describe 'apm list', ->
     fs.makeTreeSync badPackagePath
     fs.writeFileSync path.join(badPackagePath, "file.txt"), "some fake stuff"
 
-  it 'lists the packages included the _atomPackages section of the package.json', ->
-    listPackages [], ->
-      expect(console.log.argsForCall[1][0]).toContain 'test-module@1.0.0'
-
   it 'lists the installed packages', ->
     listPackages [], ->
       lines = console.log.argsForCall.map((arr) -> arr.join(' '))
