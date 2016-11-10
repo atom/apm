@@ -12,12 +12,12 @@ var getInstallNodeVersion = require('./bundled-node-version')
 temp.track();
 
 var identifyArch = function() {
-  var arch = process.arch === 'ia32' ? 'x86' : process.arch;
-  if (arch == 'arm') {
-    arch = "armv" + process.config.variables.arm_version + "l";
+  switch (process.arch) {
+    case "ia32":  return "x86";
+    case "arm":   return "armv" + process.config.variables.arm_version + "l";
+    default:      return process.arch;
   }
-  return arch;
-}
+};
 
 var downloadFileToLocation = function(url, filename, callback) {
   var stream = fs.createWriteStream(filename);
@@ -68,29 +68,21 @@ var copyNodeBinToLocation = function(callback, version, targetFilename, fromDire
 };
 
 var downloadNode = function(version, done) {
-  var arch, downloadURL, filename;
-  if (process.platform === 'win32') {
-    arch = process.arch === 'x64' ? 'x64/' : 'x86/';
-    downloadURL = "http://nodejs.org/dist/" + version + "/win-" + arch + "node.exe";
-    filename = path.join(__dirname, '..', 'bin', "node.exe");
-  } else {
-    arch = identifyArch();
-    downloadURL = "http://nodejs.org/dist/" + version + "/node-" + version + "-" + process.platform + "-" + arch + ".tar.gz";
-    filename = path.join(__dirname, '..', 'bin', "node");
-  }
+  var arch = identifyArch();
+  var filename = path.join(__dirname, '..', 'bin', process.platform === 'win32' ? 'node.exe' : 'node');
 
   var downloadFile = function() {
     if (process.platform === 'win32') {
-      downloadFileToLocation(downloadURL, filename, done);
+      downloadFileToLocation("https://nodejs.org/dist/" + version + "/win-" + arch + "/node.exe", filename, done);
     } else {
       var next = copyNodeBinToLocation.bind(this, done, version, filename);
-      downloadTarballAndExtract(downloadURL, filename, next);
+      downloadTarballAndExtract("https://nodejs.org/dist/" + version + "/node-" + version + "-" + process.platform + "-" + arch + ".tar.gz", filename, next);
     }
-  };
+  }
 
   if (fs.existsSync(filename)) {
     getInstallNodeVersion(filename, function(error, installedVersion) {
-      if(error != null) {
+      if (error != null) {
         done(error);
       } else if (installedVersion !== version) {
         downloadFile();

@@ -49,10 +49,6 @@ module.exports =
         unless fs.existsSync(appLocation)
           appLocation = '/usr/share/atom/resources/app.asar'
         process.nextTick -> callback(appLocation)
-      when 'win32'
-        process.nextTick ->
-          programFilesPath = path.join(process.env.ProgramFiles, 'Atom', 'resources', 'app.asar')
-          callback(programFilesPath)
 
   getReposDirectory: ->
     process.env.ATOM_REPOS_HOME ? path.join(@getHomeDirectory(), 'github')
@@ -69,8 +65,7 @@ module.exports =
   getElectronArch: ->
     switch process.platform
       when 'darwin' then 'x64'
-      when 'win32' then 'ia32'
-      else process.arch  # On BSD and Linux we use current machine's arch.
+      else process.env.ATOM_ARCH ? process.arch
 
   getUserConfigPath: ->
     path.resolve(@getAtomDirectory(), '.apmrc')
@@ -80,9 +75,6 @@ module.exports =
 
   isWin32: ->
     process.platform is 'win32'
-
-  isWindows64Bit: ->
-    fs.existsSync "C:\\Windows\\SysWow64\\Notepad.exe"
 
   x86ProgramFilesDirectory: ->
     process.env["ProgramFiles(x86)"] or process.env["ProgramFiles"]
