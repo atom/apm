@@ -125,10 +125,11 @@ class Command
 
   addNodeBinToEnv: (env) ->
     nodeBinFolder = path.resolve(__dirname, '..', 'bin')
-    if env['PATH']
-      env['PATH'] = "#{nodeBinFolder}#{path.delimiter}#{env['PATH']}"
+    pathKey = if config.isWin32() then 'Path' else 'PATH'
+    if env[pathKey]
+      env[pathKey] = "#{nodeBinFolder}#{path.delimiter}#{env[pathKey]}"
     else
-      env['PATH']= nodeBinFolder
+      env[pathKey]= nodeBinFolder
 
   addProxyToEnv: (env) ->
     httpProxy = @npm.config.get('proxy')
