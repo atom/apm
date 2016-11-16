@@ -1,6 +1,6 @@
 # apm - Atom Package Manager
 
-[![OS X Build Status](https://travis-ci.org/atom/apm.svg?branch=master)](https://travis-ci.org/atom/apm)
+[![Linux Build Status](https://travis-ci.org/atom/apm.svg?branch=master)](https://travis-ci.org/atom/apm)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/j6ixw374a397ugkb/branch/master?svg=true)](https://ci.appveyor.com/project/Atom/apm/branch/master)
 [![Dependency Status](https://david-dm.org/atom/apm.svg)](https://david-dm.org/atom/apm)
 
@@ -18,7 +18,7 @@ Therefore you can think of `apm` as a simple `npm` wrapper that builds on top of
 
 ## Installing
 
-apm is bundled and installed automatically with Atom. You can run the _Atom > Install Shell Commands_ menu option to install it again if you aren't able to run it from a terminal (Mac OS X only).
+`apm` is bundled and installed automatically with Atom. You can run the _Atom > Install Shell Commands_ menu option to install it again if you aren't able to run it from a terminal (macOS only).
 
 ## Building
 
@@ -30,7 +30,7 @@ apm is bundled and installed automatically with Atom. You can run the _Atom > In
 
 ### Why `bin/npm` / `bin\npm.cmd`?
 
-apm includes npm, and spawns it for various processes. It also comes with a bundled version of Node, and this script ensures that npm uses the right version of Node for things like running the tests. If you're using the same version of Node as is listed in `BUNDLED_NODE_VERSION`, you can skip using this script.
+`apm` includes `npm`, and spawns it for various processes. It also comes with a bundled version of Node, and this script ensures that npm uses the right version of Node for things like running the tests. If you're using the same version of Node as is listed in `BUNDLED_NODE_VERSION`, you can skip using this script.
 
 ## Using
 
