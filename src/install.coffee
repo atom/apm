@@ -336,6 +336,9 @@ class Install extends Command
           callback("No available version compatible with the installed Atom version: #{@installedAtomVersion}")
           return
 
+        if not pack.versions[packageVersion]? and packageVersion is 'latest'
+          packageVersion = @getLatestCompatibleVersion(pack)
+
         {tarball} = pack.versions[packageVersion]?.dist ? {}
         unless tarball
           @logFailure()
