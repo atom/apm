@@ -189,6 +189,21 @@ describe 'apm install', ->
           expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
           expect(JSON.parse(fs.readFileSync(path.join(testModuleDirectory, 'package.json'))).version).toBe "2.0.0"
 
+    describe 'when the "latest"-tag is specified', ->
+      it 'installs the latest version', ->
+        testModuleDirectory = path.join(atomHome, 'packages', 'test-module2')
+
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', 'test-module2@latest'], callback)
+
+        waitsFor 'waiting for install to complete', 600000, ->
+          callback.callCount is 1
+
+        runs ->
+          expect(callback.mostRecentCall.args[0]).toBeNull()
+          expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
+          expect(JSON.parse(fs.readFileSync(path.join(testModuleDirectory, 'package.json'))).version).toBe "2.0.0"
+
     describe 'when multiple package names are specified', ->
       it 'installs all packages', ->
         testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
