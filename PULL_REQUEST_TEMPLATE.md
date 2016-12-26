@@ -15,10 +15,6 @@ We must be able to understand the design of your change from this description. I
 
 <!-- Explain what other alternates were considered and why the proposed version was selected -->
 
-### [atom/atom only] Why Should This Be In Core?
-
-<!-- Explain why this functionality should be in atom/atom as opposed to a package -->
-
 ### Benefits
 
 <!-- What benefits will be realized by the code change? -->
