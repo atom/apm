@@ -31,5 +31,7 @@ then
   export npm_config_node_gyp="$maybe_node_gyp_path"
 fi
 
+export PYTHON="${binDir}/python-interceptor.sh"
+
 builtin cd "$initialCwd"
 "$binDir/$nodeBin" "$binDir/../lib/cli.js" "$@"

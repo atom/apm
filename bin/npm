@@ -2,6 +2,8 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export PATH="$SCRIPT_DIR:$PATH"
 
+export PYTHON="${SCRIPT_DIR}/python-interceptor.sh"
+
 maybe_node_gyp_path="$SCRIPT_DIR"/../node_modules/.bin/node-gyp
 if [ -e "$maybe_node_gyp_path" ]
 then
