@@ -57,6 +57,10 @@ describe 'apm install', ->
         response.sendfile path.join(__dirname, 'fixtures', 'install-multi-version.json')
       app.get '/packages/atom-2048', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'atom-2048.json')
+      app.get '/packages/native-package', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'native-package.json')
+      app.get '/tarball/native-package-1.0.0.tgz', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'native-package-1.0.0.tar.gz')
 
       server =  http.createServer(app)
       server.listen(3000)
@@ -463,3 +467,34 @@ describe 'apm install', ->
         expect(json[0].metadata.name).toBe 'test-module'
         expect(json[1].installPath).toBe path.join(process.env.ATOM_HOME, 'packages', 'test-module2')
         expect(json[1].metadata.name).toBe 'test-module2'
+
+    describe "with a space in node-gyp's path", ->
+      nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
+
+      beforeEach ->
+        fs.renameSync path.join(nodeModules, 'node-gyp'), path.join(nodeModules, 'with a space')
+        process.env.npm_config_node_gyp = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
+        process.env.ATOM_NODE_GYP_PATH = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
+
+      afterEach ->
+        fs.renameSync path.join(nodeModules, 'with a space'), path.join(nodeModules, 'node-gyp')
+        process.env.npm_config_node_gyp = path.join(nodeModules, '.bin', 'node-gyp')
+        process.env.ATOM_NODE_GYP_PATH = path.join(nodeModules, 'node-gyp', 'bin', 'node-gyp.js')
+
+      it 'builds native code successfully', ->
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', 'native-package'], callback)
+
+        waitsFor 'waiting for install to complete', 600000, ->
+          callback.callCount is 1
+
+        runs ->
+          expect(callback.mostRecentCall.args[0]).toBeNull()
+
+          testModuleDirectory = path.join(atomHome, 'packages', 'native-package')
+          expect(fs.existsSync(path.join(testModuleDirectory, 'index.js'))).toBeTruthy()
+          expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
+          expect(fs.existsSync(path.join(testModuleDirectory, 'build', 'Release', 'native.node'))).toBeTruthy()
+
+          makefileContent = fs.readFileSync(path.join(testModuleDirectory, 'build', 'Makefile'), {encoding: 'utf-8'})
+          expect(makefileContent).toMatch('node_modules/with\\ a\\ space/addon.gypi')
