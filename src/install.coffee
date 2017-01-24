@@ -26,7 +26,6 @@ class Install extends Command
     @atomPackagesDirectory = path.join(@atomDirectory, 'packages')
     @atomNodeDirectory = path.join(@atomDirectory, '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
-    @atomNodeGypPath = require.resolve('node-gyp/bin/node-gyp')
 
   parseOptions: (argv) ->
     options = yargs(argv).wrap(100)
@@ -85,7 +84,8 @@ class Install extends Command
     opts = {env, cwd: @atomDirectory}
     opts.streaming = true if @verbose
 
-    @fork @atomNodeGypPath, installNodeArgs, opts, (code, stderr='', stdout='') ->
+    atomNodeGypPath = process.env.ATOM_NODE_GYP_PATH or require.resolve('node-gyp/bin/node-gyp')
+    @fork atomNodeGypPath, installNodeArgs, opts, (code, stderr='', stdout='') ->
       if code is 0
         callback()
       else
