@@ -129,7 +129,7 @@ class Upgrade extends Command
         @getLatestVersion pack, (err, latestVersion) ->
           done(err, {pack, latestVersion})
 
-    async.map packages, getLatestVersionOrSha, (error, updates) ->
+    async.mapLimit packages, 10, getLatestVersionOrSha, (error, updates) ->
       return callback(error) if error?
 
       updates = _.filter updates, (update) -> update.latestVersion? or update.sha?
