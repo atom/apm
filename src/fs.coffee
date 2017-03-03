@@ -24,4 +24,10 @@ fsAdditions =
       else
         ncp(sourcePath, destinationPath, callback)
 
-module.exports = _.extend({}, fs, fsAdditions)
+module.exports = new Proxy({}, {
+  get: (target, key) ->
+    fsAdditions[key] or fs[key]
+
+  set: (target, key, value) ->
+    fsAdditions[key] = value
+})
