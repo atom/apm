@@ -102,17 +102,6 @@ class TextMateTheme
         'color': '@syntax-invisible-character-color'
 
     @rulesets.push
-      selector: 'atom-text-editor .search-results .marker .region'
-      properties:
-        'background-color': 'transparent'
-        'border': '@syntax-result-marker-color'
-
-    @rulesets.push
-      selector: 'atom-text-editor .search-results .marker.current-result .region'
-      properties:
-        'border': '@syntax-result-marker-color-selected'
-
-    @rulesets.push
       selector: 'atom-text-editor.is-focused .cursor'
       properties:
         'border-color': '@syntax-cursor-color'
