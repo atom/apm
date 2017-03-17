@@ -28,10 +28,26 @@ binDir=`pwd -P`
 maybe_node_gyp_path="$binDir"/../node_modules/.bin/node-gyp
 if [ -e "$maybe_node_gyp_path" ]
 then
+  # Prevent vars like NODE_CONFIG_NODE_GYP from messing this up
+  for var in $(env | grep -i ^npm_config_node_gyp=)
+  do
+    unset ${var%%=*}
+  done
+
   export npm_config_node_gyp="$maybe_node_gyp_path"
 fi
 
-export PYTHON="${binDir}/python-interceptor.sh"
+export ATOM_APM_ORIGINAL_PYTHON="${PYTHON:-}"
+
+# Assumption: env iterates through environment variables in the same order that
+# process.env iterates through properties within npm. So, we take the last match.
+for var in $(env | grep -i ^npm_config_python=)
+do
+  ATOM_APM_ORIGINAL_PYTHON="${var#*=}"
+  unset ${var%%=*}
+done
+
+export npm_config_python="${SCRIPT_DIR}/python-interceptor.sh"
 
 builtin cd "$initialCwd"
 "$binDir/$nodeBin" "$binDir/../lib/cli.js" "$@"
