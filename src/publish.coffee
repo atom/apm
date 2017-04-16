@@ -252,7 +252,7 @@ class Publish extends Command
     upstreamUrl ?= repo.getConfigValue('remote.origin.url')
 
     unless upstreamUrl
-      throw new Error('Package must pushed up to GitHub before publishing: https://help.github.com/articles/create-a-repo')
+      throw new Error('Package must be pushed up to GitHub before publishing: https://help.github.com/articles/create-a-repo')
 
   # Rename package if necessary
   renamePackage: (pack, name, callback) ->
