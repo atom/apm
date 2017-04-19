@@ -1,4 +1,6 @@
 language: node_js
+dist: trusty
+sudo: required
 
 notifications:
   email:
@@ -18,8 +20,6 @@ git:
 branches:
   only:
     - master
-
-sudo: false
 
 addons:
   apt:
