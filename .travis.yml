@@ -24,7 +24,7 @@ sudo: false
 addons:
   apt:
     packages:
-      - libgnome-keyring-dev
+      - libsecret-1-0
       - g++-4.8
     sources:
       - ubuntu-toolchain-r-test
