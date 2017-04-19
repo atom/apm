@@ -29,7 +29,7 @@
     "fs-plus": "2.x",
     "git-utils": "^4.0",
     "hosted-git-info": "^2.1.4",
-    "keytar": "^3.0",
+    "keytar": "^4.0",
     "mv": "2.0.0",
     "ncp": "~0.5.1",
     "npm": "3.10.5",
