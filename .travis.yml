@@ -24,7 +24,7 @@ branches:
 addons:
   apt:
     packages:
-      - libsecret-1-0
+      - libsecret-1-dev
       - g++-4.8
     sources:
       - ubuntu-toolchain-r-test
