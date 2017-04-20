@@ -23,7 +23,7 @@ Therefore you can think of `apm` as a simple `npm` wrapper that builds on top of
 ## Building
 
   * Clone the repository
-  * :penguin: Install `libgnome-keyring-dev` if you are on Linux
+  * :penguin: Install `libsecret-1-dev` (or the relevant `libsecret` development dependency) if you are on Linux
   * Run `npm install`; this will install the dependencies with your built-in version of Node/npm, and then rebuild them with the bundled versions.
   * Run `./bin/npm run build` to compile the CoffeeScript code (or `.\bin\npm.cmd run build` on Windows)
   * Run `./bin/npm test` to run the specs (or `.\bin\npm.cmd test` on Windows)
