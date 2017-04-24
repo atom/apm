@@ -12,6 +12,8 @@ binDir=`basename "$apmPath"`
 osName=`uname -s`
 if [ "${osName:0:10}" == 'MINGW32_NT' ]; then
   nodeBin="node.exe"
+elif [[ $(uname -r) == *-Microsoft ]]; then
+  nodeBin="node.exe"
 else
   nodeBin="node"
 fi
@@ -33,5 +35,12 @@ fi
 
 export PYTHON="${binDir}/python-interceptor.sh"
 
-builtin cd "$initialCwd"
-"$binDir/$nodeBin" "$binDir/../lib/cli.js" "$@"
+cliPath="$binDir/../lib/cli.js"
+if [[ $(uname -r) == *-Microsoft ]]; then
+  cliPath="$(echo $cliPath | sed 's/\/mnt\/\([a-z]*\)\(.*\)/\1:\2/')"
+  cliPath="${cliPath////\\}"
+else
+  builtin cd "$initialCwd"
+fi
+
+"$binDir/$nodeBin" "$cliPath" "$@"
