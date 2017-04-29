@@ -15,7 +15,7 @@ class Link extends Command
     options = yargs(argv).wrap(100)
     options.usage """
 
-      Usage: apm link [<package_path>]
+      Usage: apm link [<package_path>] [--name <package_name>]
 
       Create a symlink for the package in ~/.atom/packages. The package in the
       current working directory is linked if no path is given.
@@ -32,8 +32,9 @@ class Link extends Command
     packagePath = options.argv._[0]?.toString() ? '.'
     linkPath = path.resolve(process.cwd(), packagePath)
 
+    packageName = options.argv.name
     try
-      packageName = CSON.readFileSync(CSON.resolve(path.join(linkPath, 'package'))).name
+      packageName = CSON.readFileSync(CSON.resolve(path.join(linkPath, 'package'))).name unless packageName
     packageName = path.basename(linkPath) unless packageName
 
     if options.argv.dev
