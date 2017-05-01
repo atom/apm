@@ -1,7 +1,6 @@
 path = require 'path'
 fs = require 'fs-plus'
 temp = require 'temp'
-wrench = require 'wrench'
 apm = require '../lib/apm-cli'
 
 listPackages = (args, doneCallback) ->
@@ -79,7 +78,7 @@ describe 'apm list', ->
   it 'labels disabled packages', ->
     packagesPath = path.join(atomHome, 'packages')
     fs.makeTreeSync(packagesPath)
-    wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module'), path.join(packagesPath, 'test-module'))
+    fs.copySync(path.join(__dirname, 'fixtures', 'test-module'), path.join(packagesPath, 'test-module'))
     configPath = path.join(atomHome, 'config.cson')
     fs.writeFileSync(configPath, 'core: disabledPackages: ["test-module"]')
 

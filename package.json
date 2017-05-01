@@ -45,7 +45,6 @@
     "temp": "~0.8.3",
     "underscore-plus": "1.x",
     "wordwrap": "~1.0.0",
-    "wrench": "~1.5.1",
     "yargs": "^3.23.0"
   },
   "devDependencies": {
