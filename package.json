@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "asar-require": "0.3.0",
-    "async": "~0.2.8",
+    "async": "~2.4.0",
     "colors": "~0.6.1",
     "first-mate": "6.2.0",
     "fs-plus": "2.x",
