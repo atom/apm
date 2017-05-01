@@ -26,7 +26,7 @@
     "async": "~2.4.0",
     "colors": "~1.1.2",
     "first-mate": "7.0.4",
-    "fs-plus": "2.x",
+    "fs-plus": "3.x",
     "git-utils": "^4.0",
     "hosted-git-info": "^2.1.4",
     "keytar": "^4.0",
