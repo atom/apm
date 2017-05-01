@@ -31,7 +31,7 @@
     "hosted-git-info": "^2.1.4",
     "keytar": "^4.0",
     "mv": "2.1.1",
-    "ncp": "~0.5.1",
+    "ncp": "~2.0.0",
     "npm": "3.10.10",
     "open": "0.0.4",
     "plist": "git+https://github.com/nathansobo/node-plist.git",
