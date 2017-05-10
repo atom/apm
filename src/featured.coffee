@@ -62,7 +62,7 @@ class Featured extends Command
       return callback(error) if error?
 
       if options.argv.json
-        console.log(JSON.stringify(packages))
+        process.stdout.write JSON.stringify(packages) + '\n', callback
       else
         if options.argv.themes
           console.log "#{'Featured Atom Themes'.cyan} (#{packages.length})"
@@ -79,7 +79,7 @@ class Featured extends Command
         console.log "Use `apm install` to install them or visit #{'http://atom.io/packages'.underline} to read more about them."
         console.log()
 
-      callback()
+        callback()
 
     if options.argv.themes
       @getFeaturedPackagesByType(options.argv.compatible, 'themes', listCallback)

@@ -166,8 +166,7 @@ class List extends Command
           @listGitPackages options, (error, packages) ->
             return callback(error) if error
             output.git = packages
-            console.log JSON.stringify(output)
-            callback()
+            process.stdout.write JSON.stringify(output) + '\n', callback
 
   run: (options) ->
     {callback} = options

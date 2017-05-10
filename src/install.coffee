@@ -663,5 +663,7 @@ class Install extends Command
       installedPackagesInfo = _.compact(installedPackagesInfo)
       installedPackagesInfo = installedPackagesInfo.filter (item, idx) ->
         packageNames[idx] isnt "."
-      console.log(JSON.stringify(installedPackagesInfo, null, "  ")) if options.argv.json
-      callback(null)
+      if options.argv.json
+        process.stdout.write JSON.stringify(installedPackagesInfo, null, "  ") + '\n', callback
+      else
+        callback(null)

@@ -69,7 +69,7 @@ class Search extends Command
         return
 
       if options.argv.json
-        console.log(JSON.stringify(packages))
+        process.stdout.write JSON.stringify(packages) + '\n', callback
       else
         heading = "Search Results For '#{query}'".cyan
         console.log "#{heading} (#{packages.length})"
@@ -84,4 +84,4 @@ class Search extends Command
         console.log "Use `apm install` to install them or visit #{'http://atom.io/packages'.underline} to read more about them."
         console.log()
 
-      callback()
+        callback()
