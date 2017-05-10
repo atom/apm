@@ -221,6 +221,7 @@ class Install extends Command
       url: "#{config.getAtomPackagesUrl()}/#{packageName}"
       json: true
       retries: 4
+    requestSettings.headers = authorization: process.env.ATOM_ACCESS_TOKEN if process.env.ATOM_ACCESS_TOKEN?
     request.get requestSettings, (error, response, body={}) ->
       if error?
         message = "Request for package information failed: #{error.message}"
@@ -244,6 +245,7 @@ class Install extends Command
   #            as the second.
   downloadPackage: (packageUrl, installGlobally, callback) ->
     requestSettings = url: packageUrl
+    requestSettings.headers = authorization: process.env.ATOM_ACCESS_TOKEN if process.env.ATOM_ACCESS_TOKEN?
     request.createReadStream requestSettings, (readStream) =>
       readStream.on 'error', (error) ->
         callback("Unable to download #{packageUrl}: #{error.message}")
