@@ -76,7 +76,7 @@ class Publish extends Command
   # Check for the tag being available from the GitHub API before notifying
   # atom.io about the new version.
   #
-  # The tag is checked for 5 times at 1 second intervals.
+  # The tag is checked for 10 times at 1 second intervals.
   #
   # pack - The package metadata.
   # tag - The tag that was pushed.
@@ -84,7 +84,7 @@ class Publish extends Command
   #            or the maximum numbers of requests for the tag have been made.
   #            No arguments are passed to the callback when it is invoked.
   waitForTagToBeAvailable: (pack, tag, callback) ->
-    retryCount = 5
+    retryCount = 10
     interval = 1000
     requestSettings =
       url: "https://api.github.com/repos/#{Packages.getRepository(pack)}/tags"
