@@ -59,10 +59,7 @@ class Install extends Command
 
   installNode: (callback) =>
     installNodeArgs = ['install']
-    installNodeArgs.push("--runtime=electron")
-    installNodeArgs.push("--target=#{@electronVersion}")
-    installNodeArgs.push("--dist-url=#{config.getElectronUrl()}")
-    installNodeArgs.push("--arch=#{config.getElectronArch()}")
+    installNodeArgs.push(@getNpmBuildFlags()...)
     installNodeArgs.push("--ensure")
     installNodeArgs.push("--verbose") if @verbose
 
@@ -96,9 +93,7 @@ class Install extends Command
 
     installArgs = ['--globalconfig', config.getGlobalConfigPath(), '--userconfig', config.getUserConfigPath(), 'install']
     installArgs.push(modulePath)
-    installArgs.push("--runtime=electron")
-    installArgs.push("--target=#{@electronVersion}")
-    installArgs.push("--arch=#{config.getElectronArch()}")
+    installArgs.push(@getNpmBuildFlags()...)
     installArgs.push("--global-style") if installGlobally
     installArgs.push('--silent') if options.argv.silent
     installArgs.push('--quiet') if options.argv.quiet
@@ -191,9 +186,7 @@ class Install extends Command
 
   forkInstallCommand: (options, callback) ->
     installArgs = ['--globalconfig', config.getGlobalConfigPath(), '--userconfig', config.getUserConfigPath(), 'install']
-    installArgs.push("--runtime=electron")
-    installArgs.push("--target=#{@electronVersion}")
-    installArgs.push("--arch=#{config.getElectronArch()}")
+    installArgs.push(@getNpmBuildFlags()...)
     installArgs.push('--silent') if options.argv.silent
     installArgs.push('--quiet') if options.argv.quiet
     installArgs.push('--production') if options.argv.production
@@ -421,9 +414,7 @@ class Install extends Command
 
       buildArgs = ['--globalconfig', config.getGlobalConfigPath(), '--userconfig', config.getUserConfigPath(), 'build']
       buildArgs.push(path.resolve(__dirname, '..', 'native-module'))
-      buildArgs.push("--runtime=electron")
-      buildArgs.push("--target=#{@electronVersion}")
-      buildArgs.push("--arch=#{config.getElectronArch()}")
+      buildArgs.push(@getNpmBuildFlags()...)
 
       if vsArgs = @getVisualStudioFlags()
         buildArgs.push(vsArgs)
