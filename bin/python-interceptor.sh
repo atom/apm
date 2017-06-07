@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PYTHON="${PYTHON:-python}" #Set default value
 
 case $1 in
   */gyp_main.py)
@@ -34,9 +35,9 @@ case $1 in
       ARGS+=("--format=safemake.py")
     fi
 
-    exec python "${ARGS[@]}"
+    exec "$PYTHON" "${ARGS[@]}"
     ;;
   *)
-    exec python "$@"
+    exec "$PYTHON" "$@"
     ;;
 esac
