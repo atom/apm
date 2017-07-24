@@ -30,12 +30,14 @@ class List extends Command
              apm list --themes
              apm list --packages
              apm list --installed
+             apm list --installed --enabled
              apm list --installed --bare > my-packages.txt
              apm list --json
 
       List all the installed packages and also the packages bundled with Atom.
     """
     options.alias('b', 'bare').boolean('bare').describe('bare', 'Print packages one per line with no formatting')
+    options.alias('e', 'enabled').boolean('enabled').describe('enabled', 'Print only enabled packages')
     options.alias('d', 'dev').boolean('dev').default('dev', true).describe('dev', 'Include dev packages')
     options.alias('h', 'help').describe('help', 'Print this usage message')
     options.alias('i', 'installed').boolean('installed').describe('installed', 'Only list installed packages/themes')
@@ -81,11 +83,11 @@ class List extends Command
       manifest ?= {}
       manifest.name = child
       if options.argv.themes
-        packages.push(manifest) if manifest.theme
+        packages.push(manifest) if manifest.theme and not (options.argv.enabled and @isPackageDisabled(child))
       else if options.argv.packages
-        packages.push(manifest) unless manifest.theme
+        packages.push(manifest) unless manifest.theme or (options.argv.enabled and @isPackageDisabled(child))
       else
-        packages.push(manifest)
+        packages.push(manifest) unless options.argv.enabled and @isPackageDisabled(child)
 
     packages
 
