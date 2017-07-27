@@ -191,8 +191,7 @@ class PackageConverter
         try
           selector = new ScopeSelector(scope).toCssSelector()
         catch e
-          e.fileName = path.join(sourcePreferences, child)
-          e.message = "In file " + e.fileName + " at " + JSON.stringify(scope) + ": " + e.message
+          e.message = "In file #{e.fileName} at #{JSON.stringify(scope)}: #{e.message}"
           throw e
         for key, value of properties
           preferencesBySelector[selector] ?= {}
