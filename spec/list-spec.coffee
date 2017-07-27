@@ -88,7 +88,19 @@ describe 'apm list', ->
     listPackages [], ->
       expect(console.log.argsForCall[1][0]).toContain 'test-module@1.0.0 (disabled)'
 
-  it 'displays only enabled packages --enabled is called', ->
+  it 'displays only enabled packages when --enabled is called', ->
+    atomPackages =
+      'test-module':
+        metadata:
+          name: 'test-module'
+          version: '1.0.0'
+      'test2-module':
+        metadata:
+          name: 'test2-module'
+          version: '1.0.0'
+
+    fs.writeFileSync(path.join(resourcePath, 'package.json'), JSON.stringify(_atomPackages: atomPackages))
+
     packagesPath = path.join(atomHome, 'packages')
     fs.makeTreeSync(packagesPath)
     wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module'), path.join(packagesPath, 'test-module'))
@@ -97,7 +109,10 @@ describe 'apm list', ->
       core: disabledPackages: ["test-module"]
 
     listPackages ['--enabled'], ->
-      expect(console.log.argsForCall[1][0]).toContain '(empty)'
+      expect(console.log.argsForCall[1][0]).toContain 'test2-module@1.0.0'
+      expect(console.log.argsForCall[3][0]).toContain 'dev-package@1.0.0'
+      expect(console.log.argsForCall[6][0]).toContain 'user-package@1.0.0'
+      expect(console.log.argsForCall[9][0]).toContain 'git-package@1.0.0'
 
   it 'lists packages in json format when --json is passed', ->
     listPackages ['--json'], ->
