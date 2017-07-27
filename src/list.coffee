@@ -119,18 +119,20 @@ class List extends Command
     callback?(null, gitPackages)
 
   listBundledPackages: (options, callback) ->
-    config.getResourcePath (resourcePath) ->
+    config.getResourcePath (resourcePath) =>
       try
         metadataPath = path.join(resourcePath, 'package.json')
         {_atomPackages} = JSON.parse(fs.readFileSync(metadataPath))
       _atomPackages ?= {}
       packages = (metadata for packageName, {metadata} of _atomPackages)
 
-      packages = packages.filter (metadata) ->
+      packages = packages.filter (metadata) =>
         if options.argv.themes
           metadata.theme
         else if options.argv.packages
           not metadata.theme
+        else if options.argv.enabled
+          not @isPackageDisabled(metadata.name)
         else
           true
 
