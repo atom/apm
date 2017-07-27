@@ -110,9 +110,9 @@ describe 'apm list', ->
 
     listPackages ['--enabled'], ->
       expect(console.log.argsForCall[1][0]).toContain 'test2-module@1.0.0'
-      expect(console.log.argsForCall[3][0]).toContain 'dev-package@1.0.0'
-      expect(console.log.argsForCall[6][0]).toContain 'user-package@1.0.0'
-      expect(console.log.argsForCall[9][0]).toContain 'git-package@1.0.0'
+      expect(console.log.argsForCall[4][0]).toContain 'dev-package@1.0.0'
+      expect(console.log.argsForCall[7][0]).toContain 'user-package@1.0.0'
+      expect(console.log.argsForCall[10][0]).toContain 'git-package@1.0.0'
 
   it 'lists packages in json format when --json is passed', ->
     listPackages ['--json'], ->
