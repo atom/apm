@@ -83,11 +83,14 @@ class List extends Command
       manifest ?= {}
       manifest.name = child
       if options.argv.themes
-        packages.push(manifest) if manifest.theme and not (options.argv.enabled and @isPackageDisabled(child))
+        if manifest.theme and not (options.argv.enabled and @isPackageDisabled(manifest.name))
+          packages.push(manifest)
       else if options.argv.packages
-        packages.push(manifest) unless manifest.theme or (options.argv.enabled and @isPackageDisabled(child))
+        unless manifest.theme or (options.argv.enabled and @isPackageDisabled(manifest.name))
+          packages.push(manifest)
       else
-        packages.push(manifest) unless options.argv.enabled and @isPackageDisabled(child)
+        unless options.argv.enabled and @isPackageDisabled(manifest.name)
+          packages.push(manifest)
 
     packages
 

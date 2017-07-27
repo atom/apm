@@ -165,8 +165,7 @@ class PackageConverter
       try
         selector = new ScopeSelector(scope).toCssSelector() if scope
       catch e
-        e.fileName = path.join(sourceSnippets, child)
-        e.message = "In file " + e.fileName + " at " + JSON.stringify(scope) + ": " + e.message
+        e.message = "In file #{e.fileName} at #{JSON.stringify(scope)}: #{e.message}"
         throw e
       selector ?= '*'
 
