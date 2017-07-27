@@ -88,6 +88,17 @@ describe 'apm list', ->
     listPackages [], ->
       expect(console.log.argsForCall[1][0]).toContain 'test-module@1.0.0 (disabled)'
 
+  it 'displays only enabled packages --enabled is called', ->
+    packagesPath = path.join(atomHome, 'packages')
+    fs.makeTreeSync(packagesPath)
+    wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module'), path.join(packagesPath, 'test-module'))
+    configPath = path.join(atomHome, 'config.cson')
+    CSON.writeFileSync configPath, '*':
+      core: disabledPackages: ["test-module"]
+
+    listPackages ['--enabled'], ->
+      expect(console.log.argsForCall[1][0]).toContain '(empty)'
+
   it 'lists packages in json format when --json is passed', ->
     listPackages ['--json'], ->
       json = JSON.parse(console.log.argsForCall[0][0])
