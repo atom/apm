@@ -26,24 +26,28 @@ module.exports =
 
     apmFolder = path.resolve(__dirname, '..')
     appFolder = path.dirname(apmFolder)
-    if path.basename(apmFolder) is 'apm' and path.basename(appFolder) is 'app' and fs.existsSync(appFolder)
-      return process.nextTick -> callback(appFolder)
+    if path.basename(apmFolder) is 'apm' and path.basename(appFolder) is 'app'
+      asarPath = "#{appFolder}.asar"
+      if fs.existsSync(asarPath)
+        return process.nextTick -> callback(asarPath)
 
     apmFolder = path.resolve(__dirname, '..', '..', '..')
     appFolder = path.dirname(apmFolder)
-    if path.basename(apmFolder) is 'apm' and path.basename(appFolder) is 'app' and fs.existsSync(appFolder)
-      return process.nextTick -> callback(appFolder)
+    if path.basename(apmFolder) is 'apm' and path.basename(appFolder) is 'app'
+      asarPath = "#{appFolder}.asar"
+      if fs.existsSync(asarPath)
+        return process.nextTick -> callback(asarPath)
 
     switch process.platform
       when 'darwin'
         child_process.exec 'mdfind "kMDItemCFBundleIdentifier == \'com.github.atom\'"', (error, stdout='', stderr) ->
           [appLocation] = stdout.split('\n') unless error
           appLocation = '/Applications/Atom.app' unless appLocation
-          callback("#{appLocation}/Contents/Resources/app")
+          callback("#{appLocation}/Contents/Resources/app.asar")
       when 'linux'
-        appLocation = '/usr/local/share/atom/resources/app'
+        appLocation = '/usr/local/share/atom/resources/app.asar'
         unless fs.existsSync(appLocation)
-          appLocation = '/usr/share/atom/resources/app'
+          appLocation = '/usr/share/atom/resources/app.asar'
         process.nextTick -> callback(appLocation)
 
   getReposDirectory: ->
