@@ -162,7 +162,11 @@ class PackageConverter
         extension = path.extname(child)
         name = path.basename(child, extension)
 
-      selector = new ScopeSelector(scope).toCssSelector() if scope
+      try
+        selector = new ScopeSelector(scope).toCssSelector() if scope
+      catch e
+        e.message = "In file #{e.fileName} at #{JSON.stringify(scope)}: #{e.message}"
+        throw e
       selector ?= '*'
 
       snippetsBySelector[selector] ?= {}
@@ -184,7 +188,11 @@ class PackageConverter
       continue unless scope and settings
 
       if properties = @convertSettings(settings)
-        selector = new ScopeSelector(scope).toCssSelector()
+        try
+          selector = new ScopeSelector(scope).toCssSelector()
+        catch e
+          e.message = "In file #{e.fileName} at #{JSON.stringify(scope)}: #{e.message}"
+          throw e
         for key, value of properties
           preferencesBySelector[selector] ?= {}
           if preferencesBySelector[selector][key]?

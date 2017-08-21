@@ -30,12 +30,14 @@ class List extends Command
              apm list --themes
              apm list --packages
              apm list --installed
+             apm list --installed --enabled
              apm list --installed --bare > my-packages.txt
              apm list --json
 
       List all the installed packages and also the packages bundled with Atom.
     """
     options.alias('b', 'bare').boolean('bare').describe('bare', 'Print packages one per line with no formatting')
+    options.alias('e', 'enabled').boolean('enabled').describe('enabled', 'Print only enabled packages')
     options.alias('d', 'dev').boolean('dev').default('dev', true).describe('dev', 'Include dev packages')
     options.alias('h', 'help').describe('help', 'Print this usage message')
     options.alias('i', 'installed').boolean('installed').describe('installed', 'Only list installed packages/themes')
@@ -81,11 +83,14 @@ class List extends Command
       manifest ?= {}
       manifest.name = child
       if options.argv.themes
-        packages.push(manifest) if manifest.theme
+        if manifest.theme and not (options.argv.enabled and @isPackageDisabled(manifest.name))
+          packages.push(manifest)
       else if options.argv.packages
-        packages.push(manifest) unless manifest.theme
+        unless manifest.theme or (options.argv.enabled and @isPackageDisabled(manifest.name))
+          packages.push(manifest)
       else
-        packages.push(manifest)
+        unless options.argv.enabled and @isPackageDisabled(manifest.name)
+          packages.push(manifest)
 
     packages
 
@@ -114,18 +119,20 @@ class List extends Command
     callback?(null, gitPackages)
 
   listBundledPackages: (options, callback) ->
-    config.getResourcePath (resourcePath) ->
+    config.getResourcePath (resourcePath) =>
       try
         metadataPath = path.join(resourcePath, 'package.json')
         {_atomPackages} = JSON.parse(fs.readFileSync(metadataPath))
       _atomPackages ?= {}
       packages = (metadata for packageName, {metadata} of _atomPackages)
 
-      packages = packages.filter (metadata) ->
+      packages = packages.filter (metadata) =>
         if options.argv.themes
           metadata.theme
         else if options.argv.packages
           not metadata.theme
+        else if options.argv.enabled
+          not @isPackageDisabled(metadata.name)
         else
           true
 
