@@ -9,7 +9,7 @@ tree = require './tree'
 
 module.exports =
 class Search extends Command
-  @commandNames: ['search']
+  @commandNames: ['search', 's', 'se']
 
   parseOptions: (argv) ->
     options = yargs(argv).wrap(100)

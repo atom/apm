@@ -9,7 +9,7 @@ tree = require './tree'
 
 module.exports =
 class View extends Command
-  @commandNames: ['view', 'show']
+  @commandNames: ['view', 'info', 'show', 'v']
 
   parseOptions: (argv) ->
     options = yargs(argv).wrap(100)
