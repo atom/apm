@@ -52,3 +52,17 @@ describe 'apm clean', ->
     runs ->
       expect(callback.mostRecentCall.args[0]).toBeUndefined()
       expect(fs.existsSync(removedPath)).toBeFalsy()
+
+  it 'uninstalls a scoped package', ->
+    removedPath = path.join(moduleDirectory, 'node_modules', '@types/atom')
+    fs.makeTreeSync(removedPath)
+
+    callback = jasmine.createSpy('callback')
+    apm.run(['clean'], callback)
+
+    waitsFor 'waiting for command to complete', ->
+      callback.callCount > 0
+
+    runs ->
+      expect(callback.mostRecentCall.args[0]).toBeUndefined()
+      expect(fs.existsSync(removedPath)).toBeFalsy()
