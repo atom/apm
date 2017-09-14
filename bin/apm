@@ -3,6 +3,7 @@
 set -e
 
 initialCwd=`pwd -P`
+scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 apmPath=$0
 builtin cd "`dirname "$apmPath"`"
@@ -49,7 +50,7 @@ do
   unset ${var%%=*}
 done
 
-export npm_config_python="${SCRIPT_DIR}/python-interceptor.sh"
+export npm_config_python="${scriptDir}/python-interceptor.sh"
 
 cliPath="$binDir/../lib/cli.js"
 if [[ $(uname -r) == *-Microsoft ]]; then
