@@ -45,6 +45,8 @@ describe 'apm install', ->
         response.sendfile path.join(__dirname, 'fixtures', 'install-test-module.json')
       app.get '/packages/test-module2', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'install-test-module2.json')
+      app.get '/packages/test-rename', (request, response) ->
+        response.redirect 302, '/packages/test-module'
       app.get '/packages/test-module-with-bin', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'install-test-module-with-bin.json')
       app.get '/packages/test-module-with-symlink', (request, response) ->
@@ -177,6 +179,27 @@ describe 'apm install', ->
           runs ->
             expect(fs.existsSync(packageDirectory)).toBeFalsy()
             expect(callback.mostRecentCall.args[0]).not.toBeNull()
+
+        describe "when the package has been renamed", ->
+          it 'installs the package with the new name and delete the old module', ->
+            testRenameDirectory = path.join(atomHome, 'packages', 'test-rename')
+            testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
+            fs.makeTreeSync(testRenameDirectory)
+            expect(fs.existsSync(testRenameDirectory)).toBeTruthy()
+            expect(fs.existsSync(testModuleDirectory)).toBeFalsy()
+
+            callback = jasmine.createSpy('callback')
+            apm.run(['install', "test-rename"], callback)
+
+            waitsFor 'waiting for install to complete', 600000, ->
+              callback.callCount is 1
+
+            runs ->
+              expect(fs.existsSync(testRenameDirectory)).toBeFalsy()
+              expect(fs.existsSync(testModuleDirectory)).toBeTruthy()
+              expect(fs.existsSync(path.join(testModuleDirectory, 'index.js'))).toBeTruthy()
+              expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
+              expect(callback.mostRecentCall.args[0]).toBeNull()
 
     describe 'when multiple package names are specified', ->
       it 'installs all packages', ->
