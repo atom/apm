@@ -181,7 +181,7 @@ describe 'apm install', ->
             expect(callback.mostRecentCall.args[0]).not.toBeNull()
 
         describe "when the package has been renamed", ->
-          it 'installs the package with the new name and delete the old module', ->
+          it 'installs the package with the new name and removes the old package', ->
             testRenameDirectory = path.join(atomHome, 'packages', 'test-rename')
             testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
             fs.makeTreeSync(testRenameDirectory)
