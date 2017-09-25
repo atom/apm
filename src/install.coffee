@@ -355,6 +355,10 @@ class Install extends Command
             @installNode (error) -> next(error, packagePath)
         commands.push (packagePath, next) =>
           @installModule(options, pack, packagePath, next)
+        if installGlobally and packageName isnt pack.name
+          commands.push (newPack, next) => # package was renamed; delete old package folder
+            fs.removeSync(path.join(@atomPackagesDirectory, packageName))
+            next(null, newPack)
         commands.push ({installPath}, next) ->
           if installPath?
             metadata = JSON.parse(fs.readFileSync(path.join(installPath, 'package.json'), 'utf8'))
