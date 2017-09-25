@@ -50,7 +50,7 @@ do
   unset ${var%%=*}
 done
 
-export npm_config_python="${scriptDir}/python-interceptor.sh"
+export npm_config_python="${binDir}/python-interceptor.sh"
 
 cliPath="$binDir/../lib/cli.js"
 if [[ $(uname -r) == *-Microsoft ]]; then
