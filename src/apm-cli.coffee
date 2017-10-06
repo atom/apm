@@ -129,6 +129,19 @@ printVersions = (args, callback) ->
         console.log versions
       callback()
 
+getAtomVersion = (callback) ->
+  atom = 'atom'
+  spawned = 'spawned'
+  outputChunks = []
+  spawned.stderr.on 'data', (chunk) -> outputChunks.push(chunk)
+  spawned.stdout.on 'data', (chunk) -> outputChunks.push(chunk)
+  spawned.on 'error', ->
+  spawned.on 'close', (code) ->
+   if code is 0
+     version = Buffer.concat(outputChunks).toString()
+     version = version?.trim()
+   callback(version)
+
 getPythonVersion = (callback) ->
   npmOptions =
     userconfig: config.getUserConfigPath()
