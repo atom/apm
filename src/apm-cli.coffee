@@ -136,9 +136,6 @@ printVersions = (args, callback) ->
 getAtomVersion = (callback) ->
   config.getResourcePath (resourcePath) ->
     unknownVersion = 'unknown'
-    # workaround if app.asar does not exist. see: https://github.com/atom/atom/issues/6604
-    if not fs.existsSync(resourcePath)
-      resourcePath = resourcePath.replace('.asar', path.sep)
     try
       {version} = require(path.join(resourcePath, 'package.json')) ? unknownVersion
       callback(version)
