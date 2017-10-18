@@ -106,7 +106,7 @@ printVersions = (args, callback) ->
             apm: apmVersion
             npm: npmVersion
             node: nodeVersion
-            atomVersion: atomVersion
+            atom: atomVersion
             python: pythonVersion
             git: gitVersion
             nodeArch: process.arch
