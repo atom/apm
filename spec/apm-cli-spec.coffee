@@ -1,3 +1,5 @@
+path = require 'path'
+temp = require 'temp'
 fs = require 'fs'
 apm = require '../lib/apm-cli'
 
@@ -25,6 +27,11 @@ describe 'apm command line interface', ->
       callback = jasmine.createSpy('callback')
       apm.run(['-v', '--no-color'], callback)
 
+      testAtomVersion = '0.0.0'
+      tempAtomResourcePath = temp.mkdirSync('apm-resource-dir-')
+      fs.writeFileSync(path.join(tempAtomResourcePath, 'package.json'), JSON.stringify(version: testAtomVersion))
+      process.env.ATOM_RESOURCE_PATH = tempAtomResourcePath
+
       waitsFor ->
         callback.callCount is 1
 
@@ -35,6 +42,25 @@ describe 'apm command line interface', ->
         expect(lines[0]).toBe "apm  #{require('../package.json').version}"
         expect(lines[1]).toBe "npm  #{require('npm/package.json').version}"
         expect(lines[2]).toBe "node #{process.versions.node} #{process.arch}"
+        expect(lines[3]).toBe "atom #{testAtomVersion}"
+
+    describe 'when the version flag is specified and apm is unable find package.json on the resourcePath', ->
+      it 'prints unknown atom version', ->
+        callback = jasmine.createSpy('callback')
+        apm.run(['-v', '--no-color'], callback)
+
+        testAtomVersion = 'unknown'
+        tempAtomResourcePath = temp.mkdirSync('apm-resource-dir-')
+        process.env.ATOM_RESOURCE_PATH = tempAtomResourcePath
+
+        waitsFor ->
+          callback.callCount is 1
+
+        runs ->
+          expect(console.error).not.toHaveBeenCalled()
+          expect(console.log).toHaveBeenCalled()
+          lines = console.log.argsForCall[0][0].split('\n')
+          expect(lines[3]).toBe "atom #{testAtomVersion}"
 
   describe 'when an unrecognized command is specified', ->
     it 'prints an error message and exits', ->
