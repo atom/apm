@@ -2,8 +2,9 @@
 *.coffee
 .DS_Store
 npm-debug.log
-spec/
-tasks/
+/spec
 bin/node
 .travis.yml
 .pairs
+appveyor.yml
+coffeelint.json
