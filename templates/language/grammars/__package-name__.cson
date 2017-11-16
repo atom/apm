@@ -1,5 +1,5 @@
 # If this is your first time writing a language grammar, check out:
-#   - http://flight-manual.atom.io/hacking-atom/sections/creating-a-grammar/
+#   - https://flight-manual.atom.io/hacking-atom/sections/creating-a-grammar/
 
 'scopeName': 'source.__package-name__'
 'name': '__PackageName__'
