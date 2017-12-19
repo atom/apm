@@ -355,7 +355,7 @@ class Install extends Command
             @installNode (error) -> next(error, packagePath)
         commands.push (packagePath, next) =>
           @installModule(options, pack, packagePath, next)
-        if installGlobally and packageName isnt pack.name
+        if installGlobally and (packageName.localeCompare(pack.name, 'en', {sensitivity: 'accent'}) isnt 0)
           commands.push (newPack, next) => # package was renamed; delete old package folder
             fs.removeSync(path.join(@atomPackagesDirectory, packageName))
             next(null, newPack)
