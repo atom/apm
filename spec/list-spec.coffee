@@ -90,6 +90,11 @@ describe 'apm list', ->
       listPackages [], ->
         expect(console.log.argsForCall[1][0]).toContain 'test-module@1.0.0 (disabled)'
 
+    it 'displays only disabled packages when --disabled is called', ->
+      listPackages ['--disabled'], ->
+        expect(console.log.argsForCall[1][0]).toMatch /test-module@1\.0\.0$/
+        expect(console.log.argsForCall.toString()).not.toContain ['user-package']
+
     it 'displays only enabled packages when --enabled is called', ->
       listPackages ['--enabled'], ->
         expect(console.log.argsForCall[7][0]).toMatch /user-package@1\.0\.0$/

@@ -39,6 +39,7 @@ class List extends Command
     options.alias('b', 'bare').boolean('bare').describe('bare', 'Print packages one per line with no formatting')
     options.alias('e', 'enabled').boolean('enabled').describe('enabled', 'Print only enabled packages')
     options.alias('d', 'dev').boolean('dev').default('dev', true).describe('dev', 'Include dev packages')
+    options.boolean('disabled').describe('disabled', 'Print only disabled packages')
     options.alias('h', 'help').describe('help', 'Print this usage message')
     options.alias('i', 'installed').boolean('installed').describe('installed', 'Only list installed packages/themes')
     options.alias('j', 'json').boolean('json').describe('json', 'Output all packages as a JSON object')
@@ -64,20 +65,21 @@ class List extends Command
           shaLine = "##{pack.apmInstallSource.sha.substr(0, 8)}"
           shaLine = repo + shaLine if repo?
           packageLine += " (#{shaLine})".grey
-        packageLine += ' (disabled)' if @isPackageDisabled(pack.name)
+        packageLine += ' (disabled)' if @isPackageDisabled(pack.name) and not options.argv.disabled
         packageLine
     console.log()
 
-  isPackageVisible: (options, manifest) ->
-    if options.argv.themes
-      if manifest.theme and not (options.argv.enabled and @isPackageDisabled(manifest.name))
-        return true
-    else if options.argv.packages
-      unless manifest.theme or (options.argv.enabled and @isPackageDisabled(manifest.name))
-        return true
+  checkExclusiveOptions: (options, positive_option, negative_option, value) ->
+    if options.argv[positive_option]
+      value
+    else if options.argv[negative_option]
+      not value
     else
-      unless options.argv.enabled and @isPackageDisabled(manifest.name)
-        return true
+      true
+
+  isPackageVisible: (options, manifest) ->
+    @checkExclusiveOptions(options, 'themes', 'packages', manifest.theme) and
+    @checkExclusiveOptions(options, 'disabled', 'enabled', @isPackageDisabled(manifest.name))
 
   listPackages: (directoryPath, options) ->
     packages = []
