@@ -39,6 +39,7 @@ class List extends Command
     options.alias('b', 'bare').boolean('bare').describe('bare', 'Print packages one per line with no formatting')
     options.alias('e', 'enabled').boolean('enabled').describe('enabled', 'Print only enabled packages')
     options.alias('d', 'dev').boolean('dev').default('dev', true).describe('dev', 'Include dev packages')
+    options.boolean('disabled').describe('disabled', 'Print only disabled packages')
     options.alias('h', 'help').describe('help', 'Print this usage message')
     options.alias('i', 'installed').boolean('installed').describe('installed', 'Only list installed packages/themes')
     options.alias('j', 'json').boolean('json').describe('json', 'Output all packages as a JSON object')
@@ -64,9 +65,21 @@ class List extends Command
           shaLine = "##{pack.apmInstallSource.sha.substr(0, 8)}"
           shaLine = repo + shaLine if repo?
           packageLine += " (#{shaLine})".grey
-        packageLine += ' (disabled)' if @isPackageDisabled(pack.name)
+        packageLine += ' (disabled)' if @isPackageDisabled(pack.name) and not options.argv.disabled
         packageLine
     console.log()
+
+  checkExclusiveOptions: (options, positive_option, negative_option, value) ->
+    if options.argv[positive_option]
+      value
+    else if options.argv[negative_option]
+      not value
+    else
+      true
+
+  isPackageVisible: (options, manifest) ->
+    @checkExclusiveOptions(options, 'themes', 'packages', manifest.theme) and
+    @checkExclusiveOptions(options, 'disabled', 'enabled', @isPackageDisabled(manifest.name))
 
   listPackages: (directoryPath, options) ->
     packages = []
@@ -82,15 +95,9 @@ class List extends Command
           manifest = CSON.readFileSync(manifestPath)
       manifest ?= {}
       manifest.name = child
-      if options.argv.themes
-        if manifest.theme and not (options.argv.enabled and @isPackageDisabled(manifest.name))
-          packages.push(manifest)
-      else if options.argv.packages
-        unless manifest.theme or (options.argv.enabled and @isPackageDisabled(manifest.name))
-          packages.push(manifest)
-      else
-        unless options.argv.enabled and @isPackageDisabled(manifest.name)
-          packages.push(manifest)
+
+      continue unless @isPackageVisible(options, manifest)
+      packages.push(manifest)
 
     packages
 
@@ -127,14 +134,7 @@ class List extends Command
       packages = (metadata for packageName, {metadata} of _atomPackages)
 
       packages = packages.filter (metadata) =>
-        if options.argv.themes
-          metadata.theme
-        else if options.argv.packages
-          not metadata.theme
-        else if options.argv.enabled
-          not @isPackageDisabled(metadata.name)
-        else
-          true
+        @isPackageVisible(options, metadata)
 
       unless options.argv.bare or options.argv.json
         if options.argv.themes

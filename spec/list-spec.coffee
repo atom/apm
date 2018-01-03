@@ -77,42 +77,28 @@ describe 'apm list', ->
       expect(lines[10]).toMatch /git-package@1\.0\.0/
       expect(lines.join("\n")).not.toContain '.bin' # ensure invalid packages aren't listed
 
-  it 'labels disabled packages', ->
-    packagesPath = path.join(atomHome, 'packages')
-    fs.makeTreeSync(packagesPath)
-    wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module'), path.join(packagesPath, 'test-module'))
-    configPath = path.join(atomHome, 'config.cson')
-    CSON.writeFileSync configPath, '*':
-      core: disabledPackages: ["test-module"]
+  describe 'enabling and disabling packages', ->
+    beforeEach ->
+      packagesPath = path.join(atomHome, 'packages')
+      fs.makeTreeSync(packagesPath)
+      wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module'), path.join(packagesPath, 'test-module'))
+      configPath = path.join(atomHome, 'config.cson')
+      CSON.writeFileSync configPath, '*':
+        core: disabledPackages: ["test-module"]
 
-    listPackages [], ->
-      expect(console.log.argsForCall[1][0]).toContain 'test-module@1.0.0 (disabled)'
+    it 'labels disabled packages', ->
+      listPackages [], ->
+        expect(console.log.argsForCall[1][0]).toContain 'test-module@1.0.0 (disabled)'
 
-  it 'displays only enabled packages when --enabled is called', ->
-    atomPackages =
-      'test-module':
-        metadata:
-          name: 'test-module'
-          version: '1.0.0'
-      'test2-module':
-        metadata:
-          name: 'test2-module'
-          version: '1.0.0'
+    it 'displays only disabled packages when --disabled is called', ->
+      listPackages ['--disabled'], ->
+        expect(console.log.argsForCall[1][0]).toMatch /test-module@1\.0\.0$/
+        expect(console.log.argsForCall.toString()).not.toContain ['user-package']
 
-    fs.writeFileSync(path.join(resourcePath, 'package.json'), JSON.stringify(_atomPackages: atomPackages))
-
-    packagesPath = path.join(atomHome, 'packages')
-    fs.makeTreeSync(packagesPath)
-    wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module'), path.join(packagesPath, 'test-module'))
-    configPath = path.join(atomHome, 'config.cson')
-    CSON.writeFileSync configPath, '*':
-      core: disabledPackages: ["test-module"]
-
-    listPackages ['--enabled'], ->
-      expect(console.log.argsForCall[1][0]).toContain 'test2-module@1.0.0'
-      expect(console.log.argsForCall[4][0]).toContain 'dev-package@1.0.0'
-      expect(console.log.argsForCall[7][0]).toContain 'user-package@1.0.0'
-      expect(console.log.argsForCall[10][0]).toContain 'git-package@1.0.0'
+    it 'displays only enabled packages when --enabled is called', ->
+      listPackages ['--enabled'], ->
+        expect(console.log.argsForCall[7][0]).toMatch /user-package@1\.0\.0$/
+        expect(console.log.argsForCall.toString()).not.toContain ['test-module']
 
   it 'lists packages in json format when --json is passed', ->
     listPackages ['--json'], ->
