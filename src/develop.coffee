@@ -11,6 +11,7 @@ Install = require './install'
 git = require './git'
 Link = require './link'
 request = require './request'
+hostedGitInfo = require 'hosted-git-info'
 
 module.exports =
 class Develop extends Command
@@ -25,6 +26,9 @@ class Develop extends Command
 
     options.usage """
       Usage: apm develop <package_name> [<directory>]
+             apm develop <git_remote> [<directory>]
+             apm develop <github_username>/<github_project> [<directory>]
+             apm dev (with any of the previous argument usage)
 
       Clone the given package's Git repository to the directory specified,
       install its dependencies, and link it for development to
@@ -81,6 +85,19 @@ class Develop extends Command
     linkOptions.commandArgs = [packageDirectory, '--dev']
     new Link().run(linkOptions)
 
+  getNormalizedGitUrls: (packageUrl, packageInfo) ->
+    if packageUrl.indexOf('file://') is 0
+      [packageUrl]
+    else if packageInfo.default is 'sshurl'
+      [packageInfo.toString()]
+    else if packageInfo.default is 'https'
+      [packageInfo.https().replace(/^git\+https:/, "https:")]
+    else if packageInfo.default is 'shortcut'
+      [
+        packageInfo.https().replace(/^git\+https:/, "https:"),
+        packageInfo.sshurl()
+      ]
+
   run: (options) ->
     packageName = options.commandArgs.shift()
 
@@ -93,15 +110,23 @@ class Develop extends Command
     if fs.existsSync(packageDirectory)
       @linkPackage(packageDirectory, options)
     else
-      @getRepositoryUrl packageName, (error, repoUrl) =>
+      startTasks = (repoUrl) =>
+        tasks = []
+        tasks.push (callback) => @cloneRepository repoUrl, packageDirectory, options, callback
+
+        tasks.push (callback) => @installDependencies packageDirectory, options, callback
+
+        tasks.push (callback) => @linkPackage packageDirectory, options, callback
+
+        async.waterfall tasks, options.callback
+
+      gitPackageInfo = hostedGitInfo.fromUrl(packageName)
+      if gitPackageInfo or packageName.indexOf('file://') is 0
+        repoUrl = @getNormalizedGitUrls(packageName, gitPackageInfo)
+        startTasks(repoUrl)
+      else
+      @getRepositoryUrl packageName, (error, repoUrl) ->
         if error?
           options.callback(error)
         else
-          tasks = []
-          tasks.push (callback) => @cloneRepository repoUrl, packageDirectory, options, callback
-
-          tasks.push (callback) => @installDependencies packageDirectory, options, callback
-
-          tasks.push (callback) => @linkPackage packageDirectory, options, callback
-
-          async.waterfall tasks, options.callback
+          startTasks(repoUrl)
