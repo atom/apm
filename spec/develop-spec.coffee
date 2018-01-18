@@ -73,3 +73,25 @@ describe "apm develop", ->
         expect(fs.existsSync(repoPath)).toBeTruthy()
         expect(fs.existsSync(linkedRepoPath)).toBeTruthy()
         expect(fs.realpathSync(linkedRepoPath)).toBe fs.realpathSync(repoPath)
+
+  describe "pass git url", ->
+    it "works with git url", ->
+      fs.makeTreeSync(repoPath)
+      Develop = require '../lib/develop'
+      repoUrl = path.join(__dirname, 'fixtures', 'test-git-repo.git')
+      spyOn(Develop.prototype, "getHostedGitInfo").andCallFake (name) ->
+        project: "fake-package"
+      spyOn(Develop.prototype, 'cloneRepository').andCallFake (repoUrl, packageDirectory, options, callback) ->
+        @linkPackage(packageDirectory, options)
+
+      callback = jasmine.createSpy('callback')
+      apm.run(['develop', "file://#{repoUrl}"], callback)
+
+      waitsFor 'waiting for develop to complete', ->
+        callback.callCount is 1
+
+      runs ->
+        expect(callback.mostRecentCall.args[0]).toBeFalsy()
+        expect(fs.existsSync(repoPath)).toBeTruthy()
+        expect(fs.existsSync(linkedRepoPath)).toBeTruthy()
+        expect(fs.realpathSync(linkedRepoPath)).toBe fs.realpathSync(repoPath)

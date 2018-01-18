@@ -85,6 +85,9 @@ class Develop extends Command
     linkOptions.commandArgs = [packageDirectory, '--dev']
     new Link().run(linkOptions)
 
+  getHostedGitInfo: (name) ->
+    hostedGitInfo.fromUrl(name)
+
   getNormalizedGitUrls: (packageUrl, packageInfo) ->
     if packageUrl.indexOf('file://') is 0
       [packageUrl]
@@ -110,7 +113,7 @@ class Develop extends Command
     if fs.existsSync(packageDirectory)
       @linkPackage(packageDirectory, options)
     else
-      startTasks = (repoUrl) =>
+      startTasks = (repoUrl, packageDirectory) =>
         tasks = []
         tasks.push (callback) => @cloneRepository repoUrl, packageDirectory, options, callback
 
@@ -120,13 +123,14 @@ class Develop extends Command
 
         async.waterfall tasks, options.callback
 
-      gitPackageInfo = hostedGitInfo.fromUrl(packageName)
+      gitPackageInfo = @getHostedGitInfo(packageName)
       if gitPackageInfo or packageName.indexOf('file://') is 0
         repoUrl = @getNormalizedGitUrls(packageName, gitPackageInfo)
-        startTasks(repoUrl)
+        packageDirectory = options.commandArgs.shift() ? path.join(config.getReposDirectory(), gitPackageInfo.project)
+        startTasks(repoUrl, packageDirectory)
       else
       @getRepositoryUrl packageName, (error, repoUrl) ->
         if error?
           options.callback(error)
         else
-          startTasks(repoUrl)
+          startTasks(repoUrl, packageDirectory)
