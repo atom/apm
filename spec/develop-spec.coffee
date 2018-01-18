@@ -78,14 +78,16 @@ describe "apm develop", ->
     it "works with git url", ->
       fs.makeTreeSync(repoPath)
       Develop = require '../lib/develop'
-      repoUrl = path.join(__dirname, 'fixtures', 'test-git-repo.git')
-      spyOn(Develop.prototype, "getHostedGitInfo").andCallFake (name) ->
+      Install = require '../lib/install'
+      gitRepo = path.join(__dirname, "fixtures", "test-git-repo.git")
+      cloneUrl = "file://#{gitRepo}"
+      spyOn(Install.prototype, "getHostedGitInfo").andCallFake (name) ->
         project: "fake-package"
-      spyOn(Develop.prototype, 'cloneRepository').andCallFake (repoUrl, packageDirectory, options, callback) ->
-        @linkPackage(packageDirectory, options)
+      spyOn(Install.prototype, 'cloneFirstValidGitUrl').andCallFake (repoUrl, packageDirectory, options, callback) ->
+        new Develop().linkPackage(packageDirectory, options)
 
       callback = jasmine.createSpy('callback')
-      apm.run(['develop', "file://#{repoUrl}"], callback)
+      apm.run(['develop', cloneUrl], callback)
 
       waitsFor 'waiting for develop to complete', ->
         callback.callCount is 1

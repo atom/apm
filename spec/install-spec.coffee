@@ -400,14 +400,14 @@ describe 'apm install', ->
             unless url is urls[2]
               callback(new Error("Failed to clone"))
 
-          spyOn(install, "cloneNormalizedUrl").andCallFake(fakeCloneRepository)
+          spyOn(install, "cloneRepository").andCallFake(fakeCloneRepository)
 
         it 'tries cloning the next URL until one works', ->
           install.cloneFirstValidGitUrl urls, {}, ->
-          expect(install.cloneNormalizedUrl.calls.length).toBe 3
-          expect(install.cloneNormalizedUrl.argsForCall[0][0]).toBe urls[0]
-          expect(install.cloneNormalizedUrl.argsForCall[1][0]).toBe urls[1]
-          expect(install.cloneNormalizedUrl.argsForCall[2][0]).toBe urls[2]
+          expect(install.cloneRepository.calls.length).toBe 3
+          expect(install.cloneRepository.argsForCall[0][0]).toBe urls[0]
+          expect(install.cloneRepository.argsForCall[1][0]).toBe urls[1]
+          expect(install.cloneRepository.argsForCall[2][0]).toBe urls[2]
 
     describe 'when installing a package from a git repository', ->
       [cloneUrl, pkgJsonPath] = []
