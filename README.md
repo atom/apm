@@ -41,6 +41,10 @@ The common commands are `apm install <package_name>` to install a new package,
 `apm featured` to see all the featured packages, and `apm publish` to publish
 a package to [atom.io](https://atom.io).
 
+## Two-factor authentication?
+
+If you have 2fa enabled on your GitHub account, you'll need to generate a [personal access token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/) and provide that when prompted for your password.
+
 ## Behind a firewall?
 
 If you are behind a firewall and seeing SSL errors when installing packages
