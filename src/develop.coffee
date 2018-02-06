@@ -8,7 +8,6 @@ yargs = require 'yargs'
 config = require './apm'
 Command = require './command'
 Install = require './install'
-git = require './git'
 Link = require './link'
 request = require './request'
 
@@ -25,6 +24,9 @@ class Develop extends Command
 
     options.usage """
       Usage: apm develop <package_name> [<directory>]
+             apm develop <git_remote> [<directory>]
+             apm develop <github_username>/<github_project> [<directory>]
+             apm dev (with any of the previous argument usage)
 
       Clone the given package's Git repository to the directory specified,
       install its dependencies, and link it for development to
@@ -55,18 +57,6 @@ class Develop extends Command
         message = request.getErrorMessage(response, body)
         callback("Request for package information failed: #{message}")
 
-  cloneRepository: (repoUrl, packageDirectory, options, callback = ->) ->
-    config.getSetting 'git', (command) =>
-      command ?= 'git'
-      args = ['clone', '--recursive', repoUrl, packageDirectory]
-      process.stdout.write "Cloning #{repoUrl} " unless options.argv.json
-      git.addGitToEnv(process.env)
-      @spawn command, args, (args...) =>
-        if options.argv.json
-          @logCommandResultsIfFail(callback, args...)
-        else
-          @logCommandResults(callback, args...)
-
   installDependencies: (packageDirectory, options, callback = ->) ->
     process.chdir(packageDirectory)
     installOptions = _.clone(options)
@@ -87,21 +77,35 @@ class Develop extends Command
     unless packageName?.length > 0
       return options.callback("Missing required package name")
 
-    packageDirectory = options.commandArgs.shift() ? path.join(config.getReposDirectory(), packageName)
+    directory = options.commandArgs.shift()
+
+    packageDirectory = directory ? path.join(config.getReposDirectory(), packageName)
     packageDirectory = path.resolve(packageDirectory)
+
+    install = new Install()
 
     if fs.existsSync(packageDirectory)
       @linkPackage(packageDirectory, options)
     else
-      @getRepositoryUrl packageName, (error, repoUrl) =>
+      startTasks = (repoUrls, packageDirectory) =>
+        tasks = []
+        tasks.push (callback) -> install.cloneFirstValidGitUrl repoUrls, packageDirectory, options, callback
+
+        tasks.push (callback) => @installDependencies packageDirectory, options, callback
+
+        tasks.push (callback) => @linkPackage packageDirectory, options, callback
+
+        async.waterfall tasks, options.callback
+
+      gitPackageInfo = install.getHostedGitInfo(packageName)
+      if gitPackageInfo or packageName.indexOf('file://') is 0
+        repoUrls = install.getNormalizedGitUrls(packageName)
+        packageDirectory = directory ? path.join(config.getReposDirectory(), gitPackageInfo.project)
+        packageDirectory = path.resolve(packageDirectory)
+        startTasks(repoUrls, packageDirectory)
+      else
+      @getRepositoryUrl packageName, (error, repoUrl) ->
         if error?
           options.callback(error)
         else
-          tasks = []
-          tasks.push (callback) => @cloneRepository repoUrl, packageDirectory, options, callback
-
-          tasks.push (callback) => @installDependencies packageDirectory, options, callback
-
-          tasks.push (callback) => @linkPackage packageDirectory, options, callback
-
-          async.waterfall tasks, options.callback
+          startTasks([repoUrl], packageDirectory)

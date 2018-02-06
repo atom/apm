@@ -13,6 +13,7 @@ hostedGitInfo = require 'hosted-git-info'
 config = require './apm'
 Command = require './command'
 fs = require './fs'
+git = require './git'
 RebuildModuleCache = require './rebuild-module-cache'
 request = require './request'
 {isDeprecatedPackage} = require './deprecated-packages'
@@ -577,7 +578,7 @@ class Install extends Command
 
   cloneFirstValidGitUrl: (urls, cloneDir, options, callback) ->
     async.detectSeries urls, (url, next) =>
-      @cloneNormalizedUrl url, cloneDir, options, (error) ->
+      @cloneRepository url, cloneDir, options, (error) ->
         next(not error)
     , (result) ->
       if not result
@@ -587,13 +588,17 @@ class Install extends Command
       else
         callback()
 
-  cloneNormalizedUrl: (url, cloneDir, options, callback) ->
-    # Require here to avoid circular dependency
-    Develop = require './develop'
-    develop = new Develop()
-
-    develop.cloneRepository url, cloneDir, options, (err) ->
-      callback(err)
+  cloneRepository: (url, cloneDir, options, callback = ->) ->
+    config.getSetting 'git', (command) =>
+      command ?= 'git'
+      args = ['clone', '--recursive', url, cloneDir]
+      process.stdout.write "Cloning #{url} " unless options.argv.json
+      git.addGitToEnv(process.env)
+      @spawn command, args, (args...) =>
+        if options.argv.json
+          @logCommandResultsIfFail(callback, args...)
+        else
+          @logCommandResults(callback, args...)
 
   installGitPackageDependencies: (directory, options, callback) =>
     options.cwd = directory
