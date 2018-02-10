@@ -1,0 +1,6 @@
+{
+    "dist": {
+        "tarball": "http://localhost:3000/tarball/test-module-0.2.0.tgz"
+    },
+    "version": "0.2.0"
+}

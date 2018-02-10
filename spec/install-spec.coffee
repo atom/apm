@@ -37,12 +37,20 @@ describe 'apm install', ->
         response.sendfile path.join(__dirname, 'fixtures', 'node_x64.lib')
       app.get '/node/v0.10.3/SHASUMS256.txt', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'SHASUMS256.txt')
+      app.get '/tarball/test-module-0.2.0.tgz', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'test-module-0.2.0.tgz')
+      app.get '/tarball/test-module-0.3.0.tgz', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'test-module-0.3.0.tgz')
+      app.get '/tarball/test-module-0.4.0.tgz', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'test-module-0.4.0.tgz')
       app.get '/tarball/test-module-1.0.0.tgz', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'test-module-1.0.0.tgz')
       app.get '/tarball/test-module2-2.0.0.tgz', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'test-module2-2.0.0.tgz')
       app.get '/packages/test-module', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'install-test-module.json')
+      app.get '/packages/test-module/versions/0.2.0', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'install-test-module-version-0.2.0.json')
       app.get '/packages/test-module2', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'install-test-module2.json')
       app.get '/packages/test-rename', (request, response) ->
@@ -200,6 +208,43 @@ describe 'apm install', ->
               expect(fs.existsSync(path.join(testModuleDirectory, 'index.js'))).toBeTruthy()
               expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
               expect(callback.mostRecentCall.args[0]).toBeNull()
+
+    describe 'when an explicit version is specified', ->
+      it 'installs the version', ->
+        testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
+
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', "test-module@0.3.0"], callback)
+
+        waitsFor 'waiting for install to complete', 600000, ->
+          callback.callCount is 1
+
+        runs ->
+          expect(callback.mostRecentCall.args[0]).toBeNull()
+          expect(JSON.parse(fs.readFileSync(path.join(testModuleDirectory, 'package.json'))).version).toBe "0.3.0"
+
+      it 'allows installing versions not in the package JSON', ->
+        testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
+
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', "test-module@0.2.0"], callback)
+
+        waitsFor 'waiting for install to complete', 600000, ->
+          callback.callCount is 1
+
+        runs ->
+          expect(callback.mostRecentCall.args[0]).toBeNull()
+          expect(JSON.parse(fs.readFileSync(path.join(testModuleDirectory, 'package.json'))).version).toBe "0.2.0"
+
+      it 'gives an error when installing a nonexistent version', ->
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', "test-module@0.1.0"], callback)
+
+        waitsFor 'waiting for install to complete', 600000, ->
+          callback.callCount is 1
+
+        runs ->
+          expect(callback.mostRecentCall.args[0]).toBe 'Package version: 0.1.0 not found'
 
     describe 'when multiple package names are specified', ->
       it 'installs all packages', ->

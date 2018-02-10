@@ -7,7 +7,8 @@
         "2.0.0": {
             "dist": {
                 "tarball": "http://localhost:3000/tarball/test-module2-2.0.0.tgz"
-            }
+            },
+            "version": "2.0.0"
         }
     }
 }

@@ -15,7 +15,8 @@
       },
       "dist": {
         "tarball": "http://localhost:3000/tarball/test-module-1.0.0.tgz"
-      }
+      },
+      "version": "0.3.0"
     },
     "0.2.0": {
       "engines": {
