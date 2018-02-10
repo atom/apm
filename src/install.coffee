@@ -235,6 +235,30 @@ class Install extends Command
         else
           callback("No releases available for #{packageName}")
 
+  # Request package version information from the atom.io API.
+  #
+  # packageName - The string name of the package to request.
+  # versionName - The string version of the package to request.
+  # callback - The function to invoke when the request completes with an error
+  #            as the first argument and an object as the second.
+  requestPackageVersion: (packageName, versionName, callback) ->
+    requestSettings =
+      url: "#{config.getAtomPackagesUrl()}/#{packageName}/versions/#{versionName}"
+      json: true
+      retries: 4
+    request.get requestSettings, (error, response, body={}) ->
+      if error?
+        message = "Request for package version information failed: #{error.message}"
+        message += " (#{error.code})" if error.code
+        callback(message)
+      else if response.statusCode is 404
+        callback("Package version: #{versionName} not found")
+      else if response.statusCode isnt 200
+        message = request.getErrorMessage(response, body)
+        callback("Request for package version information failed: #{message}")
+      else
+        callback(null, body)
+
   # Download a package tarball.
   #
   # packageUrl - The string tarball URL to request
@@ -271,13 +295,13 @@ class Install extends Command
   # Get the path to the package from the local cache.
   #
   #  packageName - The string name of the package.
-  #  packageVersion - The string version of the package.
+  #  versionName - The string version of the package.
   #  callback - The function to call with error and cachePath arguments.
   #
   # Returns a path to the cached tarball or undefined when not in the cache.
-  getPackageCachePath: (packageName, packageVersion, callback) ->
+  getPackageCachePath: (packageName, versionName, callback) ->
     cacheDir = config.getCacheDirectory()
-    cachePath = path.join(cacheDir, packageName, packageVersion, 'package.tgz')
+    cachePath = path.join(cacheDir, packageName, versionName, 'package.tgz')
     if fs.isFileSync(cachePath)
       tempPath = path.join(temp.mkdirSync(), path.basename(cachePath))
       fs.cp cachePath, tempPath, (error) ->
@@ -287,16 +311,16 @@ class Install extends Command
           callback(null, tempPath)
     else
       process.nextTick ->
-        callback(new Error("#{packageName}@#{packageVersion} is not in the cache"))
+        callback(new Error("#{packageName}@#{versionName} is not in the cache"))
 
   # Is the package at the specified version already installed?
   #
   #  * packageName: The string name of the package.
-  #  * packageVersion: The string version of the package.
-  isPackageInstalled: (packageName, packageVersion) ->
+  #  * versionName: The string version of the package.
+  isPackageInstalled: (packageName, versionName) ->
     try
       {version} = CSON.readFileSync(CSON.resolve(path.join('node_modules', packageName, 'package'))) ? {}
-      packageVersion is version
+      versionName is version
     catch error
       false
 
@@ -310,16 +334,16 @@ class Install extends Command
   #            error as the first argument.
   installRegisteredPackage: (metadata, options, callback) ->
     packageName = metadata.name
-    packageVersion = metadata.version
+    versionName = metadata.version
 
     installGlobally = options.installGlobally ? true
     unless installGlobally
-      if packageVersion and @isPackageInstalled(packageName, packageVersion)
+      if versionName and @isPackageInstalled(packageName, versionName)
         callback(null, {})
         return
 
     label = packageName
-    label += "@#{packageVersion}" if packageVersion
+    label += "@#{versionName}" if versionName
     unless options.argv.json
       process.stdout.write "Installing #{label} "
       if installGlobally
@@ -330,50 +354,69 @@ class Install extends Command
         @logFailure()
         callback(error)
       else
-        packageVersion ?= @getLatestCompatibleVersion(pack)
-        unless packageVersion
+        versionName ?= @getLatestCompatibleVersion(pack)
+        unless versionName
           @logFailure()
           callback("No available version compatible with the installed Atom version: #{@installedAtomVersion}")
           return
 
-        {tarball} = pack.versions[packageVersion]?.dist ? {}
-        unless tarball
-          @logFailure()
-          callback("Package version: #{packageVersion} not found")
-          return
-
-        commands = []
-        commands.push (next) =>
-          @getPackageCachePath packageName, packageVersion, (error, packagePath) =>
-            if packagePath
-              next(null, packagePath)
-            else
-              @downloadPackage(tarball, installGlobally, next)
-        installNode = options.installNode ? true
-        if installNode
-          commands.push (packagePath, next) =>
-            @installNode (error) -> next(error, packagePath)
-        commands.push (packagePath, next) =>
-          @installModule(options, pack, packagePath, next)
-        if installGlobally and (packageName.localeCompare(pack.name, 'en', {sensitivity: 'accent'}) isnt 0)
-          commands.push (newPack, next) => # package was renamed; delete old package folder
-            fs.removeSync(path.join(@atomPackagesDirectory, packageName))
-            next(null, newPack)
-        commands.push ({installPath}, next) ->
-          if installPath?
-            metadata = JSON.parse(fs.readFileSync(path.join(installPath, 'package.json'), 'utf8'))
-            json = {installPath, metadata}
-            next(null, json)
-          else
-            next(null, {}) # installed locally, no install path data
-
-        async.waterfall commands, (error, json) =>
-          unless installGlobally
+        version = pack.versions[versionName]
+        unless version
+          # The package information only has recent versions, so do another API
+          # request in case this is an older version.
+          @requestPackageVersion packageName, versionName, (error, version) =>
             if error?
               @logFailure()
+              callback(error)
             else
-              @logSuccess() unless options.argv.json
-          callback(error, json)
+              @installPackageVersion(packageName, pack, version, options, callback)
+          return
+        @installPackageVersion(packageName, pack, version, options, callback)
+
+  # Install the package with the given name and optional version
+  #
+  # packageName - The originally-requested package name. This might differ from
+  #               pack.name if the package was renamed.
+  # pack - The package object returned by the API.
+  # version - The version object returned by the API.
+  # options - The installation options object.
+  # callback - The function to invoke when installation completes with an
+  #            error as the first argument.
+  installPackageVersion: (packageName, pack, version, options, callback) ->
+    installGlobally = options.installGlobally ? true
+    tarball = version.dist.tarball
+    commands = []
+    commands.push (next) =>
+      @getPackageCachePath packageName, version.version, (error, packagePath) =>
+        if packagePath
+          next(null, packagePath)
+        else
+          @downloadPackage(tarball, installGlobally, next)
+    installNode = options.installNode ? true
+    if installNode
+      commands.push (packagePath, next) =>
+        @installNode (error) -> next(error, packagePath)
+    commands.push (packagePath, next) =>
+      @installModule(options, pack, packagePath, next)
+    if installGlobally and (packageName.localeCompare(pack.name, 'en', {sensitivity: 'accent'}) isnt 0)
+      commands.push (newPack, next) => # package was renamed; delete old package folder
+        fs.removeSync(path.join(@atomPackagesDirectory, packageName))
+        next(null, newPack)
+    commands.push ({installPath}, next) ->
+      if installPath?
+        metadata = JSON.parse(fs.readFileSync(path.join(installPath, 'package.json'), 'utf8'))
+        json = {installPath, metadata}
+        next(null, json)
+      else
+        next(null, {}) # installed locally, no install path data
+
+    async.waterfall commands, (error, json) =>
+      unless installGlobally
+        if error?
+          @logFailure()
+        else
+          @logSuccess() unless options.argv.json
+      callback(error, json)
 
   # Install all the package dependencies found in the package.json file.
   #
