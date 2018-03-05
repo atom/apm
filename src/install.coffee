@@ -9,6 +9,7 @@ Git = require 'git-utils'
 semver = require 'semver'
 temp = require 'temp'
 hostedGitInfo = require 'hosted-git-info'
+dowsingRod = require '@atom/dowsing-rod'
 
 config = require './apm'
 Command = require './command'
@@ -607,6 +608,12 @@ class Install extends Command
     catch err
       callback(err)
 
+  setPythonEnv: (callback) ->
+    options =
+      npmBin: require.resolve('npm/bin/npm-cli')
+      pythonBinFile: path.join(@atomDirectory, 'python2bin')
+    dowsingRod.setPythonEnv(options, process.env).then(callback)
+
   run: (options) ->
     {callback} = options
     options = @parseOptions(options.commandArgs)
@@ -616,8 +623,9 @@ class Install extends Command
 
     if options.argv.check
       config.loadNpm (error, @npm) =>
-        @loadInstalledAtomMetadata =>
-          @checkNativeBuildTools(callback)
+        @setPythonEnv =>
+          @loadInstalledAtomMetadata =>
+            @checkNativeBuildTools(callback)
       return
 
     @verbose = options.argv.verbose
@@ -658,6 +666,7 @@ class Install extends Command
 
     commands = []
     commands.push (callback) => config.loadNpm (error, @npm) => callback(error)
+    commands.push (callback) => @setPythonEnv -> callback()
     commands.push (callback) => @loadInstalledAtomMetadata -> callback()
     packageNames.forEach (packageName) ->
       commands.push (callback) -> installPackage(packageName, callback)

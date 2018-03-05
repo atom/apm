@@ -34,9 +34,9 @@ case $1 in
       ARGS+=("--format=safemake.py")
     fi
 
-    exec python "${ARGS[@]}"
+    exec "${ATOM_APM_ORIGINAL_PYTHON:-python}" "${ARGS[@]}"
     ;;
   *)
-    exec python "$@"
+    exec "${ATOM_APM_ORIGINAL_PYTHON:-python}" "$@"
     ;;
 esac

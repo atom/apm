@@ -5,3 +5,4 @@
 npm-debug.log
 *~
 *.pyc
+.python2-bin
