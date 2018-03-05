@@ -31,6 +31,12 @@ class Dedupe extends Command
     """
     options.alias('h', 'help').describe('help', 'Print this usage message')
 
+  setPythonEnv: (callback) ->
+    options =
+      npmBin: require.resolve('npm/bin/npm-cli')
+      pythonBinFile: path.join(@atomDirectory, 'python2bin')
+    dowsingRod.setPythonEnv(options, process.env).then(callback)
+
   installNode: (callback) ->
     installNodeArgs = ['install']
     installNodeArgs.push("--runtime=electron")
@@ -54,11 +60,12 @@ class Dedupe extends Command
       proxy = npm.config.get('https-proxy') or npm.config.get('proxy') or env.HTTPS_PROXY or env.HTTP_PROXY
       installNodeArgs.push("--proxy=#{proxy}") if proxy
 
-      @fork @atomNodeGypPath, installNodeArgs, {env, cwd: @atomDirectory}, (code, stderr='', stdout='') ->
-        if code is 0
-          callback()
-        else
-          callback("#{stdout}\n#{stderr}")
+      @setPythonEnv =>
+        @fork @atomNodeGypPath, installNodeArgs, {env, cwd: @atomDirectory}, (code, stderr='', stdout='') ->
+          if code is 0
+            callback()
+          else
+            callback("#{stdout}\n#{stderr}")
 
   getVisualStudioFlags: ->
     if vsVersion = config.getInstalledVisualStudioFlag()
