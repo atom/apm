@@ -15,7 +15,7 @@ fsAdditions =
       []
 
   listRecursive: (directoryPath) ->
-    wrench.readdirSyncRecursive(directoryPath)
+    fs.listTreeSync(directoryPath)
 
   cp: (sourcePath, destinationPath, callback) ->
     rm destinationPath, (error) ->
