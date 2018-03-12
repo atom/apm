@@ -3,7 +3,6 @@ fs = require 'fs-plus'
 temp = require 'temp'
 express = require 'express'
 http = require 'http'
-wrench = require 'wrench'
 apm = require '../lib/apm-cli'
 
 describe 'apm clean', ->
@@ -33,7 +32,7 @@ describe 'apm clean', ->
     process.env.ATOM_ELECTRON_VERSION = 'v0.10.3'
 
     moduleDirectory = path.join(temp.mkdirSync('apm-test-module-'), 'test-module-with-dependencies')
-    wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
+    fs.copySync(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
     process.chdir(moduleDirectory)
 
   afterEach ->

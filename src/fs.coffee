@@ -2,7 +2,6 @@ _ = require 'underscore-plus'
 fs = require 'fs-plus'
 ncp = require 'ncp'
 rm = require 'rimraf'
-wrench = require 'wrench'
 
 fsAdditions =
   list: (directoryPath) ->
@@ -15,7 +14,7 @@ fsAdditions =
       []
 
   listRecursive: (directoryPath) ->
-    wrench.readdirSyncRecursive(directoryPath)
+    fs.listTreeSync(directoryPath)
 
   cp: (sourcePath, destinationPath, callback) ->
     rm destinationPath, (error) ->

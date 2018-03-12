@@ -3,7 +3,6 @@ fs = require 'fs-plus'
 temp = require 'temp'
 express = require 'express'
 http = require 'http'
-wrench = require 'wrench'
 apm = require '../lib/apm-cli'
 
 apmRun = (args, callback) ->
