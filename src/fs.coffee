@@ -2,7 +2,6 @@ _ = require 'underscore-plus'
 fs = require 'fs-plus'
 ncp = require 'ncp'
 rm = require 'rimraf'
-wrench = require 'wrench'
 
 fsAdditions =
   list: (directoryPath) ->
