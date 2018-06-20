@@ -12,7 +12,14 @@
   },
   "main": "./lib/apm.js",
   "bin": {
-    "apm": "./bin/apm"
+    "apm": "./lib/cli.js"
+  },
+  "pkg": {
+    "scripts": "lib/**/*.js",
+    "assets": [
+      "node_modules/npm/node_modules/node-gyp/**/*"
+    ],
+    "output": "apm.exe"
   },
   "scripts": {
     "build": "node script/check-version.js && grunt",
@@ -53,10 +60,11 @@
     "coffee-script": "^1.8.0",
     "express": "~3.2.3",
     "grunt": "^1.0.1",
-    "grunt-coffeelint": "0.0.16",
     "grunt-cli": "^1.2.0",
+    "grunt-coffeelint": "0.0.16",
     "grunt-contrib-coffee": "^1.0.0",
     "grunt-shell": "^1.3.0",
-    "jasmine-focused": ">=1.0.7 <2.0"
+    "jasmine-focused": ">=1.0.7 <2.0",
+    "pkg": "^4.3.1"
   }
 }
