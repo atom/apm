@@ -48,6 +48,11 @@ describe 'apm clean', ->
   it 'uninstalls any packages not referenced in the package.json', ->
     removedPath = path.join(moduleDirectory, 'node_modules', 'will-be-removed')
     fs.makeTreeSync(removedPath)
+    fs.writeFileSync(
+      path.join(removedPath, 'package.json'),
+      '{"name": "will-be-removed", "version": "1.0.0", "dependencies": {}}',
+      'utf8'
+    )
 
     callback = jasmine.createSpy('callback')
     apm.run(['clean'], callback)
