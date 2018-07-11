@@ -65,8 +65,13 @@ describe 'apm clean', ->
       expect(fs.existsSync(removedPath)).toBeFalsy()
 
   it 'uninstalls a scoped package', ->
-    removedPath = path.join(moduleDirectory, 'node_modules', '@types/atom')
+    removedPath = path.join(moduleDirectory, 'node_modules/@types/atom')
     fs.makeTreeSync(removedPath)
+    fs.writeFileSync(
+      path.join(removedPath, 'package.json'),
+      '{"name": "will-be-removed", "version": "1.0.0", "dependencies": {}}',
+      'utf8'
+    )
 
     callback = jasmine.createSpy('callback')
     apm.run(['clean'], callback)
