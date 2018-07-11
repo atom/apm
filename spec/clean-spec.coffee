@@ -41,7 +41,9 @@ describe 'apm clean', ->
     waitsFor -> live
 
   afterEach ->
-    server.close()
+    done = false
+    server.close -> done = true
+    waitsFor -> done
 
   it 'uninstalls any packages not referenced in the package.json', ->
     removedPath = path.join(moduleDirectory, 'node_modules', 'will-be-removed')
