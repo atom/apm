@@ -238,11 +238,12 @@ class Install extends Command
   # Download a package tarball.
   #
   # packageUrl - The string tarball URL to request
+  # destPath - Local path to which this tarball should be moved on download completion
   # installGlobally - `true` if this package is being installed globally.
   # callback - The function to invoke when the request completes with an error
   #            as the first argument and a string path to the downloaded file
   #            as the second.
-  downloadPackage: (packageUrl, installGlobally, callback) ->
+  downloadPackage: (packageUrl, destPath, installGlobally, callback) ->
     requestSettings = url: packageUrl
     request.createReadStream requestSettings, (readStream) =>
       readStream.on 'error', (error) ->
@@ -254,7 +255,9 @@ class Install extends Command
           readStream.pipe(writeStream)
           writeStream.on 'error', (error) ->
             callback("Unable to download #{packageUrl}: #{error.message}")
-          writeStream.on 'close', -> callback(null, filePath)
+          writeStream.on 'close', ->
+            fs.mv filePath, destPath, (err) ->
+              callback(err, destPath)
         else
           chunks = []
           response.on 'data', (chunk) -> chunks.push(chunk)
@@ -276,7 +279,7 @@ class Install extends Command
   #
   # Returns a path to the cached tarball or undefined when not in the cache.
   getPackageCachePath: (packageName, packageVersion, callback) ->
-    cacheDir = config.getCacheDirectory()
+    cacheDir = path.join(config.getCacheDirectory(), 'tarballs')
     cachePath = path.join(cacheDir, packageName, packageVersion, 'package.tgz')
     if fs.isFileSync(cachePath)
       tempPath = path.join(temp.mkdirSync(), path.basename(cachePath))
@@ -287,7 +290,7 @@ class Install extends Command
           callback(null, tempPath)
     else
       process.nextTick ->
-        callback(new Error("#{packageName}@#{packageVersion} is not in the cache"))
+        callback(new Error("#{packageName}@#{packageVersion} is not in the cache"), cachePath)
 
   # Is the package at the specified version already installed?
   #
@@ -345,10 +348,10 @@ class Install extends Command
         commands = []
         commands.push (next) =>
           @getPackageCachePath packageName, packageVersion, (error, packagePath) =>
-            if packagePath
+            if error is null
               next(null, packagePath)
             else
-              @downloadPackage(tarball, installGlobally, next)
+              @downloadPackage(tarball, packagePath, installGlobally, next)
         installNode = options.installNode ? true
         if installNode
           commands.push (packagePath, next) =>
