@@ -108,36 +108,6 @@ describe 'apm install', ->
           expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
           expect(callback.mostRecentCall.args[0]).toBeNull()
 
-      describe "when the package is already in the cache", ->
-        it "installs it from the cache", ->
-          cachePath = path.join(
-            require('../lib/apm').getCacheDirectory(), 'tarballs', 'test-module2', '2.0.0', 'package.tgz')
-          testModuleDirectory = path.join(atomHome, 'packages', 'test-module2')
-
-          callback = jasmine.createSpy('callback')
-          apm.run(['install', "test-module2"], callback)
-          expect(fs.isFileSync(cachePath)).toBeFalsy()
-
-          waitsFor 'waiting for install to complete', 600000, ->
-            callback.callCount is 1
-
-          runs ->
-            expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
-            expect(callback.mostRecentCall.args[0]).toBeNull()
-            expect(fs.isFileSync(cachePath)).toBeTruthy()
-
-            callback.reset()
-            fs.removeSync(path.join(testModuleDirectory, 'package.json'))
-            apm.run(['install', "test-module2"], callback)
-
-          waitsFor 'waiting for install to complete', 600000, ->
-            callback.callCount is 1
-
-          runs ->
-            expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
-            expect(callback.mostRecentCall.args[0]).toBeNull()
-            expect(fs.isFileSync(cachePath)).toBeTruthy()
-
       describe 'when multiple releases are available', ->
         it 'installs the latest compatible version', ->
           CSON.writeFileSync(path.join(resourcePath, 'package.json'), version: '1.5.0')
