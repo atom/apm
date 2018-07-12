@@ -43,7 +43,7 @@
     "season": "^6.0.2",
     "semver": "^5.1.0",
     "tar": "^2.2.1",
-    "temp": "~0.7.0",
+    "temp": "^0.8.3",
     "underscore-plus": "1.x",
     "wordwrap": "0.0.2",
     "wrench": "~1.5.1",
