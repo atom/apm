@@ -97,7 +97,6 @@ class Install extends Command
     installArgs = ['--globalconfig', config.getGlobalConfigPath(), '--userconfig', config.getUserConfigPath(), 'install']
     installArgs.push(moduleURI)
     installArgs.push("--runtime=electron")
-    installArgs.push("--no-save")
     installArgs.push("--target=#{@electronVersion}")
     installArgs.push("--arch=#{config.getElectronArch()}")
     installArgs.push("--global-style") if installGlobally
@@ -192,7 +191,6 @@ class Install extends Command
 
   forkInstallCommand: (options, callback) ->
     installArgs = ['--globalconfig', config.getGlobalConfigPath(), '--userconfig', config.getUserConfigPath(), 'install']
-    installArgs.push("--no-save")
     installArgs.push("--runtime=electron")
     installArgs.push("--target=#{@electronVersion}")
     installArgs.push("--arch=#{config.getElectronArch()}")
