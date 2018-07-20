@@ -71,4 +71,3 @@ You can also run `apm config list` to see all the custom config settings.
 ## License
 
 Open sourced under [MIT license](LICENSE.md).
-
