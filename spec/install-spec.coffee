@@ -108,35 +108,6 @@ describe 'apm install', ->
           expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
           expect(callback.mostRecentCall.args[0]).toBeNull()
 
-      describe "when the package is already in the cache", ->
-        it "installs it from the cache", ->
-          cachePath = path.join(require('../lib/apm').getCacheDirectory(), 'test-module2', '2.0.0', 'package.tgz')
-          testModuleDirectory = path.join(atomHome, 'packages', 'test-module2')
-
-          callback = jasmine.createSpy('callback')
-          apm.run(['install', "test-module2"], callback)
-          expect(fs.isFileSync(cachePath)).toBeFalsy()
-
-          waitsFor 'waiting for install to complete', 600000, ->
-            callback.callCount is 1
-
-          runs ->
-            expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
-            expect(callback.mostRecentCall.args[0]).toBeNull()
-            expect(fs.isFileSync(cachePath)).toBeTruthy()
-
-            callback.reset()
-            fs.removeSync(path.join(testModuleDirectory, 'package.json'))
-            apm.run(['install', "test-module2"], callback)
-
-          waitsFor 'waiting for install to complete', 600000, ->
-            callback.callCount is 1
-
-          runs ->
-            expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
-            expect(callback.mostRecentCall.args[0]).toBeNull()
-            expect(fs.isFileSync(cachePath)).toBeTruthy()
-
       describe 'when multiple releases are available', ->
         it 'installs the latest compatible version', ->
           CSON.writeFileSync(path.join(resourcePath, 'package.json'), version: '1.5.0')
@@ -495,12 +466,11 @@ describe 'apm install', ->
       nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
 
       beforeEach ->
-        fs.renameSync path.join(nodeModules, 'node-gyp'), path.join(nodeModules, 'with a space')
+        fs.cp path.join(nodeModules, 'node-gyp'), path.join(nodeModules, 'with a space')
         process.env.npm_config_node_gyp = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
         process.env.ATOM_NODE_GYP_PATH = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
 
       afterEach ->
-        fs.renameSync path.join(nodeModules, 'with a space'), path.join(nodeModules, 'node-gyp')
         process.env.npm_config_node_gyp = path.join(nodeModules, '.bin', 'node-gyp')
         process.env.ATOM_NODE_GYP_PATH = path.join(nodeModules, 'node-gyp', 'bin', 'node-gyp.js')
 

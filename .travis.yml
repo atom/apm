@@ -8,9 +8,7 @@ notifications:
     on_failure: change
 
 node_js:
-  - "4"
-  - "6"
-  - "7"
+  - "8.9.3"
 
 script: ./bin/npm test
 

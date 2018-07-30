@@ -7,7 +7,7 @@ platform:
   - x64
 
 environment:
-  nodejs_version: "6.9.5"
+  nodejs_version: "8.9.3"
 
 install:
   - ps: Install-Product node $env:nodejs_version $env:platform
