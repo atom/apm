@@ -155,3 +155,30 @@ describe 'apm link/unlink', ->
 
       runs ->
         expect(fs.existsSync(path.join(atomHome, 'packages', path.basename(numericPackageName)))).toBeFalsy()
+
+  describe "when the package name is set after --name", ->
+    it "still links and unlinks normally", ->
+      atomHome = temp.mkdirSync('apm-home-dir-')
+      process.env.ATOM_HOME = atomHome
+      packagePath = temp.mkdirSync('new-package')
+      packageName = 'new-package-name'
+      callback = jasmine.createSpy('callback')
+
+      runs ->
+        apm.run(['link', packagePath, '--name', packageName], callback)
+
+      waitsFor 'link to complete', ->
+        callback.callCount is 1
+
+      runs ->
+        expect(fs.existsSync(path.join(atomHome, 'packages', packageName))).toBeTruthy()
+        expect(fs.realpathSync(path.join(atomHome, 'packages', packageName))).toBe fs.realpathSync(packagePath)
+
+        callback.reset()
+        apm.run(['unlink', packageName], callback)
+
+      waitsFor 'unlink to complete', ->
+        callback.callCount is 1
+
+      runs ->
+        expect(fs.existsSync(path.join(atomHome, 'packages', packageName))).toBeFalsy()

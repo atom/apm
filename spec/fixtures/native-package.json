@@ -1,0 +1,13 @@
+{
+    "releases": {
+        "latest": "1.0.0"
+    },
+    "name": "native-package",
+    "versions": {
+        "1.0.0": {
+            "dist": {
+                "tarball": "http://localhost:3000/tarball/native-package-1.0.0.tgz"
+            }
+        }
+    }
+}

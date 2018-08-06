@@ -3,6 +3,7 @@ fs = require 'fs-plus'
 ncp = require 'ncp'
 rm = require 'rimraf'
 wrench = require 'wrench'
+path = require 'path'
 
 fsAdditions =
   list: (directoryPath) ->
@@ -24,4 +25,18 @@ fsAdditions =
       else
         ncp(sourcePath, destinationPath, callback)
 
-module.exports = _.extend({}, fs, fsAdditions)
+  mv: (sourcePath, destinationPath, callback) ->
+    rm destinationPath, (error) ->
+      if error?
+        callback(error)
+      else
+        wrench.mkdirSyncRecursive(path.dirname(destinationPath), 0o755)
+        fs.rename(sourcePath, destinationPath, callback)
+
+module.exports = new Proxy({}, {
+  get: (target, key) ->
+    fsAdditions[key] or fs[key]
+
+  set: (target, key, value) ->
+    fsAdditions[key] = value
+})

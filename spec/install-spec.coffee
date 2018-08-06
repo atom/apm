@@ -45,6 +45,8 @@ describe 'apm install', ->
         response.sendfile path.join(__dirname, 'fixtures', 'install-test-module.json')
       app.get '/packages/test-module2', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'install-test-module2.json')
+      app.get '/packages/test-rename', (request, response) ->
+        response.redirect 302, '/packages/test-module'
       app.get '/packages/test-module-with-bin', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'install-test-module-with-bin.json')
       app.get '/packages/test-module-with-symlink', (request, response) ->
@@ -57,6 +59,10 @@ describe 'apm install', ->
         response.sendfile path.join(__dirname, 'fixtures', 'install-multi-version.json')
       app.get '/packages/atom-2048', (request, response) ->
         response.sendfile path.join(__dirname, 'fixtures', 'atom-2048.json')
+      app.get '/packages/native-package', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'native-package.json')
+      app.get '/tarball/native-package-1.0.0.tgz', (request, response) ->
+        response.sendfile path.join(__dirname, 'fixtures', 'native-package-1.0.0.tar.gz')
 
       server =  http.createServer(app)
       server.listen(3000)
@@ -102,35 +108,6 @@ describe 'apm install', ->
           expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
           expect(callback.mostRecentCall.args[0]).toBeNull()
 
-      describe "when the package is already in the cache", ->
-        it "installs it from the cache", ->
-          cachePath = path.join(require('../lib/apm').getCacheDirectory(), 'test-module2', '2.0.0', 'package.tgz')
-          testModuleDirectory = path.join(atomHome, 'packages', 'test-module2')
-
-          callback = jasmine.createSpy('callback')
-          apm.run(['install', "test-module2"], callback)
-          expect(fs.isFileSync(cachePath)).toBeFalsy()
-
-          waitsFor 'waiting for install to complete', 600000, ->
-            callback.callCount is 1
-
-          runs ->
-            expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
-            expect(callback.mostRecentCall.args[0]).toBeNull()
-            expect(fs.isFileSync(cachePath)).toBeTruthy()
-
-            callback.reset()
-            fs.removeSync(path.join(testModuleDirectory, 'package.json'))
-            apm.run(['install', "test-module2"], callback)
-
-          waitsFor 'waiting for install to complete', 600000, ->
-            callback.callCount is 1
-
-          runs ->
-            expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
-            expect(callback.mostRecentCall.args[0]).toBeNull()
-            expect(fs.isFileSync(cachePath)).toBeTruthy()
-
       describe 'when multiple releases are available', ->
         it 'installs the latest compatible version', ->
           CSON.writeFileSync(path.join(resourcePath, 'package.json'), version: '1.5.0')
@@ -173,6 +150,27 @@ describe 'apm install', ->
           runs ->
             expect(fs.existsSync(packageDirectory)).toBeFalsy()
             expect(callback.mostRecentCall.args[0]).not.toBeNull()
+
+        describe "when the package has been renamed", ->
+          it 'installs the package with the new name and removes the old package', ->
+            testRenameDirectory = path.join(atomHome, 'packages', 'test-rename')
+            testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
+            fs.makeTreeSync(testRenameDirectory)
+            expect(fs.existsSync(testRenameDirectory)).toBeTruthy()
+            expect(fs.existsSync(testModuleDirectory)).toBeFalsy()
+
+            callback = jasmine.createSpy('callback')
+            apm.run(['install', "test-rename"], callback)
+
+            waitsFor 'waiting for install to complete', 600000, ->
+              callback.callCount is 1
+
+            runs ->
+              expect(fs.existsSync(testRenameDirectory)).toBeFalsy()
+              expect(fs.existsSync(testModuleDirectory)).toBeTruthy()
+              expect(fs.existsSync(path.join(testModuleDirectory, 'index.js'))).toBeTruthy()
+              expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
+              expect(callback.mostRecentCall.args[0]).toBeNull()
 
     describe 'when multiple package names are specified', ->
       it 'installs all packages', ->
@@ -463,3 +461,76 @@ describe 'apm install', ->
         expect(json[0].metadata.name).toBe 'test-module'
         expect(json[1].installPath).toBe path.join(process.env.ATOM_HOME, 'packages', 'test-module2')
         expect(json[1].metadata.name).toBe 'test-module2'
+
+    describe "with a space in node-gyp's path", ->
+      nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
+
+      beforeEach ->
+        fs.cp path.join(nodeModules, 'node-gyp'), path.join(nodeModules, 'with a space')
+        process.env.npm_config_node_gyp = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
+        process.env.ATOM_NODE_GYP_PATH = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
+
+      afterEach ->
+        process.env.npm_config_node_gyp = path.join(nodeModules, '.bin', 'node-gyp')
+        process.env.ATOM_NODE_GYP_PATH = path.join(nodeModules, 'node-gyp', 'bin', 'node-gyp.js')
+
+      it 'builds native code successfully', ->
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', 'native-package'], callback)
+
+        waitsFor 'waiting for install to complete', 600000, ->
+          callback.callCount is 1
+
+        runs ->
+          expect(callback.mostRecentCall.args[0]).toBeNull()
+
+          testModuleDirectory = path.join(atomHome, 'packages', 'native-package')
+          expect(fs.existsSync(path.join(testModuleDirectory, 'index.js'))).toBeTruthy()
+          expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
+          expect(fs.existsSync(path.join(testModuleDirectory, 'build', 'Release', 'native.node'))).toBeTruthy()
+
+          makefileContent = fs.readFileSync(path.join(testModuleDirectory, 'build', 'Makefile'), {encoding: 'utf-8'})
+          expect(makefileContent).toMatch('node_modules/with\\ a\\ space/addon.gypi')
+
+    describe "configurable Python binaries", ->
+      nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
+      [originalPython, originalNpmConfigPython] = []
+
+      beforeEach ->
+        originalPython = process.env.PYTHON
+        originalNpmConfigPython = process.env.npm_config_python
+        delete process.env.PYTHON
+        delete process.env.npm_config_python
+
+      afterEach ->
+        process.env.PYTHON = originalPython
+        process.env.npm_config_python = originalNpmConfigPython
+
+      it 'respects ${PYTHON} if set', ->
+        process.env.PYTHON = path.join __dirname, 'fixtures', 'fake-python-1.sh'
+
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', 'native-package'], callback)
+
+        waitsFor 'waiting for install to fail', 600000, ->
+          callback.callCount is 1
+
+        runs ->
+          errorText = callback.mostRecentCall.args[0]
+          expect(errorText).not.toBeNull()
+          expect(errorText).toMatch('fake-python-1 called')
+
+      it 'respects ${npm_config_python} if set', ->
+        process.env.npm_config_python = path.join __dirname, 'fixtures', 'fake-python-2.sh'
+        process.env.PYTHON = path.join __dirname, 'fixtures', 'fake-python-1.sh'
+
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', 'native-package'], callback)
+
+        waitsFor 'waiting for install to fail', 600000, ->
+          callback.callCount is 1
+
+        runs ->
+          errorText = callback.mostRecentCall.args[0]
+          expect(errorText).not.toBeNull()
+          expect(errorText).toMatch('fake-python-2 called')

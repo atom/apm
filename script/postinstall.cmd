@@ -5,14 +5,11 @@ setlocal EnableExtensions
 echo ^>^> Downloading bundled Node
 node .\script\download-node.js
 
-echo The version of Node we downloaded:
-call .\bin\node.exe -v
-
-echo ""
-for /f "delims=" %%i in ('.\bin\node.exe -v') do set bundledVersion=%%i
+echo.
+for /f "delims=" %%i in ('.\bin\node.exe -p "process.version + ' ' + process.arch"') do set bundledVersion=%%i
 echo ^>^> Rebuilding apm dependencies with bundled Node !bundledVersion!
 call .\bin\npm.cmd rebuild
 
-echo ""
+echo.
 echo ^>^> Deduping apm dependencies
 call .\bin\npm.cmd dedupe

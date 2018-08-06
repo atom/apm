@@ -26,7 +26,6 @@ class Install extends Command
     @atomPackagesDirectory = path.join(@atomDirectory, 'packages')
     @atomNodeDirectory = path.join(@atomDirectory, '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
-    @atomNodeGypPath = require.resolve('node-gyp/bin/node-gyp')
 
   parseOptions: (argv) ->
     options = yargs(argv).wrap(100)
@@ -64,7 +63,7 @@ class Install extends Command
     installNodeArgs.push("--ensure")
     installNodeArgs.push("--verbose") if @verbose
 
-    env = _.extend({}, process.env, HOME: @atomNodeDirectory)
+    env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     env.USERPROFILE = env.HOME if config.isWin32()
 
     fs.makeTreeSync(@atomDirectory)
@@ -82,17 +81,18 @@ class Install extends Command
     opts = {env, cwd: @atomDirectory}
     opts.streaming = true if @verbose
 
-    @fork @atomNodeGypPath, installNodeArgs, opts, (code, stderr='', stdout='') ->
+    atomNodeGypPath = process.env.ATOM_NODE_GYP_PATH or require.resolve('node-gyp/bin/node-gyp')
+    @fork atomNodeGypPath, installNodeArgs, opts, (code, stderr='', stdout='') ->
       if code is 0
         callback()
       else
         callback("#{stdout}\n#{stderr}")
 
-  installModule: (options, pack, modulePath, callback) ->
+  installModule: (options, pack, moduleURI, callback) ->
     installGlobally = options.installGlobally ? true
 
     installArgs = ['--globalconfig', config.getGlobalConfigPath(), '--userconfig', config.getUserConfigPath(), 'install']
-    installArgs.push(modulePath)
+    installArgs.push(moduleURI)
     installArgs.push(@getNpmBuildFlags()...)
     installArgs.push("--global-style") if installGlobally
     installArgs.push('--silent') if options.argv.silent
@@ -102,7 +102,7 @@ class Install extends Command
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
 
-    env = _.extend({}, process.env, HOME: @atomNodeDirectory)
+    env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
     installOptions = {env}
     installOptions.streaming = true if @verbose
@@ -194,7 +194,7 @@ class Install extends Command
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
 
-    env = _.extend({}, process.env, HOME: @atomNodeDirectory)
+    env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @updateWindowsEnv(env) if config.isWin32()
     @addNodeBinToEnv(env)
     @addProxyToEnv(env)
@@ -227,60 +227,6 @@ class Install extends Command
           callback(null, body)
         else
           callback("No releases available for #{packageName}")
-
-  # Download a package tarball.
-  #
-  # packageUrl - The string tarball URL to request
-  # installGlobally - `true` if this package is being installed globally.
-  # callback - The function to invoke when the request completes with an error
-  #            as the first argument and a string path to the downloaded file
-  #            as the second.
-  downloadPackage: (packageUrl, installGlobally, callback) ->
-    requestSettings = url: packageUrl
-    request.createReadStream requestSettings, (readStream) =>
-      readStream.on 'error', (error) ->
-        callback("Unable to download #{packageUrl}: #{error.message}")
-      readStream.on 'response', (response) =>
-        if response.statusCode is 200
-          filePath = path.join(temp.mkdirSync(), 'package.tgz')
-          writeStream = fs.createWriteStream(filePath)
-          readStream.pipe(writeStream)
-          writeStream.on 'error', (error) ->
-            callback("Unable to download #{packageUrl}: #{error.message}")
-          writeStream.on 'close', -> callback(null, filePath)
-        else
-          chunks = []
-          response.on 'data', (chunk) -> chunks.push(chunk)
-          response.on 'end', =>
-            try
-              error = JSON.parse(Buffer.concat(chunks))
-              message = error.message ? error.error ? error
-              @logFailure() if installGlobally
-              callback("Unable to download #{packageUrl}: #{response.headers.status ? response.statusCode} #{message}")
-            catch parseError
-              @logFailure() if installGlobally
-              callback("Unable to download #{packageUrl}: #{response.headers.status ? response.statusCode}")
-
-  # Get the path to the package from the local cache.
-  #
-  #  packageName - The string name of the package.
-  #  packageVersion - The string version of the package.
-  #  callback - The function to call with error and cachePath arguments.
-  #
-  # Returns a path to the cached tarball or undefined when not in the cache.
-  getPackageCachePath: (packageName, packageVersion, callback) ->
-    cacheDir = config.getCacheDirectory()
-    cachePath = path.join(cacheDir, packageName, packageVersion, 'package.tgz')
-    if fs.isFileSync(cachePath)
-      tempPath = path.join(temp.mkdirSync(), path.basename(cachePath))
-      fs.cp cachePath, tempPath, (error) ->
-        if error?
-          callback(error)
-        else
-          callback(null, tempPath)
-    else
-      process.nextTick ->
-        callback(new Error("#{packageName}@#{packageVersion} is not in the cache"))
 
   # Is the package at the specified version already installed?
   #
@@ -336,18 +282,14 @@ class Install extends Command
           return
 
         commands = []
-        commands.push (next) =>
-          @getPackageCachePath packageName, packageVersion, (error, packagePath) =>
-            if packagePath
-              next(null, packagePath)
-            else
-              @downloadPackage(tarball, installGlobally, next)
         installNode = options.installNode ? true
         if installNode
-          commands.push (packagePath, next) =>
-            @installNode (error) -> next(error, packagePath)
-        commands.push (packagePath, next) =>
-          @installModule(options, pack, packagePath, next)
+          commands.push @installNode
+        commands.push (next) => @installModule(options, pack, tarball, next)
+        if installGlobally and (packageName.localeCompare(pack.name, 'en', {sensitivity: 'accent'}) isnt 0)
+          commands.push (newPack, next) => # package was renamed; delete old package folder
+            fs.removeSync(path.join(@atomPackagesDirectory, packageName))
+            next(null, newPack)
         commands.push ({installPath}, next) ->
           if installPath?
             metadata = JSON.parse(fs.readFileSync(path.join(installPath, 'package.json'), 'utf8'))
@@ -419,7 +361,7 @@ class Install extends Command
       if vsArgs = @getVisualStudioFlags()
         buildArgs.push(vsArgs)
 
-      env = _.extend({}, process.env, HOME: @atomNodeDirectory)
+      env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
       @updateWindowsEnv(env) if config.isWin32()
       @addNodeBinToEnv(env)
       @addProxyToEnv(env)

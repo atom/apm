@@ -19,7 +19,7 @@ class List extends Command
     @devPackagesDirectory = path.join(config.getAtomDirectory(), 'dev', 'packages')
     if configPath = CSON.resolve(path.join(config.getAtomDirectory(), 'config'))
       try
-        @disabledPackages = CSON.readFileSync(configPath)?.core?.disabledPackages
+        @disabledPackages = CSON.readFileSync(configPath)?['*']?.core?.disabledPackages
     @disabledPackages ?= []
 
   parseOptions: (argv) ->
@@ -30,13 +30,16 @@ class List extends Command
              apm list --themes
              apm list --packages
              apm list --installed
+             apm list --installed --enabled
              apm list --installed --bare > my-packages.txt
              apm list --json
 
       List all the installed packages and also the packages bundled with Atom.
     """
     options.alias('b', 'bare').boolean('bare').describe('bare', 'Print packages one per line with no formatting')
+    options.alias('e', 'enabled').boolean('enabled').describe('enabled', 'Print only enabled packages')
     options.alias('d', 'dev').boolean('dev').default('dev', true).describe('dev', 'Include dev packages')
+    options.boolean('disabled').describe('disabled', 'Print only disabled packages')
     options.alias('h', 'help').describe('help', 'Print this usage message')
     options.alias('i', 'installed').boolean('installed').describe('installed', 'Only list installed packages/themes')
     options.alias('j', 'json').boolean('json').describe('json', 'Output all packages as a JSON object')
@@ -62,9 +65,21 @@ class List extends Command
           shaLine = "##{pack.apmInstallSource.sha.substr(0, 8)}"
           shaLine = repo + shaLine if repo?
           packageLine += " (#{shaLine})".grey
-        packageLine += ' (disabled)' if @isPackageDisabled(pack.name)
+        packageLine += ' (disabled)' if @isPackageDisabled(pack.name) and not options.argv.disabled
         packageLine
     console.log()
+
+  checkExclusiveOptions: (options, positive_option, negative_option, value) ->
+    if options.argv[positive_option]
+      value
+    else if options.argv[negative_option]
+      not value
+    else
+      true
+
+  isPackageVisible: (options, manifest) ->
+    @checkExclusiveOptions(options, 'themes', 'packages', manifest.theme) and
+    @checkExclusiveOptions(options, 'disabled', 'enabled', @isPackageDisabled(manifest.name))
 
   listPackages: (directoryPath, options) ->
     packages = []
@@ -80,12 +95,9 @@ class List extends Command
           manifest = CSON.readFileSync(manifestPath)
       manifest ?= {}
       manifest.name = child
-      if options.argv.themes
-        packages.push(manifest) if manifest.theme
-      else if options.argv.packages
-        packages.push(manifest) unless manifest.theme
-      else
-        packages.push(manifest)
+
+      continue unless @isPackageVisible(options, manifest)
+      packages.push(manifest)
 
     packages
 
@@ -114,20 +126,15 @@ class List extends Command
     callback?(null, gitPackages)
 
   listBundledPackages: (options, callback) ->
-    config.getResourcePath (resourcePath) ->
+    config.getResourcePath (resourcePath) =>
       try
         metadataPath = path.join(resourcePath, 'package.json')
         {_atomPackages} = JSON.parse(fs.readFileSync(metadataPath))
       _atomPackages ?= {}
       packages = (metadata for packageName, {metadata} of _atomPackages)
 
-      packages = packages.filter (metadata) ->
-        if options.argv.themes
-          metadata.theme
-        else if options.argv.packages
-          not metadata.theme
-        else
-          true
+      packages = packages.filter (metadata) =>
+        @isPackageVisible(options, metadata)
 
       unless options.argv.bare or options.argv.json
         if options.argv.themes
@@ -145,7 +152,7 @@ class List extends Command
         @logPackages(packages, options)
 
         @listGitPackages options, (error, packages) =>
-          @logPackages(packages, options)
+          @logPackages(packages, options) if packages.length > 0
 
   listPackagesAsJson: (options, callback = ->) ->
     output =

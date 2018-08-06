@@ -7,6 +7,6 @@ if (process.platform.indexOf('win') === 0) {
 } else {
   script += '.sh'
 }
-var child = cp.exec(script, [], {stdio: ['pipe', 'pipe', 'pipe']})
+var child = cp.spawn(script, [], { stdio: ['pipe', 'pipe', 'pipe'], shell: true })
 child.stderr.pipe(process.stderr)
 child.stdout.pipe(process.stdout)

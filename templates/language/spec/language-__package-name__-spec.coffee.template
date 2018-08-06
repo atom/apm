@@ -1,7 +1,7 @@
 # If you want an example of language specs, check out:
-# https://github.com/atom/language-gfm/blob/master/spec/gfm-spec.coffee
+# https://github.com/atom/language-javascript/blob/master/spec/javascript-spec.coffee
 
-describe "PackageName grammar", ->
+describe "__PackageName__ grammar", ->
   grammar = null
 
   beforeEach ->

@@ -132,6 +132,7 @@ class Init extends Command
         contents = fs.readFileSync(templateChildPath).toString()
         contents = @replacePackageNamePlaceholders(contents, packageName)
         contents = @replacePackageAuthorPlaceholders(contents, packageAuthor)
+        contents = @replaceCurrentYearPlaceholders(contents)
         fs.writeFileSync(sourcePath, contents)
 
   replacePackageAuthorPlaceholders: (string, packageAuthor) ->
@@ -151,6 +152,9 @@ class Init extends Command
 
       else if underscore
         @underscore(packageName)
+
+  replaceCurrentYearPlaceholders: (string) ->
+    string.replace '__current_year__', new Date().getFullYear()
 
   getTemplatePath: (argv, templateType) ->
     if argv.template?

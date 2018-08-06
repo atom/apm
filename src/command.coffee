@@ -90,8 +90,9 @@ class Command
         version = @normalizeVersion(version)
         @installedAtomVersion = version if semver.valid(version)
 
-      # TODO Remove ATOM_NODE_VERSION env var support after a couple releases
-      @electronVersion = process.env.ATOM_ELECTRON_VERSION ? process.env.ATOM_NODE_VERSION ? electronVersion ? '0.22.0'
+      @electronVersion = process.env.ATOM_ELECTRON_VERSION ? electronVersion
+      unless @electronVersion?
+        throw new Error('Could not determine Electron version')
 
       callback()
 

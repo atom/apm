@@ -35,7 +35,7 @@ describe 'apm publish', ->
       callback.callCount is 1
 
     runs ->
-      expect(callback.mostRecentCall.args[0].message).toBe 'Error parsing package.json file: Unexpected token }'
+      expect(callback.mostRecentCall.args[0].message).toBe 'Error parsing package.json file: Unexpected token } in JSON at position 0'
 
   it "validates the package is in a Git repository", ->
     packageToPublish = temp.mkdirSync('apm-test-package-')

@@ -2,10 +2,12 @@ version: "{build}"
 
 os: Windows Server 2012 R2
 
-platform: x86
+platform:
+  - x86
+  - x64
 
 environment:
-  nodejs_version: "4.4.5"
+  nodejs_version: "8.9.3"
 
 install:
   - ps: Install-Product node $env:nodejs_version $env:platform

@@ -1,5 +1,5 @@
 # If you want some example snippets, check out:
-# https://github.com/atom/language-gfm/blob/master/snippets/gfm.cson
+# https://github.com/atom/language-javascript/blob/master/snippets/javascript.cson
 
 '.source.__package-name__':
   'Method documentation':

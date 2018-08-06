@@ -1,4 +1,6 @@
 language: node_js
+dist: trusty
+sudo: required
 
 notifications:
   email:
@@ -6,9 +8,7 @@ notifications:
     on_failure: change
 
 node_js:
-  - "0.10"
-  - "4"
-  - "6"
+  - "8.9.3"
 
 script: ./bin/npm test
 
@@ -19,12 +19,10 @@ branches:
   only:
     - master
 
-sudo: false
-
 addons:
   apt:
     packages:
-      - libgnome-keyring-dev
+      - libsecret-1-dev
       - g++-4.8
     sources:
       - ubuntu-toolchain-r-test

@@ -100,33 +100,47 @@ printVersions = (args, callback) ->
 
   getPythonVersion (pythonVersion) ->
     git.getGitVersion (gitVersion) ->
-      if args.json
-        versions =
-          apm: apmVersion
-          npm: npmVersion
-          node: nodeVersion
-          python: pythonVersion
-          git: gitVersion
-        if config.isWin32()
-          versions.visualStudio = config.getInstalledVisualStudioFlag()
-        console.log JSON.stringify(versions)
-      else
-        pythonVersion ?= ''
-        gitVersion ?= ''
-        versions =  """
-          #{'apm'.red}  #{apmVersion.red}
-          #{'npm'.green}  #{npmVersion.green}
-          #{'node'.blue} #{nodeVersion.blue}
-          #{'python'.yellow} #{pythonVersion.yellow}
-          #{'git'.magenta} #{gitVersion.magenta}
-        """
+      getAtomVersion (atomVersion) ->
+        if args.json
+          versions =
+            apm: apmVersion
+            npm: npmVersion
+            node: nodeVersion
+            atom: atomVersion
+            python: pythonVersion
+            git: gitVersion
+            nodeArch: process.arch
+          if config.isWin32()
+            versions.visualStudio = config.getInstalledVisualStudioFlag()
+          console.log JSON.stringify(versions)
+        else
+          pythonVersion ?= ''
+          gitVersion ?= ''
+          atomVersion ?= ''
+          versions =  """
+            #{'apm'.red}  #{apmVersion.red}
+            #{'npm'.green}  #{npmVersion.green}
+            #{'node'.blue} #{nodeVersion.blue} #{process.arch.blue}
+            #{'atom'.cyan} #{atomVersion.cyan}
+            #{'python'.yellow} #{pythonVersion.yellow}
+            #{'git'.magenta} #{gitVersion.magenta}
+          """
 
-        if config.isWin32()
-          visualStudioVersion = config.getInstalledVisualStudioFlag() ? ''
-          versions += "\n#{'visual studio'.cyan} #{visualStudioVersion.cyan}"
+          if config.isWin32()
+            visualStudioVersion = config.getInstalledVisualStudioFlag() ? ''
+            versions += "\n#{'visual studio'.cyan} #{visualStudioVersion.cyan}"
 
-        console.log versions
-      callback()
+          console.log versions
+        callback()
+
+getAtomVersion = (callback) ->
+  config.getResourcePath (resourcePath) ->
+    unknownVersion = 'unknown'
+    try
+      {version} = require(path.join(resourcePath, 'package.json')) ? unknownVersion
+      callback(version)
+    catch error
+      callback(unknownVersion)
 
 getPythonVersion = (callback) ->
   npmOptions =
