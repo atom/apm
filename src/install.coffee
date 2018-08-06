@@ -317,34 +317,23 @@ class Install extends Command
   installLocalPackage: (packageName, packagePath, options, callback) ->
     unless options.argv.json
       process.stdout.write "Installing #{packageName} from #{packagePath.slice('file:'.length)} "
+      commands = []
+      commands.push (next) =>
+        @installModule(options, {name: packageName}, packagePath, next)
+      commands.push ({installPath}, next) ->
+        if installPath?
+          metadata = JSON.parse(fs.readFileSync(path.join(installPath, 'package.json'), 'utf8'))
+          json = {installPath, metadata}
+          next(null, json)
+        else
+          next(null, {}) # installed locally, no install path data
 
-    @requestPackage packageName, (error, pack) =>
-      if error?
-        @logFailure()
-        callback(error)
-      else
-        # packageVersion ?= @getLatestCompatibleVersion(pack)
-        # unless packageVersion
-        #   @logFailure()
-        #   callback("No available version compatible with the installed Atom version: #{@installedAtomVersion}")
-        #   return
-        commands = []
-        commands.push (next) =>
-          @installModule(options, pack, packagePath, next)
-        commands.push ({installPath}, next) ->
-          if installPath?
-            metadata = JSON.parse(fs.readFileSync(path.join(installPath, 'package.json'), 'utf8'))
-            json = {installPath, metadata}
-            next(null, json)
-          else
-            next(null, {}) # installed locally, no install path data
-
-        async.waterfall commands, (error, json) =>
-          if error?
-            @logFailure()
-          else
-            @logSuccess() unless options.argv.json
-          callback(error, json)
+      async.waterfall commands, (error, json) =>
+        if error?
+          @logFailure()
+        else
+          @logSuccess() unless options.argv.json
+        callback(error, json)
 
   # Install all the package dependencies found in the package.json file.
   #
