@@ -17,6 +17,7 @@ class Develop extends Command
   @commandNames: ['dev', 'develop']
 
   constructor: ->
+    super()
     @atomDirectory = config.getAtomDirectory()
     @atomDevPackagesDirectory = path.join(@atomDirectory, 'dev', 'packages')
 

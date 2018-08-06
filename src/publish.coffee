@@ -17,6 +17,7 @@ class Publish extends Command
   @commandNames: ['publish']
 
   constructor: ->
+    super()
     @userConfigPath = config.getUserConfigPath()
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
 

@@ -12,6 +12,7 @@ class Unlink extends Command
   @commandNames: ['unlink']
 
   constructor: ->
+    super()
     @devPackagesPath = path.join(config.getAtomDirectory(), 'dev', 'packages')
     @packagesPath = path.join(config.getAtomDirectory(), 'packages')
 

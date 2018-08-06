@@ -10,6 +10,7 @@ class RebuildModuleCache extends Command
   @commandNames: ['rebuild-module-cache']
 
   constructor: ->
+    super()
     @atomPackagesDirectory = path.join(config.getAtomDirectory(), 'packages')
 
   parseOptions: (argv) ->

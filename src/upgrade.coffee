@@ -21,6 +21,7 @@ class Upgrade extends Command
   @commandNames: ['upgrade', 'outdated', 'update']
 
   constructor: ->
+    super()
     @atomDirectory = config.getAtomDirectory()
     @atomPackagesDirectory = path.join(@atomDirectory, 'packages')
 

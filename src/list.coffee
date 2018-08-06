@@ -15,6 +15,7 @@ class List extends Command
   @commandNames: ['list', 'ls']
 
   constructor: ->
+    super()
     @userPackagesDirectory = path.join(config.getAtomDirectory(), 'packages')
     @devPackagesDirectory = path.join(config.getAtomDirectory(), 'dev', 'packages')
     if configPath = CSON.resolve(path.join(config.getAtomDirectory(), 'config'))

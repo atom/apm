@@ -12,6 +12,7 @@ class Links extends Command
   @commandNames: ['linked', 'links', 'lns']
 
   constructor: ->
+    super()
     @devPackagesPath = path.join(config.getAtomDirectory(), 'dev', 'packages')
     @packagesPath = path.join(config.getAtomDirectory(), 'packages')
 

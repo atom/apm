@@ -9,6 +9,7 @@ class Config extends Command
   @commandNames: ['config']
 
   constructor: ->
+    super()
     atomDirectory = apm.getAtomDirectory()
     @atomNodeDirectory = path.join(atomDirectory, '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
