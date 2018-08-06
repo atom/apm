@@ -12,7 +12,7 @@ describe 'apm search', ->
 
     app = express()
     app.get '/search', (request, response) ->
-      response.sendfile path.join(__dirname, 'fixtures', 'search.json')
+      response.sendFile path.join(__dirname, 'fixtures', 'search.json')
     server =  http.createServer(app)
     server.listen(3000)
 

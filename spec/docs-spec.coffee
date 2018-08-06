@@ -13,9 +13,9 @@ describe 'apm docs', ->
 
     app = express()
     app.get '/wrap-guide', (request, response) ->
-      response.sendfile path.join(__dirname, 'fixtures', 'wrap-guide.json')
+      response.sendFile path.join(__dirname, 'fixtures', 'wrap-guide.json')
     app.get '/install', (request, response) ->
-      response.sendfile path.join(__dirname, 'fixtures', 'install.json')
+      response.sendFile path.join(__dirname, 'fixtures', 'install.json')
     server =  http.createServer(app)
     server.listen(3000)
 

@@ -12,9 +12,9 @@ describe 'apm featured', ->
 
     app = express()
     app.get '/packages/featured', (request, response) ->
-      response.sendfile path.join(__dirname, 'fixtures', 'packages.json')
+      response.sendFile path.join(__dirname, 'fixtures', 'packages.json')
     app.get '/themes/featured', (request, response) ->
-      response.sendfile path.join(__dirname, 'fixtures', 'themes.json')
+      response.sendFile path.join(__dirname, 'fixtures', 'themes.json')
 
     server =  http.createServer(app)
     server.listen(3000)

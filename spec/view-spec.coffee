@@ -12,7 +12,7 @@ describe 'apm view', ->
 
     app = express()
     app.get '/wrap-guide', (request, response) ->
-      response.sendfile path.join(__dirname, 'fixtures', 'wrap-guide.json')
+      response.sendFile path.join(__dirname, 'fixtures', 'wrap-guide.json')
     server =  http.createServer(app)
     server.listen(3000)
 

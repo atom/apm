@@ -30,39 +30,39 @@ describe 'apm install', ->
     beforeEach ->
       app = express()
       app.get '/node/v0.10.3/node-v0.10.3.tar.gz', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'node-v0.10.3.tar.gz')
+        response.sendFile path.join(__dirname, 'fixtures', 'node-v0.10.3.tar.gz')
       app.get '/node/v0.10.3/node.lib', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'node.lib')
+        response.sendFile path.join(__dirname, 'fixtures', 'node.lib')
       app.get '/node/v0.10.3/x64/node.lib', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'node_x64.lib')
+        response.sendFile path.join(__dirname, 'fixtures', 'node_x64.lib')
       app.get '/node/v0.10.3/SHASUMS256.txt', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'SHASUMS256.txt')
+        response.sendFile path.join(__dirname, 'fixtures', 'SHASUMS256.txt')
       app.get '/tarball/test-module-1.0.0.tgz', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'test-module-1.0.0.tgz')
+        response.sendFile path.join(__dirname, 'fixtures', 'test-module-1.0.0.tgz')
       app.get '/tarball/test-module2-2.0.0.tgz', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'test-module2-2.0.0.tgz')
+        response.sendFile path.join(__dirname, 'fixtures', 'test-module2-2.0.0.tgz')
       app.get '/packages/test-module', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'install-test-module.json')
+        response.sendFile path.join(__dirname, 'fixtures', 'install-test-module.json')
       app.get '/packages/test-module2', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'install-test-module2.json')
+        response.sendFile path.join(__dirname, 'fixtures', 'install-test-module2.json')
       app.get '/packages/test-rename', (request, response) ->
         response.redirect 302, '/packages/test-module'
       app.get '/packages/test-module-with-bin', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'install-test-module-with-bin.json')
+        response.sendFile path.join(__dirname, 'fixtures', 'install-test-module-with-bin.json')
       app.get '/packages/test-module-with-symlink', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'install-test-module-with-symlink.json')
+        response.sendFile path.join(__dirname, 'fixtures', 'install-test-module-with-symlink.json')
       app.get '/tarball/test-module-with-symlink-5.0.0.tgz', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'test-module-with-symlink-5.0.0.tgz')
+        response.sendFile path.join(__dirname, 'fixtures', 'test-module-with-symlink-5.0.0.tgz')
       app.get '/tarball/test-module-with-bin-2.0.0.tgz', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'test-module-with-bin-2.0.0.tgz')
+        response.sendFile path.join(__dirname, 'fixtures', 'test-module-with-bin-2.0.0.tgz')
       app.get '/packages/multi-module', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'install-multi-version.json')
+        response.sendFile path.join(__dirname, 'fixtures', 'install-multi-version.json')
       app.get '/packages/atom-2048', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'atom-2048.json')
+        response.sendFile path.join(__dirname, 'fixtures', 'atom-2048.json')
       app.get '/packages/native-package', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'native-package.json')
+        response.sendFile path.join(__dirname, 'fixtures', 'native-package.json')
       app.get '/tarball/native-package-1.0.0.tgz', (request, response) ->
-        response.sendfile path.join(__dirname, 'fixtures', 'native-package-1.0.0.tar.gz')
+        response.sendFile path.join(__dirname, 'fixtures', 'native-package-1.0.0.tar.gz')
 
       server =  http.createServer(app)
       server.listen(3000)
