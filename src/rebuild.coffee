@@ -12,6 +12,7 @@ class Rebuild extends Command
   @commandNames: ['rebuild']
 
   constructor: ->
+    super()
     @atomNodeDirectory = path.join(config.getAtomDirectory(), '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
 

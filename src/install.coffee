@@ -22,6 +22,7 @@ class Install extends Command
   @commandNames: ['install', 'i']
 
   constructor: ->
+    super()
     @atomDirectory = config.getAtomDirectory()
     @atomPackagesDirectory = path.join(@atomDirectory, 'packages')
     @atomNodeDirectory = path.join(@atomDirectory, '.node-gyp')

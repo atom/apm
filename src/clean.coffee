@@ -14,6 +14,7 @@ class Clean extends Command
   @commandNames: ['clean']
 
   constructor: ->
+    super()
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
 
   getDependencies: (modulePath, allDependencies) ->

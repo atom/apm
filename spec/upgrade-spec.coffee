@@ -24,11 +24,11 @@ describe "apm upgrade", ->
 
     app = express()
     app.get '/packages/test-module', (request, response) ->
-      response.sendfile path.join(__dirname, 'fixtures', 'upgrade-test-module.json')
+      response.sendFile path.join(__dirname, 'fixtures', 'upgrade-test-module.json')
     app.get '/packages/multi-module', (request, response) ->
-      response.sendfile path.join(__dirname, 'fixtures', 'upgrade-multi-version.json')
+      response.sendFile path.join(__dirname, 'fixtures', 'upgrade-multi-version.json')
     app.get '/packages/different-repo', (request, response) ->
-      response.sendfile path.join(__dirname, 'fixtures', 'upgrade-different-repo.json')
+      response.sendFile path.join(__dirname, 'fixtures', 'upgrade-different-repo.json')
     server =  http.createServer(app)
     server.listen(3000)
 

@@ -13,6 +13,7 @@ class Dedupe extends Command
   @commandNames: ['dedupe']
 
   constructor: ->
+    super()
     @atomDirectory = config.getAtomDirectory()
     @atomPackagesDirectory = path.join(@atomDirectory, 'packages')
     @atomNodeDirectory = path.join(@atomDirectory, '.node-gyp')
