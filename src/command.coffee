@@ -111,6 +111,9 @@ class Command
     if vsVersion = config.getInstalledVisualStudioFlag()
       "--msvs_version=#{vsVersion}"
 
+  getNpmBuildFlags: ->
+    ["--runtime=electron", "--target=#{@electronVersion}", "--dist-url=#{config.getElectronUrl()}", "--arch=#{config.getElectronArch()}"]
+
   updateWindowsEnv: (env) ->
     env.USERPROFILE = env.HOME
 
