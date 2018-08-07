@@ -27,6 +27,7 @@ setupTempDirectory = ->
 setupTempDirectory()
 
 commandClasses = [
+  require './ci'
   require './clean'
   require './config'
   require './dedupe'
