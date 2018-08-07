@@ -1,0 +1,7 @@
+{
+  "name": "test-module-with-lockfile",
+  "version": "1.0.0",
+  "dependencies": {
+    "test-module-with-dependencies": "^1.0.0"
+  }
+}

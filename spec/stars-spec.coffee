@@ -25,24 +25,33 @@ describe 'apm stars', ->
       response.sendFile path.join(__dirname, 'fixtures', 'node_x64.lib')
     app.get '/node/v0.10.3/SHASUMS256.txt', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'SHASUMS256.txt')
-    app.get '/tarball/test-module-1.0.0.tgz', (request, response) ->
-      response.sendFile path.join(__dirname, 'fixtures', 'test-module-1.0.0.tgz')
+    app.get '/tarball/test-module-1.2.0.tgz', (request, response) ->
+      response.sendFile path.join(__dirname, 'fixtures', 'test-module-1.2.0.tgz')
     app.get '/tarball/test-module2-2.0.0.tgz', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'test-module2-2.0.0.tgz')
     app.get '/packages/test-module', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'install-test-module.json')
-    server =  http.createServer(app)
-    server.listen(3000)
 
-    atomHome = temp.mkdirSync('apm-home-dir-')
-    process.env.ATOM_HOME = atomHome
-    process.env.ATOM_API_URL = "http://localhost:3000"
-    process.env.ATOM_ELECTRON_URL = "http://localhost:3000/node"
-    process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
-    process.env.ATOM_ELECTRON_VERSION = 'v0.10.3'
+    server =  http.createServer(app)
+
+    live = false
+    server.listen 3000, '127.0.0.1', ->
+      atomHome = temp.mkdirSync('apm-home-dir-')
+      process.env.ATOM_HOME = atomHome
+      process.env.ATOM_API_URL = "http://localhost:3000"
+      process.env.ATOM_ELECTRON_URL = "http://localhost:3000/node"
+      process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
+      process.env.ATOM_ELECTRON_VERSION = 'v0.10.3'
+      process.env.npm_config_registry = 'http://localhost:3000/'
+
+      live = true
+
+    waitsFor -> live
 
   afterEach ->
-    server.close()
+    closed = false
+    server.close -> closed = true
+    waitsFor -> closed
 
   describe "when no user flag is specified", ->
     it 'lists your starred packages', ->

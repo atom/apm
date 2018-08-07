@@ -37,8 +37,12 @@ describe 'apm install', ->
         response.sendFile path.join(__dirname, 'fixtures', 'node_x64.lib')
       app.get '/node/v0.10.3/SHASUMS256.txt', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'SHASUMS256.txt')
-      app.get '/tarball/test-module-1.0.0.tgz', (request, response) ->
-        response.sendFile path.join(__dirname, 'fixtures', 'test-module-1.0.0.tgz')
+      app.get '/test-module', (request, response) ->
+        response.sendFile path.join(__dirname, 'fixtures', 'install-test-module.json')
+      app.get '/tarball/test-module-1.1.0.tgz', (request, response) ->
+        response.sendFile path.join(__dirname, 'fixtures', 'test-module-1.1.0.tgz')
+      app.get '/tarball/test-module-1.2.0.tgz', (request, response) ->
+        response.sendFile path.join(__dirname, 'fixtures', 'test-module-1.2.0.tgz')
       app.get '/tarball/test-module2-2.0.0.tgz', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'test-module2-2.0.0.tgz')
       app.get '/packages/test-module', (request, response) ->
@@ -64,17 +68,23 @@ describe 'apm install', ->
       app.get '/tarball/native-package-1.0.0.tgz', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'native-package-1.0.0.tar.gz')
 
-      server =  http.createServer(app)
-      server.listen(3000)
+      server = http.createServer(app)
 
-      atomHome = temp.mkdirSync('apm-home-dir-')
-      process.env.ATOM_HOME = atomHome
-      process.env.ATOM_ELECTRON_URL = "http://localhost:3000/node"
-      process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
-      process.env.ATOM_ELECTRON_VERSION = 'v0.10.3'
+      live = false
+      server.listen 3000, '127.0.0.1', ->
+        atomHome = temp.mkdirSync('apm-home-dir-')
+        process.env.ATOM_HOME = atomHome
+        process.env.ATOM_ELECTRON_URL = "http://localhost:3000/node"
+        process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
+        process.env.ATOM_ELECTRON_VERSION = 'v0.10.3'
+        process.env.npm_config_registry = 'http://localhost:3000/'
+        live = true
+      waitsFor -> live
 
     afterEach ->
-      server.close()
+      done = false
+      server.close -> done = true
+      waitsFor -> done
 
     describe 'when an invalid URL is specified', ->
       it 'logs an error and exits', ->
@@ -120,7 +130,7 @@ describe 'apm install', ->
             callback.callCount is 1
 
           runs ->
-            expect(JSON.parse(fs.readFileSync(path.join(packageDirectory, 'package.json'))).version).toBe "1.0.0"
+            expect(JSON.parse(fs.readFileSync(path.join(packageDirectory, 'package.json'))).version).toBe "1.1.0"
             expect(callback.mostRecentCall.args[0]).toBeNull()
 
         it "ignores the commit SHA suffix in the version", ->
@@ -134,7 +144,7 @@ describe 'apm install', ->
             callback.callCount is 1
 
           runs ->
-            expect(JSON.parse(fs.readFileSync(path.join(packageDirectory, 'package.json'))).version).toBe "1.0.0"
+            expect(JSON.parse(fs.readFileSync(path.join(packageDirectory, 'package.json'))).version).toBe "1.1.0"
             expect(callback.mostRecentCall.args[0]).toBeNull()
 
         it 'logs an error when no compatible versions are available', ->

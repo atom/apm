@@ -1,10 +1,20 @@
 {
     "releases": {
-        "latest": "0.4.0"
+        "latest": "1.2.0"
     },
     "name": "test-module",
     "versions": {
-        "0.4.0": {
+        "1.2.0": {
+            "dist": {
+                "tarball": "http://localhost:3000/tarball/test-module-1.2.0.tgz"
+            }
+        },
+        "1.1.0": {
+            "dist": {
+                "tarball": "http://localhost:3000/tarball/test-module-1.1.0.tgz"
+            }
+        },
+        "1.0.0": {
             "dist": {
                 "tarball": "http://localhost:3000/tarball/test-module-1.0.0.tgz"
             }
