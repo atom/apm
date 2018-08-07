@@ -346,7 +346,7 @@ class Install extends Command
     for name, version of @getPackageDependencies()
       do (name, version) =>
         commands.push (next) =>
-          if version.indexOf('file:.') is 0
+          if version.startsWith('file:.')
             @installLocalPackage(name, version, options, next)
           else
             @installRegisteredPackage({name, version}, options, next)
