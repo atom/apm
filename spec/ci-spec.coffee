@@ -35,10 +35,14 @@ describe 'apm ci', ->
       response.sendFile path.join(__dirname, 'fixtures', 'install-locked-version.json')
     app.get '/test-module', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'install-test-module.json')
+    app.get '/native-module', (request, response) ->
+      response.sendFile path.join(__dirname, 'fixtures', 'native-module.json')
     app.get '/tarball/test-module-with-dependencies-1.1.0.tgz', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'test-module-with-dependencies-1.1.0.tgz')
     app.get '/tarball/test-module-1.1.0.tgz', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'test-module-1.1.0.tgz')
+    app.get '/tarball/native-module-1.0.0.tgz', (request, response) ->
+      response.sendFile path.join(__dirname, 'fixtures', 'native-module-1.0.0.tgz')
 
     server = http.createServer(app)
 
@@ -74,7 +78,33 @@ describe 'apm ci', ->
       pjson1 = CSON.readFileSync path.join('node_modules', 'test-module', 'package.json')
       expect(pjson1.version).toBe('1.1.0')
 
-  it 'builds a native dependency correctly'
+  it 'builds a native dependency correctly', ->
+    moduleDirectory = path.join temp.mkdirSync('apm-test-'), 'test-module-with-native'
+    wrench.copyDirSyncRecursive path.join(__dirname, 'fixtures', 'test-module-with-lockfile'), moduleDirectory
+    process.chdir moduleDirectory
+
+    pjsonPath = path.join moduleDirectory, 'package.json'
+    pjson = CSON.readFileSync pjsonPath
+    pjson.dependencies['native-module'] = '^1.0.0'
+    CSON.writeFileSync pjsonPath, pjson
+
+    callback0 = jasmine.createSpy('callback')
+    callback1 = jasmine.createSpy('callback')
+
+    apm.run(['install'], callback0)
+    waitsFor 'waiting for install to complete', 600000, -> callback0.callCount > 0
+
+    runs ->
+      expect(callback0.mostRecentCall.args[0]).toBeNull()
+      apm.run(['ci'], callback1)
+
+    waitsFor 'waiting for ci to complete', 600000, -> callback1.callCount > 0
+
+    runs ->
+      expect(callback1.mostRecentCall.args[0]).toBeNull()
+      expect(fs.existsSync(
+        path.join(moduleDirectory, 'node_modules', 'native-module', 'build', 'Release', 'native.node')
+      )).toBeTruthy()
 
   it 'fails if the lockfile is not present', ->
     moduleDirectory = path.join temp.mkdirSync('apm-test-'), 'test-module'
