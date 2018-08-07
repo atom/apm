@@ -69,16 +69,22 @@ describe 'apm install', ->
         response.sendFile path.join(__dirname, 'fixtures', 'native-package-1.0.0.tar.gz')
 
       server =  http.createServer(app)
-      server.listen(3000)
 
-      atomHome = temp.mkdirSync('apm-home-dir-')
-      process.env.ATOM_HOME = atomHome
-      process.env.ATOM_ELECTRON_URL = "http://localhost:3000/node"
-      process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
-      process.env.ATOM_ELECTRON_VERSION = 'v0.10.3'
+      live = false
+      server.listen 3000, '127.0.0.1', ->
+        atomHome = temp.mkdirSync('apm-home-dir-')
+        process.env.ATOM_HOME = atomHome
+        process.env.ATOM_ELECTRON_URL = "http://localhost:3000/node"
+        process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
+        process.env.ATOM_ELECTRON_VERSION = 'v0.10.3'
+        process.env.npm_config_registry = 'http://localhost:3000/'
+        live = true
+      waitsFor -> live
 
     afterEach ->
-      server.close()
+      done = false
+      server.close -> done = true
+      waitsFor -> done
 
     describe 'when an invalid URL is specified', ->
       it 'logs an error and exits', ->
