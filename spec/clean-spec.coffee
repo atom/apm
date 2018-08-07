@@ -23,8 +23,10 @@ describe 'apm clean', ->
       response.sendFile path.join(__dirname, 'fixtures', 'node_x64.lib')
     app.get '/node/v0.10.3/SHASUMS256.txt', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'SHASUMS256.txt')
-    app.get '/tarball/test-module-1.0.0.tgz', (request, response) ->
-      response.sendFile path.join(__dirname, 'fixtures', 'test-module-1.0.0.tgz')
+    app.get '/test-module', (request, response) ->
+      response.sendFile path.join(__dirname, 'fixtures', 'install-test-module.json')
+    app.get '/tarball/test-module-1.2.0.tgz', (request, response) ->
+      response.sendFile path.join(__dirname, 'fixtures', 'test-module-1.2.0.tgz')
 
     server = http.createServer(app)
 
