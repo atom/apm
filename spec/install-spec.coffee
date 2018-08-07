@@ -303,6 +303,27 @@ describe 'apm install', ->
           expect(callback.mostRecentCall.args[0]).not.toBeNull()
 
     describe 'when the package is bundled with Atom', ->
+      it 'installs from a repo-local package path', ->
+        atomRepoPath = temp.mkdirSync('apm-repo-dir-')
+        CSON.writeFileSync(path.join(atomRepoPath, 'package.json'), packageDependencies: 'test-module-with-dependencies': 'file:./packages/test-module-with-dependencies')
+        packageDirectory = path.join(atomRepoPath, 'packages', 'test-module-with-dependencies')
+        fs.makeTreeSync(path.join(atomRepoPath, 'packages'))
+        wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), packageDirectory)
+        originalPath = process.cwd()
+        process.chdir(atomRepoPath)
+
+        callback = jasmine.createSpy('callback')
+        apm.run(['install'], callback)
+
+        waitsFor 'waiting for install to complete', 600000, ->
+          callback.callCount > 0
+
+        runs ->
+          process.chdir(originalPath)
+          expect(fs.existsSync(path.join(atomRepoPath, 'node_modules', 'test-module-with-dependencies', 'package.json'))).toBeTruthy()
+          expect(fs.existsSync(path.join(atomRepoPath, 'node_modules', 'test-module', 'package.json'))).toBeTruthy()
+          expect(callback.mostRecentCall.args[0]).toEqual null
+
       it 'logs a message to standard error', ->
         CSON.writeFileSync(path.join(resourcePath, 'package.json'), packageDependencies: 'test-module': '1.0')
 
