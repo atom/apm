@@ -68,7 +68,7 @@ describe 'apm install', ->
       app.get '/tarball/native-package-1.0.0.tgz', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'native-package-1.0.0.tar.gz')
 
-      server =  http.createServer(app)
+      server = http.createServer(app)
 
       live = false
       server.listen 3000, '127.0.0.1', ->
