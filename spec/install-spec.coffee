@@ -438,7 +438,6 @@ describe 'apm install', ->
           modPath = path.join(process.env.ATOM_HOME, 'packages', 'test-git-repo', 'node_modules', dep)
           expect(fs.existsSync(modPath)).toBeTruthy()
 
-    # HERE
     describe 'when installing a Git URL and --json is specified', ->
       [cloneUrl, pkgJsonPath] = []
 
