@@ -31,13 +31,16 @@ class Ci extends Command
       but cannot be used to install new packages or dependencies.
     """
 
-  installDependencies: (callback) =>
+    options.alias('h', 'help').describe('help', 'Print this usage message')
+    options.boolean('verbose').default('verbose', false).describe('verbose', 'Show verbose debug information')
+
+  installDependencies: (options, callback) =>
     async.waterfall [
-      (cb) => @installNode(cb)
-      (cb) => @installModules(cb)
+      (cb) => @installNode(options, cb)
+      (cb) => @installModules(options, cb)
     ], callback
 
-  installNode: (callback) =>
+  installNode: (options, callback) =>
     installNodeArgs = ['install']
     installNodeArgs.push(@getNpmBuildFlags()...)
     installNodeArgs.push("--ensure")
@@ -57,7 +60,7 @@ class Ci extends Command
     proxy = @npm.config.get('https-proxy') or @npm.config.get('proxy') or env.HTTPS_PROXY or env.HTTP_PROXY
     installNodeArgs.push("--proxy=#{proxy}") if proxy
 
-    opts = {env, cwd: @atomDirectory}
+    opts = {env, cwd: @atomDirectory, streaming: options.argv.verbose?}
 
     @fork @atomNodeGypPath, installNodeArgs, opts, (code, stderr='', stdout='') ->
       if code is 0
@@ -65,8 +68,12 @@ class Ci extends Command
       else
         callback("#{stdout}\n#{stderr}")
 
-  installModules: (callback) ->
-    process.stdout.write 'Installing locked modules '
+  installModules: (options, callback) ->
+    process.stdout.write 'Installing locked modules'
+    if options.argv.verbose?
+      process.stdout.write '\n'
+    else
+      process.stdout.write ' '
 
     installArgs = [
       'ci'
@@ -74,6 +81,7 @@ class Ci extends Command
       '--userconfig', config.getUserConfigPath()
       @getNpmBuildFlags()...
     ]
+    installArgs.push('--verbose') if options.argv.verbose?
 
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
@@ -82,19 +90,19 @@ class Ci extends Command
     @updateWindowsEnv(env) if config.isWin32()
     @addNodeBinToEnv(env)
     @addProxyToEnv(env)
-    installOptions = {env}
+    installOptions = {env, streaming: options.argv.verbose?}
 
     @fork @atomNpmPath, installArgs, installOptions, (args...) =>
       @logCommandResults(callback, args...)
 
   run: (options) ->
     {callback} = options
-    options = @parseOptions(options.commandArgs)
+    opts = @parseOptions(options.commandArgs)
 
     commands = []
     commands.push (callback) => config.loadNpm (error, @npm) => callback(error)
     commands.push (cb) => @loadInstalledAtomMetadata(cb)
-    commands.push (cb) => @installDependencies(cb)
+    commands.push (cb) => @installDependencies(opts, cb)
 
     iteratee = (item, next) -> item(next)
     async.mapSeries commands, iteratee, (err) ->
