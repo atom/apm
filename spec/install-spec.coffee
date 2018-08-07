@@ -130,7 +130,7 @@ describe 'apm install', ->
             callback.callCount is 1
 
           runs ->
-            expect(JSON.parse(fs.readFileSync(path.join(packageDirectory, 'package.json'))).version).toBe "1.0.0"
+            expect(JSON.parse(fs.readFileSync(path.join(packageDirectory, 'package.json'))).version).toBe "1.1.0"
             expect(callback.mostRecentCall.args[0]).toBeNull()
 
         it "ignores the commit SHA suffix in the version", ->
@@ -144,7 +144,7 @@ describe 'apm install', ->
             callback.callCount is 1
 
           runs ->
-            expect(JSON.parse(fs.readFileSync(path.join(packageDirectory, 'package.json'))).version).toBe "1.0.0"
+            expect(JSON.parse(fs.readFileSync(path.join(packageDirectory, 'package.json'))).version).toBe "1.1.0"
             expect(callback.mostRecentCall.args[0]).toBeNull()
 
         it 'logs an error when no compatible versions are available', ->
