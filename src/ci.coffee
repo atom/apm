@@ -60,7 +60,7 @@ class Ci extends Command
     proxy = @npm.config.get('https-proxy') or @npm.config.get('proxy') or env.HTTPS_PROXY or env.HTTP_PROXY
     installNodeArgs.push("--proxy=#{proxy}") if proxy
 
-    opts = {env, cwd: @atomDirectory, streaming: options.argv.verbose?}
+    opts = {env, cwd: @atomDirectory, streaming: options.argv.verbose}
 
     @fork @atomNodeGypPath, installNodeArgs, opts, (code, stderr='', stdout='') ->
       if code is 0
@@ -70,7 +70,7 @@ class Ci extends Command
 
   installModules: (options, callback) ->
     process.stdout.write 'Installing locked modules'
-    if options.argv.verbose?
+    if options.argv.verbose
       process.stdout.write '\n'
     else
       process.stdout.write ' '
@@ -81,7 +81,7 @@ class Ci extends Command
       '--userconfig', config.getUserConfigPath()
       @getNpmBuildFlags()...
     ]
-    installArgs.push('--verbose') if options.argv.verbose?
+    installArgs.push('--verbose') if options.argv.verbose
 
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
@@ -90,7 +90,7 @@ class Ci extends Command
     @updateWindowsEnv(env) if config.isWin32()
     @addNodeBinToEnv(env)
     @addProxyToEnv(env)
-    installOptions = {env, streaming: options.argv.verbose?}
+    installOptions = {env, streaming: options.argv.verbose}
 
     @fork @atomNpmPath, installArgs, installOptions, (args...) =>
       @logCommandResults(callback, args...)
