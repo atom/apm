@@ -17,5 +17,9 @@ else
 fi
 
 echo
-echo ">> Deduping apm dependencies"
-./bin/npm dedupe
+if [ -z "${NO_DEDUPE}" ]; then
+  echo ">> Deduping apm dependencies"
+  ./bin/npm dedupe
+else
+  echo ">> Deduplication disabled"
+fi
