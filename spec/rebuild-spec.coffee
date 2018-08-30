@@ -24,22 +24,28 @@ describe 'apm rebuild', ->
     app.get '/node/v0.10.3/SHASUMS256.txt', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'SHASUMS256.txt')
 
-    server =  http.createServer(app)
-    server.listen(3000)
+    server = http.createServer(app)
 
-    atomHome = temp.mkdirSync('apm-home-dir-')
-    process.env.ATOM_HOME = atomHome
-    process.env.ATOM_ELECTRON_URL = "http://localhost:3000/node"
-    process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
-    process.env.ATOM_ELECTRON_VERSION = 'v0.10.3'
-    process.env.ATOM_RESOURCE_PATH = temp.mkdirSync('atom-resource-path-')
+    live = false
+    server.listen 3000, '127.0.0.1', ->
+      atomHome = temp.mkdirSync('apm-home-dir-')
+      process.env.ATOM_HOME = atomHome
+      process.env.ATOM_ELECTRON_URL = "http://localhost:3000/node"
+      process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
+      process.env.ATOM_ELECTRON_VERSION = 'v0.10.3'
+      process.env.ATOM_RESOURCE_PATH = temp.mkdirSync('atom-resource-path-')
 
-    originalPathEnv = process.env.PATH
-    process.env.PATH = ""
+      originalPathEnv = process.env.PATH
+      process.env.PATH = ""
+      live = true
+    waitsFor -> live
 
   afterEach ->
-    server.close()
     process.env.PATH = originalPathEnv
+
+    done = false
+    server.close -> done = true
+    waitsFor -> done
 
   it "rebuilds all modules when no module names are specified", ->
     packageToRebuild = path.join(__dirname, 'fixtures/package-with-native-deps')

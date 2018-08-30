@@ -14,15 +14,20 @@ describe 'apm publish', ->
 
     app = express()
     server =  http.createServer(app)
-    server.listen(3000)
 
-    atomHome = temp.mkdirSync('apm-home-dir-')
-    process.env.ATOM_HOME = atomHome
-    process.env.ATOM_API_URL = "http://localhost:3000/api"
-    process.env.ATOM_RESOURCE_PATH = temp.mkdirSync('atom-resource-path-')
+    live = false
+    server.listen 3000, '127.0.0.1', ->
+      atomHome = temp.mkdirSync('apm-home-dir-')
+      process.env.ATOM_HOME = atomHome
+      process.env.ATOM_API_URL = "http://localhost:3000/api"
+      process.env.ATOM_RESOURCE_PATH = temp.mkdirSync('atom-resource-path-')
+      live = true
+    waitsFor -> live
 
   afterEach ->
-    server.close()
+    done = false
+    server.close -> done = true
+    waitsFor -> done
 
   it "validates the package's package.json file", ->
     packageToPublish = temp.mkdirSync('apm-test-package-')

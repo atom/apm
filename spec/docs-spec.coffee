@@ -16,13 +16,18 @@ describe 'apm docs', ->
       response.sendFile path.join(__dirname, 'fixtures', 'wrap-guide.json')
     app.get '/install', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'install.json')
-    server =  http.createServer(app)
-    server.listen(3000)
+    server = http.createServer(app)
 
-    process.env.ATOM_PACKAGES_URL = "http://localhost:3000"
+    live = false
+    server.listen 3000, '127.0.0.1', ->
+      process.env.ATOM_PACKAGES_URL = "http://localhost:3000"
+      live = true
+    waitsFor -> live
 
   afterEach ->
-    server.close()
+    done = false
+    server.close -> done = true
+    waitsFor -> done
 
   it 'logs an error if the package has no URL', ->
     callback = jasmine.createSpy('callback')
