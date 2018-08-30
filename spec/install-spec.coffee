@@ -43,8 +43,12 @@ describe 'apm install', ->
         response.sendFile path.join(__dirname, 'fixtures', 'test-module-1.1.0.tgz')
       app.get '/tarball/test-module-1.2.0.tgz', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'test-module-1.2.0.tgz')
+      app.get '/test-module2', (request, response) ->
+        response.sendFile path.join(__dirname, 'fixtures', 'install-test-module2.json')
       app.get '/tarball/test-module2-2.0.0.tgz', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'test-module2-2.0.0.tgz')
+      app.get '/tarball/test-module-with-dependencies-1.1.0.tgz', (request, response) ->
+        response.sendFile path.join(__dirname, 'fixtures', 'test-module-with-dependencies-1.1.0.tgz')
       app.get '/packages/test-module', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'install-test-module.json')
       app.get '/packages/test-module2', (request, response) ->
@@ -55,6 +59,8 @@ describe 'apm install', ->
         response.sendFile path.join(__dirname, 'fixtures', 'install-test-module-with-bin.json')
       app.get '/packages/test-module-with-symlink', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'install-test-module-with-symlink.json')
+      app.get '/packages/test-module-with-dependencies', (request, response) ->
+        response.sendFile path.join(__dirname, 'fixtures', 'install-test-module-with-dependencies.json')
       app.get '/tarball/test-module-with-symlink-5.0.0.tgz', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'test-module-with-symlink-5.0.0.tgz')
       app.get '/tarball/test-module-with-bin-2.0.0.tgz', (request, response) ->
@@ -233,7 +239,8 @@ describe 'apm install', ->
           expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module', 'package.json'))).toBeTruthy()
           expect(callback.mostRecentCall.args[0]).toEqual null
 
-      it 'respects --package-lock-only', ->
+    describe 'when --package-lock-only is specified', ->
+      it 'updates package-lock.json but not node_modules/', ->
         moduleDirectory = path.join(temp.mkdirSync('apm-test-module-'), 'test-module-with-dependencies')
         wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
         process.chdir(moduleDirectory)
@@ -248,6 +255,37 @@ describe 'apm install', ->
         runs ->
           expect(fs.existsSync(path.join(moduleDirectory, 'package-lock.json'))).toBeTruthy()
           expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module'))).toBeFalsy()
+          expect(callback.mostRecentCall.args[0]).toEqual null
+
+      it 'accounts for packageDependencies', ->
+        moduleDirectory = temp.mkdirSync('apm-test-module-')
+        CSON.writeFileSync path.join(moduleDirectory, 'package.json'),
+          name: 'has-package-deps'
+          version: '1.0.0'
+          dependencies:
+            'test-module2': '^2.0.0'
+          packageDependencies:
+            'test-module-with-dependencies': '1.1.0'
+        process.chdir(moduleDirectory)
+
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', '--package-lock-only'], callback)
+
+        waitsFor 'waiting for install to complete', 600000, ->
+          callback.callCount > 0
+
+        runs ->
+          pjlock = CSON.readFileSync path.join(moduleDirectory, 'package-lock.json')
+
+          expect(pjlock.dependencies['test-module'].version).toBe('1.2.0')
+          expect(pjlock.dependencies['test-module2'].version).toBe('2.0.0')
+          expect(pjlock.dependencies['test-module-with-dependencies'].version)
+            .toBe('http://localhost:3000/tarball/test-module-with-dependencies-1.1.0.tgz')
+
+          expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module2'))).toBeFalsy()
+          expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module-with-dependencies'))).toBeFalsy()
+          expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module'))).toBeFalsy()
+
           expect(callback.mostRecentCall.args[0]).toEqual null
 
     describe "when the packages directory does not exist", ->

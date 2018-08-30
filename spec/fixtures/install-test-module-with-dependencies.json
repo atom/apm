@@ -1,0 +1,13 @@
+{
+    "releases": {
+        "latest": "1.1.0"
+    },
+    "name": "test-module-with-dependencies",
+    "versions": {
+        "1.1.0": {
+            "dist": {
+                "tarball": "http://localhost:3000/tarball/test-module-with-dependencies-1.1.0.tgz"
+            }
+        }
+    }
+}
