@@ -11,7 +11,7 @@ fs = require './fs'
 
 module.exports =
 class Clean extends Command
-  @commandNames: ['clean']
+  @commandNames: ['clean', 'prune']
 
   constructor: ->
     super()
