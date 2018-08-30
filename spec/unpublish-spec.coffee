@@ -24,14 +24,19 @@ describe 'apm unpublish', ->
       unpublishVersionCallback()
       response.status(204).send(204)
 
-    server =  http.createServer(app)
-    server.listen(3000)
+    server = http.createServer(app)
 
-    process.env.ATOM_HOME = temp.mkdirSync('apm-home-dir-')
-    process.env.ATOM_API_URL = "http://localhost:3000"
+    live = false
+    server.listen 3000, '127.0.0.1', ->
+      process.env.ATOM_HOME = temp.mkdirSync('apm-home-dir-')
+      process.env.ATOM_API_URL = "http://localhost:3000"
+      live = true
+    waitsFor -> live
 
   afterEach ->
-    server.close()
+    done = false
+    server.close -> done = true
+    waitsFor -> done
 
   describe "when no version is specified", ->
     it 'unpublishes the package', ->

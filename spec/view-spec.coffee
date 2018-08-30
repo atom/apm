@@ -14,12 +14,17 @@ describe 'apm view', ->
     app.get '/wrap-guide', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'wrap-guide.json')
     server =  http.createServer(app)
-    server.listen(3000)
 
-    process.env.ATOM_PACKAGES_URL = "http://localhost:3000"
+    live = false
+    server.listen 3000, '127.0.0.1', ->
+      process.env.ATOM_PACKAGES_URL = "http://localhost:3000"
+      live = true
+    waitsFor -> live
 
   afterEach ->
-    server.close()
+    done = false
+    server.close -> done = true
+    waitsFor -> done
 
   it 'displays information about the package', ->
     callback = jasmine.createSpy('callback')
