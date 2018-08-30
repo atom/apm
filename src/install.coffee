@@ -33,6 +33,7 @@ class Install extends Command
     options.usage """
 
       Usage: apm install [<package_name>...]
+             apm install [--package-lock-only]
              apm install <package_name>@<package_version>
              apm install <git_remote>
              apm install <github_username>/<github_project>
@@ -43,7 +44,8 @@ class Install extends Command
 
       If no package name is given then all the dependencies in the package.json
       file are installed to the node_modules folder in the current working
-      directory.
+      directory. If --package-lock-only is specified, then the local package-lock.json
+      file will be created or brought up to date and no node_modules will be touched.
 
       A packages file can be specified that is a newline separated list of
       package names to install with optional versions using the
@@ -57,6 +59,7 @@ class Install extends Command
     options.boolean('verbose').default('verbose', false).describe('verbose', 'Show verbose debug information')
     options.string('packages-file').describe('packages-file', 'A text file containing the packages to install')
     options.boolean('production').describe('production', 'Do not install dev dependencies')
+    options.boolean('package-lock-only').default('package-lock-only', false).describe('Only update package-lock.json')
 
   installNode: (callback) =>
     installNodeArgs = ['install']
@@ -191,6 +194,7 @@ class Install extends Command
     installArgs.push('--silent') if options.argv.silent
     installArgs.push('--quiet') if options.argv.quiet
     installArgs.push('--production') if options.argv.production
+    installArgs.push('--package-lock-only') if options.argv.packageLockOnly
 
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
