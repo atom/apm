@@ -288,6 +288,40 @@ describe 'apm install', ->
 
           expect(callback.mostRecentCall.args[0]).toEqual null
 
+      it 'normalizes file:. dependencies', ->
+        moduleDirectory = temp.mkdirSync('apm-test-module-')
+        vendorDirectory = path.join(moduleDirectory, 'vendor')
+        fs.mkdirSync(vendorDirectory)
+        wrench.copyDirSyncRecursive(
+          path.join(__dirname, 'fixtures', 'test-module'),
+          path.join(vendorDirectory, 'test-module')
+        )
+
+        CSON.writeFileSync path.join(moduleDirectory, 'package.json'),
+          name: 'has-file-dep'
+          version: '1.0.0'
+          dependencies: {}
+          packageDependencies:
+            'test-module': 'file:./vendor/test-module'
+        process.chdir(moduleDirectory)
+
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', '--package-lock-only'], callback)
+
+        waitsFor 'waiting for install to complete', 600000, ->
+          callback.callCount > 0
+
+        runs ->
+          pjson = CSON.readFileSync path.join(moduleDirectory, 'package.json')
+          expect(pjson.dependencies['test-module']).toBe('file:vendor/test-module')
+
+          pjlock = CSON.readFileSync path.join(moduleDirectory, 'package-lock.json')
+          expect(pjlock.dependencies['test-module'].version).toBe('file:vendor/test-module')
+
+          expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module'))).toBeFalsy()
+
+          expect(callback.mostRecentCall.args[0]).toEqual null
+
     describe "when the packages directory does not exist", ->
       it "creates the packages directory and any intermediate directories that do not exist", ->
         atomHome = temp.path('apm-home-dir-')

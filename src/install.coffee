@@ -396,7 +396,11 @@ class Install extends Command
     resolutionFn = ({name, version}, next) =>
       module = {name: name}
       if version.startsWith('file:.')
-        module.uri = version
+        if version.startsWith('file:./')
+          # Stay consistent with the way that npm normalizes these.
+          module.uri = "file:#{version.slice('file:./'.length)}"
+        else
+          module.uri = version
         process.nextTick -> next(null, module)
       else
         @resolveRegisteredPackage name, version, (error, pack, tarball) ->
