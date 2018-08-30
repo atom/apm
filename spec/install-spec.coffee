@@ -233,6 +233,23 @@ describe 'apm install', ->
           expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module', 'package.json'))).toBeTruthy()
           expect(callback.mostRecentCall.args[0]).toEqual null
 
+      it 'respects --package-lock-only', ->
+        moduleDirectory = path.join(temp.mkdirSync('apm-test-module-'), 'test-module-with-dependencies')
+        wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
+        process.chdir(moduleDirectory)
+        expect(fs.existsSync(path.join(moduleDirectory, 'package-lock.json'))).toBeFalsy()
+
+        callback = jasmine.createSpy('callback')
+        apm.run(['install', '--package-lock-only'], callback)
+
+        waitsFor 'waiting for install to complete', 600000, ->
+          callback.callCount > 0
+
+        runs ->
+          expect(fs.existsSync(path.join(moduleDirectory, 'package-lock.json'))).toBeTruthy()
+          expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module'))).toBeFalsy()
+          expect(callback.mostRecentCall.args[0]).toEqual null
+
     describe "when the packages directory does not exist", ->
       it "creates the packages directory and any intermediate directories that do not exist", ->
         atomHome = temp.path('apm-home-dir-')
