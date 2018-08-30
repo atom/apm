@@ -13,13 +13,18 @@ describe 'apm search', ->
     app = express()
     app.get '/search', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'search.json')
-    server =  http.createServer(app)
-    server.listen(3000)
+    server = http.createServer(app)
 
-    process.env.ATOM_PACKAGES_URL = "http://localhost:3000"
+    live = false
+    server.listen 3000, '127.0.0.1', ->
+      process.env.ATOM_PACKAGES_URL = "http://localhost:3000"
+      live = true
+    waitsFor -> live
 
   afterEach ->
-    server.close()
+    done = false
+    server.close -> done = true
+    waitsFor -> done
 
   it 'lists the matching packages and excludes deprecated packages', ->
     callback = jasmine.createSpy('callback')

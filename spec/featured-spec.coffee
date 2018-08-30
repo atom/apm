@@ -15,14 +15,18 @@ describe 'apm featured', ->
       response.sendFile path.join(__dirname, 'fixtures', 'packages.json')
     app.get '/themes/featured', (request, response) ->
       response.sendFile path.join(__dirname, 'fixtures', 'themes.json')
+    server = http.createServer(app)
 
-    server =  http.createServer(app)
-    server.listen(3000)
-
-    process.env.ATOM_API_URL = "http://localhost:3000"
+    live = false
+    server.listen 3000, '127.0.0.1', ->
+      process.env.ATOM_API_URL = "http://localhost:3000"
+      live = true
+    waitsFor -> live
 
   afterEach ->
-    server.close()
+    done = false
+    server.close -> done = true
+    waitsFor -> done
 
   it 'lists the featured packages and themes', ->
     callback = jasmine.createSpy('callback')
