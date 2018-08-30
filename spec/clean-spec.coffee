@@ -74,7 +74,7 @@ describe 'apm clean', ->
     fs.makeTreeSync(removedPath)
     fs.writeFileSync(
       path.join(removedPath, 'package.json'),
-      '{"name": "will-be-removed", "version": "1.0.0", "dependencies": {}}',
+      '{"name": "@types/atom", "version": "1.0.0", "dependencies": {}}',
       'utf8'
     )
 
