@@ -292,10 +292,11 @@ describe 'apm install', ->
         moduleDirectory = temp.mkdirSync('apm-test-module-')
         vendorDirectory = path.join(moduleDirectory, 'vendor')
         fs.mkdirSync(vendorDirectory)
-        wrench.copyDirSyncRecursive(
-          path.join(__dirname, 'fixtures', 'test-module'),
-          path.join(vendorDirectory, 'test-module')
-        )
+        for dep in ['test-module', 'test-module-two', 'test-module-three']
+          wrench.copyDirSyncRecursive(
+            path.join(__dirname, 'fixtures', dep),
+            path.join(vendorDirectory, dep)
+          )
 
         CSON.writeFileSync path.join(moduleDirectory, 'package.json'),
           name: 'has-file-dep'
@@ -303,6 +304,8 @@ describe 'apm install', ->
           dependencies: {}
           packageDependencies:
             'test-module': 'file:./vendor/test-module'
+            'test-module-two': 'file:vendor/test-module-two'
+            'test-module-three': 'file:./native-module/src/../../vendor/test-module-three'
         process.chdir(moduleDirectory)
 
         callback = jasmine.createSpy('callback')
@@ -314,9 +317,13 @@ describe 'apm install', ->
         runs ->
           pjson = CSON.readFileSync path.join(moduleDirectory, 'package.json')
           expect(pjson.dependencies['test-module']).toBe('file:vendor/test-module')
+          expect(pjson.dependencies['test-module-two']).toBe('file:vendor/test-module-two')
+          expect(pjson.dependencies['test-module-three']).toBe('file:vendor/test-module-three')
 
           pjlock = CSON.readFileSync path.join(moduleDirectory, 'package-lock.json')
           expect(pjlock.dependencies['test-module'].version).toBe('file:vendor/test-module')
+          expect(pjlock.dependencies['test-module-two'].version).toBe('file:vendor/test-module-two')
+          expect(pjlock.dependencies['test-module-three'].version).toBe('file:vendor/test-module-three')
 
           expect(fs.existsSync(path.join(moduleDirectory, 'node_modules', 'test-module'))).toBeFalsy()
 

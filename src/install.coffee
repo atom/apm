@@ -378,7 +378,7 @@ class Install extends Command
     for name, version of @getPackageDependencies()
       do (name, version) =>
         commands.push (next) =>
-          if version.startsWith('file:.')
+          if /^file:[^\/]/.test version
             @installLocalPackage(name, version, options, next)
           else
             @installRegisteredPackage({name, version}, options, next)
@@ -395,12 +395,8 @@ class Install extends Command
 
     resolutionFn = ({name, version}, next) =>
       module = {name: name}
-      if version.startsWith('file:.')
-        if version.startsWith('file:./')
-          # Stay consistent with the way that npm normalizes these.
-          module.uri = "file:#{version.slice('file:./'.length)}"
-        else
-          module.uri = version
+      if /^file:[^\/]/.test version
+        module.uri = 'file:' + path.normalize(version.slice('file:'.length))
         process.nextTick -> next(null, module)
       else
         @resolveRegisteredPackage name, version, (error, pack, tarball) ->
