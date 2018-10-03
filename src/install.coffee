@@ -33,6 +33,7 @@ class Install extends Command
     options.usage """
 
       Usage: apm install [<package_name>...]
+             apm install [--package-lock-only]
              apm install <package_name>@<package_version>
              apm install <git_remote>
              apm install <github_username>/<github_project>
@@ -43,7 +44,8 @@ class Install extends Command
 
       If no package name is given then all the dependencies in the package.json
       file are installed to the node_modules folder in the current working
-      directory.
+      directory. If --package-lock-only is specified, then the local package-lock.json
+      file will be created or brought up to date and no node_modules will be touched.
 
       A packages file can be specified that is a newline separated list of
       package names to install with optional versions using the
@@ -57,6 +59,7 @@ class Install extends Command
     options.boolean('verbose').default('verbose', false).describe('verbose', 'Show verbose debug information')
     options.string('packages-file').describe('packages-file', 'A text file containing the packages to install')
     options.boolean('production').describe('production', 'Do not install dev dependencies')
+    options.boolean('package-lock-only').default('package-lock-only', false).describe('Only update package-lock.json')
 
   installNode: (callback) =>
     installNodeArgs = ['install']
@@ -145,6 +148,19 @@ class Install extends Command
         error = @getGitErrorMessage(pack) if error.indexOf('code ENOGIT') isnt -1
         callback(error)
 
+  # Install resolved apm packages as npm dependencies by adding their tarball uris to the local package.json file. This
+  # allows us to account for packageDependencies when using --package-lock-only.
+  saveModules: (options, modules, callback) ->
+    CSON.readFile "package.json", (err, pjson) ->
+      if err?
+        callback(err)
+        return
+
+      for module in modules
+        pjson.dependencies[module.name] = module.uri
+
+      CSON.writeFile "package.json", pjson, callback
+
   getGitErrorMessage: (pack) ->
     message = """
       Failed to install #{pack.name} because Git was not found.
@@ -191,6 +207,7 @@ class Install extends Command
     installArgs.push('--silent') if options.argv.silent
     installArgs.push('--quiet') if options.argv.quiet
     installArgs.push('--production') if options.argv.production
+    installArgs.push('--package-lock-only') if options.argv.packageLockOnly
 
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
@@ -240,6 +257,33 @@ class Install extends Command
     catch error
       false
 
+  # Query the API for an apm package. Resolve a version compatible with an optional requested version range
+  # and the local Atom installation.
+  #
+  # name - The name of the package as registered on atom.io.
+  # version - Optional version range. Leave as null to request the latest.
+  # callback - The function to invoke with any errors that occurred, or null, the package metadata, and
+  #            the URI for the resolved package.
+  resolveRegisteredPackage: (name, version, callback) ->
+    @requestPackage name, (error, pack) =>
+      if error?
+        @logFailure()
+        callback(error)
+      else
+        packageVersion = version ? @getLatestCompatibleVersion(pack)
+        unless packageVersion
+          @logFailure()
+          callback("No available version compatible with the installed Atom version: #{@installedAtomVersion}")
+          return
+
+        {tarball} = pack.versions[packageVersion]?.dist ? {}
+        unless tarball
+          @logFailure()
+          callback("Package version: #{packageVersion} not found")
+          return
+
+        callback(null, pack, tarball)
+
   # Install the package with the given name and optional version
   #
   # metadata - The package metadata object with at least a name key. A version
@@ -265,47 +309,35 @@ class Install extends Command
       if installGlobally
         process.stdout.write "to #{@atomPackagesDirectory} "
 
-    @requestPackage packageName, (error, pack) =>
+    @resolveRegisteredPackage packageName, packageVersion, (error, pack, tarball) =>
       if error?
-        @logFailure()
         callback(error)
-      else
-        packageVersion ?= @getLatestCompatibleVersion(pack)
-        unless packageVersion
-          @logFailure()
-          callback("No available version compatible with the installed Atom version: #{@installedAtomVersion}")
-          return
+        return
 
-        {tarball} = pack.versions[packageVersion]?.dist ? {}
-        unless tarball
-          @logFailure()
-          callback("Package version: #{packageVersion} not found")
-          return
+      commands = []
+      installNode = options.installNode ? true
+      if installNode
+        commands.push @installNode
+      commands.push (next) => @installModule(options, pack, tarball, next)
+      if installGlobally and (packageName.localeCompare(pack.name, 'en', {sensitivity: 'accent'}) isnt 0)
+        commands.push (newPack, next) => # package was renamed; delete old package folder
+          fs.removeSync(path.join(@atomPackagesDirectory, packageName))
+          next(null, newPack)
+      commands.push ({installPath}, next) ->
+        if installPath?
+          metadata = JSON.parse(fs.readFileSync(path.join(installPath, 'package.json'), 'utf8'))
+          json = {installPath, metadata}
+          next(null, json)
+        else
+          next(null, {}) # installed locally, no install path data
 
-        commands = []
-        installNode = options.installNode ? true
-        if installNode
-          commands.push @installNode
-        commands.push (next) => @installModule(options, pack, tarball, next)
-        if installGlobally and (packageName.localeCompare(pack.name, 'en', {sensitivity: 'accent'}) isnt 0)
-          commands.push (newPack, next) => # package was renamed; delete old package folder
-            fs.removeSync(path.join(@atomPackagesDirectory, packageName))
-            next(null, newPack)
-        commands.push ({installPath}, next) ->
-          if installPath?
-            metadata = JSON.parse(fs.readFileSync(path.join(installPath, 'package.json'), 'utf8'))
-            json = {installPath, metadata}
-            next(null, json)
+      async.waterfall commands, (error, json) =>
+        unless installGlobally
+          if error?
+            @logFailure()
           else
-            next(null, {}) # installed locally, no install path data
-
-        async.waterfall commands, (error, json) =>
-          unless installGlobally
-            if error?
-              @logFailure()
-            else
-              @logSuccess() unless options.argv.json
-          callback(error, json)
+            @logSuccess() unless options.argv.json
+        callback(error, json)
 
   # Install the package with the given name and local path
   #
@@ -346,21 +378,53 @@ class Install extends Command
     for name, version of @getPackageDependencies()
       do (name, version) =>
         commands.push (next) =>
-          if version.startsWith('file:.')
+          if /^file:[^\/]/.test version
             @installLocalPackage(name, version, options, next)
           else
             @installRegisteredPackage({name, version}, options, next)
 
     async.series(commands, callback)
 
+  # Modify a local package.json file by resolving any packageDependencies and
+  # adding their tarball URIs as normal npm dependencies.
+  #
+  # options - Install options.
+  # callback - Function to be invoked on completion, with an error as its first argument if one occurs.
+  savePackageDependencies: (options, callback) ->
+    resolutions = []
+
+    resolutionFn = ({name, version}, next) =>
+      module = {name: name}
+      if /^file:[^\/]/.test version
+        module.uri = 'file:' + path.normalize(version.slice('file:'.length))
+        process.nextTick -> next(null, module)
+      else
+        @resolveRegisteredPackage name, version, (error, pack, tarball) ->
+          if error?
+            next(error)
+            return
+
+          module.uri = tarball
+          next(null, module)
+
+    specs = ({name, version} for name, version of @getPackageDependencies())
+    async.mapLimit specs, 5, resolutionFn, (error, modules) =>
+      if error?
+        callback(error)
+        return
+      @saveModules options, modules, callback
+
   installDependencies: (options, callback) ->
     options.installGlobally = false
     commands = []
     commands.push(@installNode)
-    commands.push (callback) => @installModules(options, callback)
-    commands.push (callback) => @installPackageDependencies(options, callback)
+    if options.argv.packageLockOnly
+      commands.push (cb) => @savePackageDependencies(options, cb)
+    else
+      commands.push (cb) => @installPackageDependencies(options, cb)
+    commands.push (cb) => @installModules(options, cb)
 
-    async.waterfall commands, callback
+    async.series commands, callback
 
   # Get all package dependency names and versions from the package.json file.
   getPackageDependencies: ->
