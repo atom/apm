@@ -27,6 +27,7 @@ class Install extends Command
     @atomPackagesDirectory = path.join(@atomDirectory, 'packages')
     @atomNodeDirectory = path.join(@atomDirectory, '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
+    @repoLocalPackagePathRegex = /^file:(?!\/\/)(.*)/
 
   parseOptions: (argv) ->
     options = yargs(argv).wrap(100)
@@ -346,7 +347,7 @@ class Install extends Command
     for name, version of @getPackageDependencies()
       do (name, version) =>
         commands.push (next) =>
-          if version.startsWith('file:.')
+          if @repoLocalPackagePathRegex.test(version)
             @installLocalPackage(name, version, options, next)
           else
             @installRegisteredPackage({name, version}, options, next)
@@ -366,10 +367,32 @@ class Install extends Command
   getPackageDependencies: ->
     try
       metadata = fs.readFileSync('package.json', 'utf8')
-      {packageDependencies} = JSON.parse(metadata) ? {}
-      packageDependencies ? {}
+      {packageDependencies, dependencies} = JSON.parse(metadata) ? {}
+
+      return {} unless packageDependencies
+      return packageDependencies unless dependencies
+
+      # This code filters out any `packageDependencies` that have an equivalent
+      # normalized repo-local package path entry in the `dependencies` section of
+      # `package.json`.  Versioned `packageDependencies` are always returned.
+      filteredPackages = {}
+      for packageName, packageSpec of packageDependencies
+        dependencyPath = @getRepoLocalPackagePath(dependencies[packageName])
+        packageDependencyPath = @getRepoLocalPackagePath(packageSpec)
+        unless packageDependencyPath and dependencyPath is packageDependencyPath
+          filteredPackages[packageName] = packageSpec
+
+      filteredPackages
     catch error
       {}
+
+  getRepoLocalPackagePath: (packageSpec) ->
+    return undefined if not packageSpec
+    repoLocalPackageMatch = packageSpec.match(@repoLocalPackagePathRegex)
+    if repoLocalPackageMatch
+      path.normalize(repoLocalPackageMatch[1])
+    else
+      undefined
 
   createAtomDirectories: ->
     fs.makeTreeSync(@atomDirectory)

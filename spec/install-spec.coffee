@@ -411,6 +411,43 @@ describe 'apm install', ->
           expect(install.cloneNormalizedUrl.argsForCall[1][0]).toBe urls[1]
           expect(install.cloneNormalizedUrl.argsForCall[2][0]).toBe urls[2]
 
+    describe '::getPackageDependencies', ->
+      originalPath = null
+      packageDependencies = null
+      packageJsonContents =
+        dependencies:
+          'duplicate-package': 'file:packages/duplicate-module'
+          'different-package': 'file:packages/different-package'
+          'versioned-package': 'https://url/to/versioned-package.tgz'
+        packageDependencies:
+          'duplicate-package': 'file:./packages/duplicate-module'
+          'different-package': 'file:packages/im-batman'
+          'missing-package': 'file:./packages/missing-package'
+          'versioned-package': '1.2.3'
+
+      beforeEach ->
+        atomRepoPath = temp.mkdirSync('apm-repo-dir-')
+        CSON.writeFileSync(path.join(atomRepoPath, 'package.json'), packageJsonContents)
+        originalPath = process.cwd()
+        process.chdir(atomRepoPath)
+        install = new Install()
+        packageDependencies = install.getPackageDependencies()
+
+      it 'excludes repo-local packages in \'packageDependencies\' which have an equivalent normalized path to that in \'dependencies\'', ->
+        expect(packageDependencies['duplicate-package']).toBe undefined
+
+      it 'includes repo-local packages in \'packageDependencies\' which have different normalized path to that in \'dependencies\'', ->
+        expect(packageDependencies['different-package']).toBe 'file:packages/im-batman'
+
+      it 'includes repo-local packages in \'packageDependencies\' that aren\'t in \'dependencies\'', ->
+        expect(packageDependencies['missing-package']).toBe 'file:./packages/missing-package'
+
+      it 'includes versioned packages in \'packageDependencies\'', ->
+        expect(packageDependencies['versioned-package']).toBe '1.2.3'
+
+      afterEach ->
+        process.chdir(originalPath)
+
     describe 'when installing a package from a git repository', ->
       [cloneUrl, pkgJsonPath] = []
 
