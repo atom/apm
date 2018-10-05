@@ -347,7 +347,7 @@ class Install extends Command
     for name, version of @getPackageDependencies()
       do (name, version) =>
         commands.push (next) =>
-          if version.match(@repoLocalPackagePathRegex)
+          if @repoLocalPackagePathRegex.test(version)
             @installLocalPackage(name, version, options, next)
           else
             @installRegisteredPackage({name, version}, options, next)
@@ -369,8 +369,8 @@ class Install extends Command
       metadata = fs.readFileSync('package.json', 'utf8')
       {packageDependencies, dependencies} = JSON.parse(metadata) ? {}
 
-      return {} if not packageDependencies
-      return packageDependencies if not dependencies
+      return {} unless packageDependencies
+      return packageDependencies unless dependencies
 
       # This code filters out any `packageDependencies` that have an equivalent
       # normalized repo-local package path entry in the `dependencies` section of
