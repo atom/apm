@@ -22,7 +22,7 @@
     "check-version": "node version.js"
   },
   "dependencies": {
-    "@atom/plist": "0.4.3",
+    "@atom/plist": "0.4.4",
     "asar-require": "0.3.0",
     "async": "~0.2.8",
     "colors": "~0.6.1",
