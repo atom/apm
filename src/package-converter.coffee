@@ -4,7 +4,7 @@ zlib = require 'zlib'
 
 _ = require 'underscore-plus'
 CSON = require 'season'
-plist = require 'plist'
+plist = require '@atom/plist'
 {ScopeSelector} = require 'first-mate'
 tar = require 'tar'
 temp = require 'temp'

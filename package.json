@@ -22,6 +22,7 @@
     "check-version": "node version.js"
   },
   "dependencies": {
+    "@atom/plist": "0.4.4",
     "asar-require": "0.3.0",
     "async": "~0.2.8",
     "colors": "~0.6.1",
@@ -34,7 +35,6 @@
     "ncp": "~0.5.1",
     "npm": "6.2.0",
     "open": "0.0.5",
-    "plist": "git+https://github.com/nathansobo/node-plist.git",
     "q": "~0.9.7",
     "read": "~1.0.5",
     "request": "^2.87.0",
