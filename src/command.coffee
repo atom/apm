@@ -67,7 +67,6 @@ class Command
       callback()
     else
       @logFailure()
-      process.stderr.write(stderr)
       callback("#{stdout}\n#{stderr}".trim())
 
   logCommandResultsIfFail: (callback, code, stderr='', stdout='') =>

@@ -55,7 +55,7 @@ class Install extends Command
     options.alias('s', 'silent').boolean('silent').describe('silent', 'Set the npm log level to silent')
     options.alias('q', 'quiet').boolean('quiet').describe('quiet', 'Set the npm log level to warn')
     options.boolean('check').describe('check', 'Check that native build tools are installed')
-    options.boolean('verbose').default('verbose', true).describe('verbose', 'Show verbose debug information')
+    options.boolean('verbose').default('verbose', false).describe('verbose', 'Show verbose debug information')
     options.string('packages-file').describe('packages-file', 'A text file containing the packages to install')
     options.boolean('production').describe('production', 'Do not install dev dependencies')
 

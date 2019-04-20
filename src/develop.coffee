@@ -59,7 +59,7 @@ class Develop extends Command
   cloneRepository: (repoUrl, packageDirectory, options, callback = ->) ->
     config.getSetting 'git', (command) =>
       command ?= 'git'
-      args = ['clone', '--recursive', '--verbose', repoUrl, packageDirectory]
+      args = ['clone', '--recursive', repoUrl, packageDirectory]
       process.stdout.write "Cloning #{repoUrl} " unless options.argv.json
       git.addGitToEnv(process.env)
       @spawn command, args, (args...) =>
