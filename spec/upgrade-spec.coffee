@@ -17,7 +17,7 @@ describe "apm upgrade", ->
 
   beforeEach ->
     spyOnToken()
-    silenceOutput()
+    silenceOutput(true)
 
     atomHome = temp.mkdirSync('apm-home-dir-')
     process.env.ATOM_HOME = atomHome
@@ -188,7 +188,7 @@ describe "apm upgrade", ->
         json.apmInstallSource.sha = 'abcdef1234567890'
         fs.writeFileSync pkgJsonPath, JSON.stringify(json)
 
-    it 'shows an upgrade plan', ->
+    fit 'shows an upgrade plan', ->
       apmRun ['upgrade', '--list', '--no-color'], ->
         text = console.log.argsForCall.map((arr) -> arr.join(' ')).join("\n")
         expect(text).toMatch /Available \(1\).*\n.*test-git-repo abcdef12 -> 8ae43234/
