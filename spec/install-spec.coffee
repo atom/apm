@@ -539,8 +539,8 @@ describe 'apm install', ->
         process.env.ATOM_NODE_GYP_PATH = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
 
       afterEach ->
-        process.env.npm_config_node_gyp = path.join(nodeModules, '.bin', 'node-gyp')
-        process.env.ATOM_NODE_GYP_PATH = path.join(nodeModules, 'node-gyp', 'bin', 'node-gyp.js')
+        delete process.env.npm_config_node_gyp
+        delete process.env.ATOM_NODE_GYP_PATH
 
       it 'builds native code successfully', ->
         callback = jasmine.createSpy('callback')
