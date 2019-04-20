@@ -557,48 +557,52 @@ describe 'apm install', ->
           expect(fs.existsSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
           expect(fs.existsSync(path.join(testModuleDirectory, 'build', 'Release', 'native.node'))).toBeTruthy()
 
-          makefileContent = fs.readFileSync(path.join(testModuleDirectory, 'build', 'Makefile'), {encoding: 'utf-8'})
-          expect(makefileContent).toMatch('node_modules/with\\ a\\ space/addon.gypi')
+          # TODO: Find a way to make this cross-platform (config.gypi, perhaps?)
+          if process.platform isnt 'win32'
+            makefileContent = fs.readFileSync(path.join(testModuleDirectory, 'build', 'Makefile'), {encoding: 'utf-8'})
+            expect(makefileContent).toMatch('node_modules/with\\ a\\ space/addon.gypi')
 
-    describe "configurable Python binaries", ->
-      nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
-      [originalPython, originalNpmConfigPython] = []
+    if process.platform isnt 'win32'
+      # Only applicable on Linux and macOS
+      describe "configurable Python binaries", ->
+        nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
+        [originalPython, originalNpmConfigPython] = []
 
-      beforeEach ->
-        originalPython = process.env.PYTHON
-        originalNpmConfigPython = process.env.npm_config_python
-        delete process.env.PYTHON
-        delete process.env.npm_config_python
+        beforeEach ->
+          originalPython = process.env.PYTHON
+          originalNpmConfigPython = process.env.npm_config_python
+          delete process.env.PYTHON
+          delete process.env.npm_config_python
 
-      afterEach ->
-        process.env.PYTHON = originalPython
-        process.env.npm_config_python = originalNpmConfigPython
+        afterEach ->
+          process.env.PYTHON = originalPython
+          process.env.npm_config_python = originalNpmConfigPython
 
-      it 'respects ${PYTHON} if set', ->
-        process.env.PYTHON = path.join __dirname, 'fixtures', 'fake-python-1.sh'
+        it 'respects ${PYTHON} if set', ->
+          process.env.PYTHON = path.join __dirname, 'fixtures', 'fake-python-1.sh'
 
-        callback = jasmine.createSpy('callback')
-        apm.run(['install', 'native-package'], callback)
+          callback = jasmine.createSpy('callback')
+          apm.run(['install', 'native-package'], callback)
 
-        waitsFor 'waiting for install to fail', 600000, ->
-          callback.callCount is 1
+          waitsFor 'waiting for install to fail', 600000, ->
+            callback.callCount is 1
 
-        runs ->
-          errorText = callback.mostRecentCall.args[0]
-          expect(errorText).not.toBeNull()
-          expect(errorText).toMatch('fake-python-1 called')
+          runs ->
+            errorText = callback.mostRecentCall.args[0]
+            expect(errorText).not.toBeNull()
+            expect(errorText).toMatch('fake-python-1 called')
 
-      it 'respects ${npm_config_python} if set', ->
-        process.env.npm_config_python = path.join __dirname, 'fixtures', 'fake-python-2.sh'
-        process.env.PYTHON = path.join __dirname, 'fixtures', 'fake-python-1.sh'
+        it 'respects ${npm_config_python} if set', ->
+          process.env.npm_config_python = path.join __dirname, 'fixtures', 'fake-python-2.sh'
+          process.env.PYTHON = path.join __dirname, 'fixtures', 'fake-python-1.sh'
 
-        callback = jasmine.createSpy('callback')
-        apm.run(['install', 'native-package'], callback)
+          callback = jasmine.createSpy('callback')
+          apm.run(['install', 'native-package'], callback)
 
-        waitsFor 'waiting for install to fail', 600000, ->
-          callback.callCount is 1
+          waitsFor 'waiting for install to fail', 600000, ->
+            callback.callCount is 1
 
-        runs ->
-          errorText = callback.mostRecentCall.args[0]
-          expect(errorText).not.toBeNull()
-          expect(errorText).toMatch('fake-python-2 called')
+          runs ->
+            errorText = callback.mostRecentCall.args[0]
+            expect(errorText).not.toBeNull()
+            expect(errorText).toMatch('fake-python-2 called')
