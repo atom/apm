@@ -44,6 +44,7 @@ class Ci extends Command
     installNodeArgs = ['install']
     installNodeArgs.push(@getNpmBuildFlags()...)
     installNodeArgs.push("--ensure")
+    installNodeArgs.push("--verbose") if options.argv.verbose
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     env.USERPROFILE = env.HOME if config.isWin32()
