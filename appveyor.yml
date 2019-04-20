@@ -13,7 +13,6 @@ install:
   - ps: Install-Product node $env:nodejs_version $env:platform
   - npm install -g npm
   - npm install
-  - .\bin\npm.cmd test
 
 build: off
 
