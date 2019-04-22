@@ -1,5 +1,5 @@
 path = require 'path'
-fs = require './fs'
+fs = require 'fs-extra'
 yargs = require 'yargs'
 async = require 'async'
 _ = require 'underscore-plus'
@@ -48,7 +48,7 @@ class Ci extends Command
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     env.USERPROFILE = env.HOME if config.isWin32()
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
 
     # node-gyp doesn't currently have an option for this so just set the
     # environment variable to bypass strict SSL

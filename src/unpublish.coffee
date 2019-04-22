@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 readline = require 'readline'
 
@@ -6,7 +7,6 @@ yargs = require 'yargs'
 auth = require './auth'
 Command = require './command'
 config = require './apm'
-fs = require './fs'
 request = require './request'
 
 module.exports =

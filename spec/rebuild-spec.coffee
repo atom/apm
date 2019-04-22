@@ -1,6 +1,5 @@
 path = require 'path'
 CSON = require 'season'
-fs = require 'fs-plus'
 temp = require 'temp'
 express = require 'express'
 http = require 'http'

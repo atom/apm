@@ -1,5 +1,5 @@
 child_process = require 'child_process'
-fs = require './fs'
+fs = require 'fs-extra'
 path = require 'path'
 npm = require 'npm'
 semver = require 'semver'

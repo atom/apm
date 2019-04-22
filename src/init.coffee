@@ -1,9 +1,10 @@
+fs = require 'fs-extra'
 path = require 'path'
 
+klawSync = require 'klaw-sync'
 yargs = require 'yargs'
 
 Command = require './command'
-fs = require './fs'
 
 module.exports =
 class Init extends Command
@@ -114,9 +115,9 @@ class Init extends Command
     packageName ?= path.basename(packagePath)
     packageAuthor = process.env.GITHUB_USER or 'atom'
 
-    fs.makeTreeSync(packagePath)
+    fs.mkdirpSync(packagePath)
 
-    for childPath in fs.listRecursive(templatePath)
+    for {path: childPath, stats} in klawSync(templatePath)
       templateChildPath = path.resolve(templatePath, childPath)
       relativePath = templateChildPath.replace(templatePath, "")
       relativePath = relativePath.replace(/^\//, '')
@@ -125,10 +126,10 @@ class Init extends Command
 
       sourcePath = path.join(packagePath, relativePath)
       continue if fs.existsSync(sourcePath)
-      if fs.isDirectorySync(templateChildPath)
-        fs.makeTreeSync(sourcePath)
-      else if fs.isFileSync(templateChildPath)
-        fs.makeTreeSync(path.dirname(sourcePath))
+      if stats.isDirectory()
+        fs.mkdirpSync(sourcePath)
+      else if stats.isDirectory()
+        fs.mkdirpSync(path.dirname(sourcePath))
         contents = fs.readFileSync(templateChildPath).toString()
         contents = @replacePackageNamePlaceholders(contents, packageName)
         contents = @replacePackageAuthorPlaceholders(contents, packageAuthor)

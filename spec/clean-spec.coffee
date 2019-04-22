@@ -1,5 +1,5 @@
 path = require 'path'
-fs = require 'fs-plus'
+fs = require 'fs-extra'
 temp = require 'temp'
 express = require 'express'
 http = require 'http'
@@ -52,7 +52,7 @@ describe 'apm clean', ->
 
   it 'uninstalls any packages not referenced in the package.json', ->
     removedPath = path.join(moduleDirectory, 'node_modules', 'will-be-removed')
-    fs.makeTreeSync(removedPath)
+    fs.mkdirpSync(removedPath)
     fs.writeFileSync(
       path.join(removedPath, 'package.json'),
       '{"name": "will-be-removed", "version": "1.0.0", "dependencies": {}}',
@@ -71,7 +71,7 @@ describe 'apm clean', ->
 
   it 'uninstalls a scoped package', ->
     removedPath = path.join(moduleDirectory, 'node_modules/@types/atom')
-    fs.makeTreeSync(removedPath)
+    fs.mkdirpSync(removedPath)
     fs.writeFileSync(
       path.join(removedPath, 'package.json'),
       '{"name": "@types/atom", "version": "1.0.0", "dependencies": {}}',

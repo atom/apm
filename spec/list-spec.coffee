@@ -1,5 +1,5 @@
 path = require 'path'
-fs = require 'fs-plus'
+fs = require 'fs-extra'
 temp = require 'temp'
 wrench = require 'wrench'
 apm = require '../lib/apm-cli'
@@ -18,7 +18,7 @@ createFakePackage = (type, metadata) ->
     when "user", "git" then "packages"
     when "dev" then path.join("dev", "packages")
   targetFolder = path.join(process.env.ATOM_HOME, packagesFolder, metadata.name)
-  fs.makeTreeSync targetFolder
+  fs.mkdirpSync targetFolder
   fs.writeFileSync path.join(targetFolder, 'package.json'), JSON.stringify(metadata)
 
 removeFakePackage = (type, name) ->
@@ -61,7 +61,7 @@ describe 'apm list', ->
         sha: "abcdef1234567890"
 
     badPackagePath = path.join(process.env.ATOM_HOME, "packages", ".bin")
-    fs.makeTreeSync badPackagePath
+    fs.mkdirpSync badPackagePath
     fs.writeFileSync path.join(badPackagePath, "file.txt"), "some fake stuff"
 
   it 'lists the installed packages', ->
@@ -80,7 +80,7 @@ describe 'apm list', ->
   describe 'enabling and disabling packages', ->
     beforeEach ->
       packagesPath = path.join(atomHome, 'packages')
-      fs.makeTreeSync(packagesPath)
+      fs.mkdirpSync(packagesPath)
       wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module'), path.join(packagesPath, 'test-module'))
       configPath = path.join(atomHome, 'config.cson')
       CSON.writeFileSync configPath, '*':

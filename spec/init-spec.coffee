@@ -2,7 +2,7 @@ path = require 'path'
 temp = require 'temp'
 CSON = require 'season'
 apm = require '../lib/apm-cli'
-fs = require '../lib/fs'
+fs = require 'fs-extra'
 
 describe "apm init", ->
   [packagePath, themePath, languagePath] = []

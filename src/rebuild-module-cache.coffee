@@ -1,9 +1,11 @@
+fs = require 'fs-extra'
 path = require 'path'
+
 async = require 'async'
 yargs = require 'yargs'
+
 Command = require './command'
 config = require './apm'
-fs = require './fs'
 
 module.exports =
 class RebuildModuleCache extends Command
@@ -49,18 +51,21 @@ class RebuildModuleCache extends Command
     {callback} = options
 
     commands = []
-    fs.list(@atomPackagesDirectory).forEach (packageName) =>
-      packageDirectory = path.join(@atomPackagesDirectory, packageName)
-      return if fs.isSymbolicLinkSync(packageDirectory)
-      return unless fs.isFileSync(path.join(packageDirectory, 'package.json'))
+    try
+      for packageName in fs.readdirSync(@atomPackagesDirectory)
+        packageDirectory = path.join(@atomPackagesDirectory, packageName)
+        return if fs.isSymbolicLinkSync(packageDirectory)
+        return unless fs.isFileSync(path.join(packageDirectory, 'package.json'))
 
-      commands.push (callback) =>
-        process.stdout.write "Rebuilding #{packageName} module cache "
-        @rebuild packageDirectory, (error) =>
-          if error?
-            @logFailure()
-          else
-            @logSuccess()
-          callback(error)
+        commands.push (callback) =>
+          process.stdout.write "Rebuilding #{packageName} module cache "
+          @rebuild packageDirectory, (error) =>
+            if error?
+              @logFailure()
+            else
+              @logSuccess()
+            callback(error)
+    catch error
+      # Noop - just fall through and use an empty array for commands
 
     async.waterfall(commands, callback)

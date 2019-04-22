@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 
 async = require 'async'
@@ -6,7 +7,6 @@ yargs = require 'yargs'
 
 config = require './apm'
 Command = require './command'
-fs = require './fs'
 
 module.exports =
 class Dedupe extends Command
@@ -40,7 +40,7 @@ class Dedupe extends Command
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     env.USERPROFILE = env.HOME if config.isWin32()
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
     config.loadNpm (error, npm) =>
       # node-gyp doesn't currently have an option for this so just set the
       # environment variable to bypass strict SSL
@@ -87,8 +87,8 @@ class Dedupe extends Command
     @fork(@atomNpmPath, dedupeArgs, dedupeOptions, callback)
 
   createAtomDirectories: ->
-    fs.makeTreeSync(@atomDirectory)
-    fs.makeTreeSync(@atomNodeDirectory)
+    fs.mkdirpSync(@atomDirectory)
+    fs.mkdirpSync(@atomNodeDirectory)
 
   run: (options) ->
     {callback, cwd} = options

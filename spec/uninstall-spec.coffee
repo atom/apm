@@ -1,5 +1,5 @@
 path = require 'path'
-fs = require 'fs-plus'
+fs = require 'fs-extra'
 temp = require 'temp'
 apm = require '../lib/apm-cli'
 
@@ -36,7 +36,7 @@ describe 'apm uninstall', ->
     it 'deletes the package', ->
       atomHome = temp.mkdirSync('apm-home-dir-')
       packagePath = path.join(atomHome, 'packages', 'test-package')
-      fs.makeTreeSync(path.join(packagePath, 'lib'))
+      fs.mkdirpSync(path.join(packagePath, 'lib'))
       fs.writeFileSync(path.join(packagePath, 'package.json'), "{}")
       process.env.ATOM_HOME = atomHome
 
@@ -54,10 +54,10 @@ describe 'apm uninstall', ->
       it "deletes the packages from the dev packages folder", ->
         atomHome = temp.mkdirSync('apm-home-dir-')
         packagePath = path.join(atomHome, 'packages', 'test-package')
-        fs.makeTreeSync(path.join(packagePath, 'lib'))
+        fs.mkdirpSync(path.join(packagePath, 'lib'))
         fs.writeFileSync(path.join(packagePath, 'package.json'), "{}")
         devPackagePath = path.join(atomHome, 'dev', 'packages', 'test-package')
-        fs.makeTreeSync(path.join(devPackagePath, 'lib'))
+        fs.mkdirpSync(path.join(devPackagePath, 'lib'))
         fs.writeFileSync(path.join(devPackagePath, 'package.json'), "{}")
         process.env.ATOM_HOME = atomHome
 
@@ -76,10 +76,10 @@ describe 'apm uninstall', ->
       it "deletes the packages from the both packages folders", ->
         atomHome = temp.mkdirSync('apm-home-dir-')
         packagePath = path.join(atomHome, 'packages', 'test-package')
-        fs.makeTreeSync(path.join(packagePath, 'lib'))
+        fs.mkdirpSync(path.join(packagePath, 'lib'))
         fs.writeFileSync(path.join(packagePath, 'package.json'), "{}")
         devPackagePath = path.join(atomHome, 'dev', 'packages', 'test-package')
-        fs.makeTreeSync(path.join(devPackagePath, 'lib'))
+        fs.mkdirpSync(path.join(devPackagePath, 'lib'))
         fs.writeFileSync(path.join(devPackagePath, 'package.json'), "{}")
         process.env.ATOM_HOME = atomHome
 

@@ -1,4 +1,4 @@
-fs = require 'fs-plus'
+fs = require 'fs-extra'
 wrench = require 'wrench'
 path = require 'path'
 temp = require 'temp'
@@ -25,7 +25,7 @@ describe 'apm disable', ->
 
     packagesPath = path.join(atomHome, 'packages')
     packageSrcPath = path.join(__dirname, 'fixtures')
-    fs.makeTreeSync(packagesPath)
+    fs.mkdirpSync(packagesPath)
     wrench.copyDirSyncRecursive(path.join(packageSrcPath, 'test-module'), path.join(packagesPath, 'test-module'))
     wrench.copyDirSyncRecursive(path.join(packageSrcPath, 'test-module-two'), path.join(packagesPath, 'test-module-two'))
     wrench.copyDirSyncRecursive(path.join(packageSrcPath, 'test-module-three'), path.join(packagesPath, 'test-module-three'))

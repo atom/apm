@@ -1,6 +1,6 @@
 path = require 'path'
 CSON = require 'season'
-fs = require '../lib/fs'
+fs = require 'fs-extra'
 temp = require 'temp'
 express = require 'express'
 http = require 'http'
@@ -101,7 +101,7 @@ describe 'apm install', ->
     describe 'when a package name is specified', ->
       it 'installs the package', ->
         testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
-        fs.makeTreeSync(testModuleDirectory)
+        fs.mkdirpSync(testModuleDirectory)
         existingTestModuleFile = path.join(testModuleDirectory, 'will-be-deleted.js')
         fs.writeFileSync(existingTestModuleFile, '')
         expect(fs.existsSync(existingTestModuleFile)).toBeTruthy()
@@ -165,7 +165,7 @@ describe 'apm install', ->
           it 'installs the package with the new name and removes the old package', ->
             testRenameDirectory = path.join(atomHome, 'packages', 'test-rename')
             testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
-            fs.makeTreeSync(testRenameDirectory)
+            fs.mkdirpSync(testRenameDirectory)
             expect(fs.existsSync(testRenameDirectory)).toBeTruthy()
             expect(fs.existsSync(testModuleDirectory)).toBeFalsy()
 
@@ -317,7 +317,7 @@ describe 'apm install', ->
         atomRepoPath = temp.mkdirSync('apm-repo-dir-')
         CSON.writeFileSync(path.join(atomRepoPath, 'package.json'), packageDependencies: 'test-module-with-dependencies': 'file:./packages/test-module-with-dependencies')
         packageDirectory = path.join(atomRepoPath, 'packages', 'test-module-with-dependencies')
-        fs.makeTreeSync(path.join(atomRepoPath, 'packages'))
+        fs.mkdirpSync(path.join(atomRepoPath, 'packages'))
         wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), packageDirectory)
         originalPath = process.cwd()
         process.chdir(atomRepoPath)

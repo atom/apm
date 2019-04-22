@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 
 async = require 'async'
@@ -7,7 +8,6 @@ yargs = require 'yargs'
 auth = require './auth'
 Command = require './command'
 config = require './apm'
-fs = require './fs'
 request = require './request'
 
 module.exports =

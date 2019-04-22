@@ -7,7 +7,6 @@ _ = require 'underscore-plus'
 
 Command = require './command'
 config = require './apm'
-fs = require './fs'
 
 module.exports =
 class Clean extends Command
