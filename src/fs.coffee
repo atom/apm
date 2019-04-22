@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-fs = require 'fs-plus'
+fs = require 'fs-extra'
 ncp = require 'ncp'
 rm = require 'rimraf'
 wrench = require 'wrench'
@@ -7,12 +7,9 @@ path = require 'path'
 
 fsAdditions =
   list: (directoryPath) ->
-    if fs.isDirectorySync(directoryPath)
-      try
-        fs.readdirSync(directoryPath)
-      catch e
-        []
-    else
+    try
+      fs.readdirSync(directoryPath)
+    catch e
       []
 
   listRecursive: (directoryPath) ->
