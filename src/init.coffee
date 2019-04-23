@@ -128,7 +128,7 @@ class Init extends Command
       continue if fs.existsSync(sourcePath)
       if stats.isDirectory()
         fs.mkdirpSync(sourcePath)
-      else if stats.isDirectory()
+      else if stats.isFile()
         fs.mkdirpSync(path.dirname(sourcePath))
         contents = fs.readFileSync(templateChildPath).toString()
         contents = @replacePackageNamePlaceholders(contents, packageName)
