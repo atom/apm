@@ -120,12 +120,19 @@ class Install extends Command
       if code is 0
         if installGlobally
           commands = []
-          children = fs.readdirSync(nodeModulesDirectory)
-            .filter (dir) -> dir isnt ".bin"
+          children = fs.readdirSync(nodeModulesDirectory).filter (dir) -> dir isnt ".bin"
           assert.equal(children.length, 1, "Expected there to only be one child in node_modules")
           child = children[0]
           source = path.join(nodeModulesDirectory, child)
           destination = path.join(@atomPackagesDirectory, child)
+          commands.push (next) ->
+            # emptyDir will pass `destination` as the first callback argument if it doesn't exist
+            # We expect the first argument to always be the next callback function,
+            # so don't call emptyDir unless `destination` exists
+            if fs.existsSync(destination)
+              fs.emptyDir(destination, next)
+            else
+              next()
           commands.push (next) -> fs.copy(source, destination, next)
           commands.push (next) => @buildModuleCache(pack.name, next)
           commands.push (next) => @warmCompileCache(pack.name, next)
@@ -537,6 +544,13 @@ class Install extends Command
       {name} = data.metadata
       targetDir = path.join(@atomPackagesDirectory, name)
       process.stdout.write "Moving #{name} to #{targetDir} " unless options.argv.json
+      fs.emptyDir targetDir, (err) ->
+        if err
+          next(err)
+        else
+          next()
+
+    tasks.push (next) =>
       fs.copy cloneDir, targetDir, (err) =>
         if err
           next(err)
