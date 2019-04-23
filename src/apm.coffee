@@ -1,6 +1,7 @@
 child_process = require 'child_process'
 fs = require 'fs-extra'
 path = require 'path'
+
 npm = require 'npm'
 semver = require 'semver'
 
@@ -104,6 +105,7 @@ module.exports =
 
   setupApmRcFile: ->
     try
+      fs.ensureFileSync(@getGlobalConfigPath())
       fs.writeFileSync @getGlobalConfigPath(), """
         ; This file is auto-generated and should not be edited since any
         ; modifications will be lost the next time any apm command is run.

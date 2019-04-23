@@ -86,10 +86,10 @@ class List extends Command
     packages = []
     try
       for child in fs.readdirSync(directoryPath)
-        continue unless fs.isDirectorySync(path.join(directoryPath, child))
+        continue unless fs.statSync(path.join(directoryPath, child)).isDirectory()
         continue if child.match /^\./
         unless options.argv.links
-          continue if fs.isSymbolicLinkSync(path.join(directoryPath, child))
+          continue if fs.lstatSync(path.join(directoryPath, child)).isSymbolicLink()
 
         manifest = null
         if manifestPath = CSON.resolve(path.join(directoryPath, child, 'package'))
