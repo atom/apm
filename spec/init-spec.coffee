@@ -89,9 +89,9 @@ describe "apm init", ->
 
       it "generates the proper file structure", ->
         expect(fs.existsSync(packagePath)).toBeTruthy()
-        expect(fs.isFileSync(path.join(packagePath, 'settings', 'fake-package.cson'))).toBe true
-        expect(fs.isFileSync(path.join(packagePath, 'snippets', 'fake-package.cson'))).toBe true
-        expect(fs.isFileSync(path.join(packagePath, 'grammars', 'r.cson'))).toBe true
+        expect(fs.statSync(path.join(packagePath, 'settings', 'fake-package.cson')).isFile()).toBe true
+        expect(fs.statSync(path.join(packagePath, 'snippets', 'fake-package.cson')).isFile()).toBe true
+        expect(fs.statSync(path.join(packagePath, 'grammars', 'r.cson')).isFile()).toBe true
         expect(fs.existsSync(path.join(packagePath, 'command'))).toBeFalsy()
         expect(fs.existsSync(path.join(packagePath, 'README.md'))).toBeTruthy()
         expect(fs.existsSync(path.join(packagePath, 'package.json'))).toBeTruthy()

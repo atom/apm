@@ -259,10 +259,10 @@ describe 'apm install', ->
           callback.callCount is 1
 
         runs ->
-          expect(fs.isFileSync(path.join(testModuleDirectory, 'index.js'))).toBeTruthy()
+          expect(fs.statSync(path.join(testModuleDirectory, 'index.js')).isFile()).toBeTruthy()
 
           if process.platform is 'win32'
-            expect(fs.isFileSync(path.join(testModuleDirectory, 'node_modules', '.bin', 'abin'))).toBeTruthy()
+            expect(fs.statSync(path.join(testModuleDirectory, 'node_modules', '.bin', 'abin')).isFile()).toBeTruthy()
           else
             expect(fs.realpathSync(path.join(testModuleDirectory, 'node_modules', '.bin', 'abin'))).toBe fs.realpathSync(path.join(testModuleDirectory, 'node_modules', 'test-module-with-bin', 'bin', 'abin.js'))
 
@@ -279,7 +279,7 @@ describe 'apm install', ->
 
         runs ->
           expect(callback.argsForCall[0][0]).toBeFalsy()
-          expect(fs.isFileSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
+          expect(fs.statSync(path.join(testModuleDirectory, 'package.json')).isFile()).toBeTruthy()
 
     describe 'when a packages file is specified', ->
       it 'installs all the packages listed in the file', ->
@@ -534,7 +534,7 @@ describe 'apm install', ->
       nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
 
       beforeEach ->
-        fs.cp path.join(nodeModules, 'node-gyp'), path.join(nodeModules, 'with a space')
+        fs.copy path.join(nodeModules, 'node-gyp'), path.join(nodeModules, 'with a space')
         process.env.npm_config_node_gyp = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
         process.env.ATOM_NODE_GYP_PATH = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
 

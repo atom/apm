@@ -57,7 +57,7 @@ class Star extends Command
     installedPackages = []
     try
       for child in fs.readdirSync(userPackagesDirectory)
-        continue unless fs.isDirectorySync(path.join(userPackagesDirectory, child))
+        continue unless fs.statSync(path.join(userPackagesDirectory, child)).isDirectory()
 
         if manifestPath = CSON.resolve(path.join(userPackagesDirectory, child, 'package'))
           try

@@ -54,8 +54,8 @@ class RebuildModuleCache extends Command
     try
       for packageName in fs.readdirSync(@atomPackagesDirectory)
         packageDirectory = path.join(@atomPackagesDirectory, packageName)
-        return if fs.isSymbolicLinkSync(packageDirectory)
-        return unless fs.isFileSync(path.join(packageDirectory, 'package.json'))
+        return if fs.lstatSync(packageDirectory).isSymbolicLink()
+        return unless fs.statSync(path.join(packageDirectory, 'package.json')).isFile()
 
         commands.push (callback) =>
           process.stdout.write "Rebuilding #{packageName} module cache "
