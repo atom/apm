@@ -52,6 +52,7 @@ describe "apm upgrade", ->
     waitsFor -> done
 
   it "does not display updates for unpublished packages", ->
+    fs.mkdirpSync(path.join(packagesDir, 'not-published'))
     fs.writeFileSync(path.join(packagesDir, 'not-published', 'package.json'), JSON.stringify({name: 'not-published', version: '1.0', repository: 'https://github.com/a/b'}))
 
     callback = jasmine.createSpy('callback')
@@ -65,6 +66,7 @@ describe "apm upgrade", ->
       expect(console.log.argsForCall[1][0]).toContain 'empty'
 
   it "does not display updates for packages whose engine does not satisfy the installed Atom version", ->
+    fs.mkdirpSync(path.join(packagesDir, 'test-module'))
     fs.writeFileSync(path.join(packagesDir, 'test-module', 'package.json'), JSON.stringify({name: 'test-module', version: '0.3.0', repository: 'https://github.com/a/b'}))
 
     callback = jasmine.createSpy('callback')
@@ -78,6 +80,7 @@ describe "apm upgrade", ->
       expect(console.log.argsForCall[1][0]).toContain 'empty'
 
   it "displays the latest update that satisfies the installed Atom version", ->
+    fs.mkdirpSync(path.join(packagesDir, 'multi-module'))
     fs.writeFileSync(path.join(packagesDir, 'multi-module', 'package.json'), JSON.stringify({name: 'multi-module', version: '0.1.0', repository: 'https://github.com/a/b'}))
 
     callback = jasmine.createSpy('callback')
@@ -91,6 +94,7 @@ describe "apm upgrade", ->
       expect(console.log.argsForCall[1][0]).toContain 'multi-module 0.1.0 -> 0.3.0'
 
   it "does not display updates for packages already up to date", ->
+    fs.mkdirpSync(path.join(packagesDir, 'multi-module'))
     fs.writeFileSync(path.join(packagesDir, 'multi-module', 'package.json'), JSON.stringify({name: 'multi-module', version: '0.3.0', repository: 'https://github.com/a/b'}))
 
     callback = jasmine.createSpy('callback')
@@ -104,6 +108,7 @@ describe "apm upgrade", ->
       expect(console.log.argsForCall[1][0]).toContain 'empty'
 
   it "does display updates when the installed package's repository is not the same as the available package's repository", ->
+    fs.mkdirpSync(path.join(packagesDir, 'different-repo'))
     fs.writeFileSync(path.join(packagesDir, 'different-repo', 'package.json'), JSON.stringify({name: 'different-repo', version: '0.3.0', repository: 'https://github.com/world/hello'}))
 
     callback = jasmine.createSpy('callback')
@@ -117,6 +122,8 @@ describe "apm upgrade", ->
       expect(console.log.argsForCall[1][0]).toContain 'different-repo 0.3.0 -> 0.4.0'
 
   it "allows the package names to upgrade to be specified", ->
+    fs.mkdirpSync(path.join(packagesDir, 'multi-module'))
+    fs.mkdirpSync(path.join(packagesDir, 'different-repo'))
     fs.writeFileSync(path.join(packagesDir, 'multi-module', 'package.json'), JSON.stringify({name: 'multi-module', version: '0.1.0', repository: 'https://github.com/a/b'}))
     fs.writeFileSync(path.join(packagesDir, 'different-repo', 'package.json'), JSON.stringify({name: 'different-repo', version: '0.3.0', repository: 'https://github.com/world/hello'}))
 
@@ -133,6 +140,7 @@ describe "apm upgrade", ->
       expect(console.log.argsForCall[1][0]).not.toContain 'multi-module 0.1.0 -> 0.3.0'
 
   it "does not display updates when the installed package's repository does not exist", ->
+    fs.mkdirpSync(path.join(packagesDir, 'different-repo'))
     fs.writeFileSync(path.join(packagesDir, 'different-repo', 'package.json'), JSON.stringify({name: 'different-repo', version: '0.3.0'}))
 
     callback = jasmine.createSpy('callback')
@@ -159,6 +167,8 @@ describe "apm upgrade", ->
 
   it "ignores the commit SHA suffix in the version", ->
     fs.writeFileSync(path.join(atomApp, 'package.json'), JSON.stringify(version: '0.10.0-deadbeef'))
+
+    fs.mkdirpSync(path.join(packagesDir, 'multi-module'))
     fs.writeFileSync(path.join(packagesDir, 'multi-module', 'package.json'), JSON.stringify({name: 'multi-module', version: '0.1.0', repository: 'https://github.com/a/b'}))
 
     callback = jasmine.createSpy('callback')
