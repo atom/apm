@@ -1,5 +1,5 @@
 path = require 'path'
-fs = require 'fs'
+fs = require 'fs-extra'
 http = require 'http'
 temp = require 'temp'
 express = require 'express'

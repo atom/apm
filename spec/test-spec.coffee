@@ -1,5 +1,4 @@
 child_process = require 'child_process'
-fs = require 'fs'
 path = require 'path'
 temp = require 'temp'
 apm = require '../lib/apm-cli'
