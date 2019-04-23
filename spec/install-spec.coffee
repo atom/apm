@@ -4,7 +4,6 @@ fs = require 'fs-extra'
 temp = require 'temp'
 express = require 'express'
 http = require 'http'
-wrench = require 'wrench'
 apm = require '../lib/apm-cli'
 Install = require '../lib/install'
 
@@ -220,7 +219,7 @@ describe 'apm install', ->
     describe 'when no path is specified', ->
       it 'installs all dependent modules', ->
         moduleDirectory = path.join(temp.mkdirSync('apm-test-module-'), 'test-module-with-dependencies')
-        wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
+        fs.copySync(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
         process.chdir(moduleDirectory)
         callback = jasmine.createSpy('callback')
         apm.run(['install'], callback)
@@ -318,7 +317,7 @@ describe 'apm install', ->
         CSON.writeFileSync(path.join(atomRepoPath, 'package.json'), packageDependencies: 'test-module-with-dependencies': 'file:./packages/test-module-with-dependencies')
         packageDirectory = path.join(atomRepoPath, 'packages', 'test-module-with-dependencies')
         fs.mkdirpSync(path.join(atomRepoPath, 'packages'))
-        wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), packageDirectory)
+        fs.copySync(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), packageDirectory)
         originalPath = process.cwd()
         process.chdir(atomRepoPath)
 

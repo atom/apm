@@ -3,7 +3,6 @@ fs = require 'fs'
 http = require 'http'
 temp = require 'temp'
 express = require 'express'
-wrench = require 'wrench'
 CSON = require 'season'
 apm = require '../lib/apm-cli'
 
@@ -62,7 +61,7 @@ describe 'apm ci', ->
 
   it 'installs dependency versions as specified by the lockfile', ->
     moduleDirectory = path.join temp.mkdirSync('apm-test-'), 'test-module-with-lockfile'
-    wrench.copyDirSyncRecursive path.join(__dirname, 'fixtures', 'test-module-with-lockfile'), moduleDirectory
+    fs.copySync path.join(__dirname, 'fixtures', 'test-module-with-lockfile'), moduleDirectory
     process.chdir moduleDirectory
 
     callback = jasmine.createSpy('callback')
@@ -80,7 +79,7 @@ describe 'apm ci', ->
 
   it 'builds a native dependency correctly', ->
     moduleDirectory = path.join temp.mkdirSync('apm-test-'), 'test-module-with-native'
-    wrench.copyDirSyncRecursive path.join(__dirname, 'fixtures', 'test-module-with-lockfile'), moduleDirectory
+    fs.copySync path.join(__dirname, 'fixtures', 'test-module-with-lockfile'), moduleDirectory
     process.chdir moduleDirectory
 
     pjsonPath = path.join moduleDirectory, 'package.json'
@@ -108,7 +107,7 @@ describe 'apm ci', ->
 
   it 'fails if the lockfile is not present', ->
     moduleDirectory = path.join temp.mkdirSync('apm-test-'), 'test-module'
-    wrench.copyDirSyncRecursive path.join(__dirname, 'fixtures', 'test-module'), moduleDirectory
+    fs.copySync path.join(__dirname, 'fixtures', 'test-module'), moduleDirectory
     process.chdir moduleDirectory
 
     callback = jasmine.createSpy('callback')
@@ -120,7 +119,7 @@ describe 'apm ci', ->
 
   it 'fails if the lockfile is out of date', ->
     moduleDirectory = path.join temp.mkdirSync('apm-test-'), 'test-module-with-lockfile'
-    wrench.copyDirSyncRecursive path.join(__dirname, 'fixtures', 'test-module-with-lockfile'), moduleDirectory
+    fs.copySync path.join(__dirname, 'fixtures', 'test-module-with-lockfile'), moduleDirectory
     process.chdir moduleDirectory
 
     pjsonPath = path.join moduleDirectory, 'package.json'

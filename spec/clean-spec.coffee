@@ -3,7 +3,6 @@ fs = require 'fs-extra'
 temp = require 'temp'
 express = require 'express'
 http = require 'http'
-wrench = require 'wrench'
 apm = require '../lib/apm-cli'
 
 describe 'apm clean', ->
@@ -40,7 +39,7 @@ describe 'apm clean', ->
       process.env.npm_config_registry = 'http://localhost:3000/'
 
       moduleDirectory = path.join(temp.mkdirSync('apm-test-module-'), 'test-module-with-dependencies')
-      wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
+      fs.copySync(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
       process.chdir(moduleDirectory)
       live = true
     waitsFor -> live
