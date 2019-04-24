@@ -78,7 +78,7 @@ describe "apm init", ->
         runs ->
           expect(callback.argsForCall[0][0].length).toBeGreaterThan 0
 
-    fdescribe "when converting a TextMate bundle", ->
+    describe "when converting a TextMate bundle", ->
       beforeEach ->
         callback = jasmine.createSpy('callback')
         textMateBundlePath = path.join(__dirname, 'fixtures', 'r.tmbundle')
