@@ -7,12 +7,12 @@ http = require 'http'
 apm = require '../lib/apm-cli'
 Install = require '../lib/install'
 
-describe 'apm install', ->
+fdescribe 'apm install', ->
   [atomHome, resourcePath] = []
 
   beforeEach ->
     spyOnToken()
-    silenceOutput()
+    silenceOutput(true)
 
     atomHome = temp.mkdirSync('apm-home-dir-')
     process.env.ATOM_HOME = atomHome
