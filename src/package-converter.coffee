@@ -143,6 +143,8 @@ class PackageConverter
     try
       unless fs.statSync(sourceSnippets).isDirectory()
         sourceSnippets = path.join(source, 'Snippets')
+    catch error
+      sourceSnippets = path.join(source, 'Snippets')
 
     try
       return unless fs.statSync(sourceSnippets).isDirectory()
@@ -188,11 +190,12 @@ class PackageConverter
     try
       unless fs.statSync(sourcePreferences).isDirectory()
         sourcePreferences = path.join(source, 'Preferences')
+    catch error
+      sourcePreferences = path.join(source, 'Preferences')
 
     try
       return unless fs.statSync(sourcePreferences).isDirectory()
     catch error
-      console.log error
       return
 
     preferencesBySelector = {}
@@ -222,6 +225,8 @@ class PackageConverter
     try
       unless fs.statSync(sourceSyntaxes).isDirectory()
         sourceSyntaxes = path.join(source, 'Syntaxes')
+    catch error
+      sourceSyntaxes = path.join(source, 'Syntaxes')
 
     try
       return unless fs.statSync(sourceSyntaxes).isDirectory()
