@@ -192,6 +192,7 @@ class PackageConverter
     try
       return unless fs.statSync(sourcePreferences).isDirectory()
     catch error
+      console.log error
       return
 
     preferencesBySelector = {}
