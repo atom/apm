@@ -3,7 +3,7 @@ path = require 'path'
 temp = require 'temp'
 apm = require '../lib/apm-cli'
 
-describe 'apm link/unlink', ->
+fdescribe 'apm link/unlink', ->
   beforeEach ->
     silenceOutput()
     spyOnToken()
