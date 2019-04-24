@@ -544,20 +544,17 @@ class Install extends Command
       {name} = data.metadata
       targetDir = path.join(@atomPackagesDirectory, name)
       process.stdout.write "Moving #{name} to #{targetDir} " unless options.argv.json
-      fs.emptyDir targetDir, (err) ->
+      fs.emptyDir targetDir, (err) =>
         if err
           next(err)
         else
-          next()
-
-    tasks.push (next) =>
-      fs.copy cloneDir, targetDir, (err) =>
-        if err
-          next(err)
-        else
-          @logSuccess() unless options.argv.json
-          json = {installPath: targetDir, metadata: data.metadata}
-          next(null, json)
+          fs.copy cloneDir, targetDir, (err) =>
+            if err
+              next(err)
+            else
+              @logSuccess() unless options.argv.json
+              json = {installPath: targetDir, metadata: data.metadata}
+              next(null, json)
 
     iteratee = (currentData, task, next) -> task(currentData, next)
     async.reduce tasks, {}, iteratee, callback
