@@ -8,7 +8,7 @@ describe "apm init", ->
   [packagePath, themePath, languagePath] = []
 
   beforeEach ->
-    silenceOutput()
+    silenceOutput(true)
     spyOnToken()
 
     currentDir = temp.mkdirSync('apm-init-')
@@ -78,7 +78,7 @@ describe "apm init", ->
         runs ->
           expect(callback.argsForCall[0][0].length).toBeGreaterThan 0
 
-    describe "when converting a TextMate bundle", ->
+    fdescribe "when converting a TextMate bundle", ->
       beforeEach ->
         callback = jasmine.createSpy('callback')
         textMateBundlePath = path.join(__dirname, 'fixtures', 'r.tmbundle')
