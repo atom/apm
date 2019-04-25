@@ -36,6 +36,9 @@ addGitBashToEnv = (env) ->
     unless fs.statSync(gitPath).isDirectory()
       if env['ProgramFiles(x86)']
         gitPath = path.join(env['ProgramFiles(x86)'], 'Git')
+  catch error
+    if env['ProgramFiles(x86)']
+      gitPath = path.join(env['ProgramFiles(x86)'], 'Git')
 
   try
     return unless fs.statSync(gitPath).isDirectory()
