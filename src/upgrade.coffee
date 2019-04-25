@@ -47,9 +47,12 @@ class Upgrade extends Command
 
   getInstalledPackages: (options) ->
     packages = []
-    for name in fs.readdirSync(@atomPackagesDirectory)
-      if pack = @getIntalledPackage(name)
-        packages.push(pack)
+    try
+      for name in fs.readdirSync(@atomPackagesDirectory)
+        if pack = @getIntalledPackage(name)
+          packages.push(pack)
+    catch error
+      # readdir failed - just fall through and use an empty array for packages
 
     packageNames = @packageNamesFromArgv(options.argv)
     if packageNames.length > 0

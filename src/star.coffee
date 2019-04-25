@@ -57,7 +57,10 @@ class Star extends Command
     installedPackages = []
     try
       for child in fs.readdirSync(userPackagesDirectory)
-        continue unless fs.statSync(path.join(userPackagesDirectory, child)).isDirectory()
+        try
+          continue unless fs.statSync(path.join(userPackagesDirectory, child)).isDirectory()
+        catch error
+          continue
 
         if manifestPath = CSON.resolve(path.join(userPackagesDirectory, child, 'package'))
           try
@@ -65,7 +68,7 @@ class Star extends Command
             if metadata.name and Packages.getRepository(metadata)
               installedPackages.push metadata.name
     catch error
-      # Noop - just fall through and use an empty array for installedPackages
+      # readdir failed - just fall through and use an empty array for installedPackages
 
     _.uniq(installedPackages)
 

@@ -36,9 +36,10 @@ class Links extends Command
     try
       for directory in fs.readdirSync(directoryPath)
         symlinkPath = path.join(directoryPath, directory)
-        symlinks.push(symlinkPath) if fs.lstatSync(symlinkPath).isSymbolicLink()
+        try
+          symlinks.push(symlinkPath) if fs.lstatSync(symlinkPath).isSymbolicLink()
     catch error
-      # Noop - just fall through and return an empty array
+      # readdir failed - just fall through and return an empty array
 
     symlinks
 

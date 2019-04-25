@@ -47,8 +47,8 @@ class Link extends Command
       return
 
     try
-      if fs.existsSync(targetPath)
-        fs.unlinkSync(targetPath) if fs.lstatSync(targetPath).isSymbolicLink()
+      if fs.existsSync(targetPath) and fs.lstatSync(targetPath).isSymbolicLink()
+        fs.unlinkSync(targetPath)
 
       fs.mkdirpSync path.dirname(targetPath)
       fs.symlinkSync(linkPath, targetPath, 'junction')

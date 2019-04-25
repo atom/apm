@@ -86,10 +86,16 @@ class List extends Command
     packages = []
     try
       for child in fs.readdirSync(directoryPath)
-        continue unless fs.statSync(path.join(directoryPath, child)).isDirectory()
+        stats = null
+        try
+          stats = fs.lstatSync(path.join(directoryPath, child))
+        catch error
+          continue
+
+        continue unless stats.isDirectory()
         continue if child.match /^\./
         unless options.argv.links
-          continue if fs.lstatSync(path.join(directoryPath, child)).isSymbolicLink()
+          continue if stats.isSymbolicLink()
 
         manifest = null
         if manifestPath = CSON.resolve(path.join(directoryPath, child, 'package'))
@@ -101,7 +107,7 @@ class List extends Command
         continue unless @isPackageVisible(options, manifest)
         packages.push(manifest)
     catch error
-      # Noop - just fall through and return an empty array
+      # readdir failed - just fall through and return an empty array
 
     packages
 

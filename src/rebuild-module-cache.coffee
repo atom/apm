@@ -54,8 +54,12 @@ class RebuildModuleCache extends Command
     try
       for packageName in fs.readdirSync(@atomPackagesDirectory)
         packageDirectory = path.join(@atomPackagesDirectory, packageName)
-        return if fs.lstatSync(packageDirectory).isSymbolicLink()
-        return unless fs.statSync(path.join(packageDirectory, 'package.json')).isFile()
+        try
+          continue if fs.lstatSync(packageDirectory).isSymbolicLink()
+          continue unless fs.statSync(path.join(packageDirectory, 'package.json')).isFile()
+        catch error
+          # If either error, we don't want to keep going
+          continue
 
         commands.push (callback) =>
           process.stdout.write "Rebuilding #{packageName} module cache "
@@ -66,6 +70,6 @@ class RebuildModuleCache extends Command
               @logSuccess()
             callback(error)
     catch error
-      # Noop - just fall through and use an empty array for commands
+      # readdir failed - just fall through and use an empty array for commands
 
     async.waterfall(commands, callback)
