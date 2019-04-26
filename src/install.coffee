@@ -84,7 +84,7 @@ class Install extends Command
     opts = {env, cwd: @atomDirectory}
     opts.streaming = true if @verbose
 
-    atomNodeGypPath = process.env.ATOM_NODE_GYP_PATH or require.resolve('node-gyp/bin/node-gyp')
+    atomNodeGypPath = process.env.ATOM_NODE_GYP_PATH or require.resolve('npm/node_modules/node-gyp/bin/node-gyp')
     @fork atomNodeGypPath, installNodeArgs, opts, (code, stderr='', stdout='') ->
       if code is 0
         callback()

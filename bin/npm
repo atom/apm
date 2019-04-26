@@ -17,7 +17,7 @@ fi
 
 export npm_config_python="${SCRIPT_DIR}/python-interceptor.sh"
 
-maybe_node_gyp_path="$SCRIPT_DIR"/../node_modules/.bin/node-gyp
+maybe_node_gyp_path="$SCRIPT_DIR"/../node_modules/npm/node_modules/.bin/node-gyp
 if [ -e "$maybe_node_gyp_path" ]
 then
   # Prevent vars like NODE_CONFIG_NODE_GYP from messing this up

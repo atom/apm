@@ -1,7 +1,7 @@
 {
   "name": "atom-package-manager",
   "description": "Atom package manager",
-  "version": "2.1.7",
+  "version": "2.2.1",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -33,7 +33,6 @@
     "hosted-git-info": "^2.1.4",
     "keytar": "^4.0",
     "klaw-sync": "^6.0.0",
-    "node-gyp": "3.4.0",
     "npm": "6.2.0",
     "open": "0.0.5",
     "q": "~0.9.7",
