@@ -11,7 +11,7 @@ describe 'apm ci', ->
 
   beforeEach ->
     spyOnToken()
-    silenceOutput(true)
+    silenceOutput()
 
     atomHome = temp.mkdirSync 'apm-home-dir-'
     process.env.ATOM_HOME = atomHome
