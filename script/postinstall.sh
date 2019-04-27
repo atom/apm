@@ -16,3 +16,5 @@ if [ -z "${NO_APM_DEDUPE}" ]; then
 else
   echo ">> Deduplication disabled"
 fi
+
+./bin/npm ls node-gyp
