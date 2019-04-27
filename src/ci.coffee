@@ -32,7 +32,7 @@ class Ci extends Command
     """
 
     options.alias('h', 'help').describe('help', 'Print this usage message')
-    options.boolean('verbose').default('verbose', false).describe('verbose', 'Show verbose debug information')
+    options.boolean('verbose').default('verbose', true).describe('verbose', 'Show verbose debug information')
 
   installDependencies: (options, callback) =>
     async.waterfall [
