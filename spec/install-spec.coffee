@@ -531,12 +531,12 @@ describe 'apm install', ->
         expect(json[1].metadata.name).toBe 'test-module2'
 
     describe "with a space in node-gyp's path", ->
-      npmNodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules', 'npm', 'node_modules'))
+      nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
 
       beforeEach ->
-        fs.cp path.join(npmNodeModules, 'node-gyp'), path.join(npmNodeModules, 'with a space')
-        process.env.npm_config_node_gyp = path.join(npmNodeModules, 'with a space', 'bin', 'node-gyp.js')
-        process.env.ATOM_NODE_GYP_PATH = path.join(npmNodeModules, 'with a space', 'bin', 'node-gyp.js')
+        fs.cp path.join(nodeModules, 'npm', 'node_modules', 'node-gyp'), path.join(nodeModules, 'with a space')
+        process.env.npm_config_node_gyp = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
+        process.env.ATOM_NODE_GYP_PATH = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
 
       afterEach ->
         delete process.env.npm_config_node_gyp
@@ -565,6 +565,7 @@ describe 'apm install', ->
     if process.platform isnt 'win32'
       # Only applicable on Linux and macOS
       describe "configurable Python binaries", ->
+        nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
         [originalPython, originalNpmConfigPython] = []
 
         beforeEach ->
