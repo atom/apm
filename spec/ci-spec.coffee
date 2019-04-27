@@ -59,7 +59,7 @@ describe 'apm ci', ->
     server.close -> done = true
     waitsFor -> done
 
-  fit 'installs dependency versions as specified by the lockfile', ->
+  it 'installs dependency versions as specified by the lockfile', ->
     moduleDirectory = path.join temp.mkdirSync('apm-test-'), 'test-module-with-lockfile'
     fs.copySync path.join(__dirname, 'fixtures', 'test-module-with-lockfile'), moduleDirectory
     process.chdir moduleDirectory

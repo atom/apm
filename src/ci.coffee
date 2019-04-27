@@ -16,7 +16,7 @@ class Ci extends Command
     @atomDirectory = config.getAtomDirectory()
     @atomNodeDirectory = path.join(@atomDirectory, '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
-    @atomNodeGypPath = process.env.ATOM_NODE_GYP_PATH or require.resolve('node-gyp', {paths: require.resolve('npm')})
+    @atomNodeGypPath = process.env.ATOM_NODE_GYP_PATH or require.resolve('npm/node_modules/node-gyp/bin/node-gyp')
 
   parseOptions: (argv) ->
     options = yargs(argv).wrap(100)
@@ -32,7 +32,7 @@ class Ci extends Command
     """
 
     options.alias('h', 'help').describe('help', 'Print this usage message')
-    options.boolean('verbose').default('verbose', true).describe('verbose', 'Show verbose debug information')
+    options.boolean('verbose').default('verbose', false).describe('verbose', 'Show verbose debug information')
 
   installDependencies: (options, callback) =>
     async.waterfall [
