@@ -10,8 +10,8 @@ describe 'apm ci', ->
   [atomHome, resourcePath, server] = []
 
   beforeEach ->
-    spyOnToken(true)
-    silenceOutput()
+    spyOnToken()
+    silenceOutput(true)
 
     atomHome = temp.mkdirSync 'apm-home-dir-'
     process.env.ATOM_HOME = atomHome
