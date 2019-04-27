@@ -10,7 +10,7 @@ describe 'apm ci', ->
   [atomHome, resourcePath, server] = []
 
   beforeEach ->
-    spyOnToken()
+    spyOnToken(true)
     silenceOutput()
 
     atomHome = temp.mkdirSync 'apm-home-dir-'
@@ -59,7 +59,7 @@ describe 'apm ci', ->
     server.close -> done = true
     waitsFor -> done
 
-  it 'installs dependency versions as specified by the lockfile', ->
+  fit 'installs dependency versions as specified by the lockfile', ->
     moduleDirectory = path.join temp.mkdirSync('apm-test-'), 'test-module-with-lockfile'
     fs.copySync path.join(__dirname, 'fixtures', 'test-module-with-lockfile'), moduleDirectory
     process.chdir moduleDirectory
