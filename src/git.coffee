@@ -38,7 +38,9 @@ addGitBashToEnv = (env) ->
     if env['ProgramFiles(x86)']
       gitPath = path.join(env['ProgramFiles(x86)'], 'Git')
 
-  console.log(gitPath + ': ' + fs.isDirectorySync(gitPath))
+  child_process = require 'child_process'
+  {stdout, stderr} = child_process.spawnSync('git', ['--exec-path'])
+  console.log(stdout, stderr)
 
   return unless fs.isDirectorySync(gitPath)
 
