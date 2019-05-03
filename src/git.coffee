@@ -32,15 +32,16 @@ addPortableGitToEnv = (env) ->
 
 addGitBashToEnv = (env) ->
   if env.ProgramFiles
+    console.log('env.ProgramFiles: ' + env.ProgramFiles)
     gitPath = path.join(env.ProgramFiles, 'Git')
+
+  console.log(gitPath, fs.isDirectorySync(gitPath))
 
   unless fs.isDirectorySync(gitPath)
     if env['ProgramFiles(x86)']
       gitPath = path.join(env['ProgramFiles(x86)'], 'Git')
 
-  child_process = require 'child_process'
-  {stdout, stderr} = child_process.spawnSync('where', ['git'])
-  console.log(stdout.toString(), stderr.toString())
+  console.log(gitPath, fs.isDirectorySync(gitPath))
 
   return unless fs.isDirectorySync(gitPath)
 
