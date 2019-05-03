@@ -30,14 +30,16 @@ addPortableGitToEnv = (env) ->
 addGitBashToEnv = (env) ->
   if env.ProgramFiles
     gitPath = path.join(env.ProgramFiles, 'Git')
-    corePath = path.join(gitPath, 'mingw64', 'libexec', 'git-core')
 
   unless fs.isDirectorySync(gitPath)
     if env['ProgramFiles(x86)']
       gitPath = path.join(env['ProgramFiles(x86)'], 'Git')
-      corePath = path.join(gitPath, 'mingw32', 'libexec', 'git-core')
 
   return unless fs.isDirectorySync(gitPath)
+
+  corePath = path.join(gitPath, 'mingw64', 'libexec', 'git-core')
+  unless fs.isDirectorySync(corePath)
+    corePath = path.join(gitPath, 'mingw32', 'libexec', 'git-core')
 
   cmdPath = path.join(gitPath, 'cmd')
   binPath = path.join(gitPath, 'bin')
