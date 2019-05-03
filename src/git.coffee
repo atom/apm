@@ -39,10 +39,11 @@ addGitBashToEnv = (env) ->
 
   cmdPath = path.join(gitPath, 'cmd')
   binPath = path.join(gitPath, 'bin')
+  corePath = path.join(gitPath, 'mingw64', 'libexec', 'git-core')
   if env.Path
-    env.Path += "#{path.delimiter}#{cmdPath}#{path.delimiter}#{binPath}"
+    env.Path += "#{path.delimiter}#{cmdPath}#{path.delimiter}#{binPath}#{path.delimiter}#{corePath}"
   else
-    env.Path = "#{cmdPath}#{path.delimiter}#{binPath}"
+    env.Path = "#{cmdPath}#{path.delimiter}#{binPath}#{path.delimiter}#{corePath}"
 
 exports.addGitToEnv = (env) ->
   return if process.platform isnt 'win32'
