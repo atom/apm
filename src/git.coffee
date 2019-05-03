@@ -38,7 +38,7 @@ addGitBashToEnv = (env) ->
     if env['ProgramFiles(x86)']
       gitPath = path.join(env['ProgramFiles(x86)'], 'Git')
 
-  process.stdout.write('made it here!')
+  console.log(gitPath + ': ' + fs.isDirectorySync(gitPath))
 
   return unless fs.isDirectorySync(gitPath)
 
