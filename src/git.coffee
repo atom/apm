@@ -38,13 +38,15 @@ addGitBashToEnv = (env) ->
     if env['ProgramFiles(x86)']
       gitPath = path.join(env['ProgramFiles(x86)'], 'Git')
 
+  process.stdout.write('made it here!')
+
   return unless fs.isDirectorySync(gitPath)
 
   corePath = path.join(gitPath, 'mingw64', 'libexec', 'git-core')
   unless fs.isDirectorySync(corePath)
     corePath = path.join(gitPath, 'mingw32', 'libexec', 'git-core')
 
-  console.log(corePath + ': ' + fs.isDirectorySync(corePath))
+  process.stdout.write(corePath + ': ' + fs.isDirectorySync(corePath))
 
   cmdPath = path.join(gitPath, 'cmd')
   binPath = path.join(gitPath, 'bin')
