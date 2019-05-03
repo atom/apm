@@ -19,10 +19,13 @@ addPortableGitToEnv = (env) ->
   for child in children when child.indexOf('PortableGit_') is 0
     cmdPath = path.join(githubPath, child, 'cmd')
     binPath = path.join(githubPath, child, 'bin')
+    corePath = path.join(githubPath, child, 'mingw64', 'libexec', 'git-core')
+    unless fs.isDirectorySync(corePath)
+      corePath = path.join(githubPath, child, 'mingw32', 'libexec', 'git-core')
     if env.Path
-      env.Path += "#{path.delimiter}#{cmdPath}#{path.delimiter}#{binPath}"
+      env.Path += "#{path.delimiter}#{cmdPath}#{path.delimiter}#{binPath}#{path.delimiter}#{corePath}"
     else
-      env.Path = "#{cmdPath}#{path.delimiter}#{binPath}"
+      env.Path = "#{cmdPath}#{path.delimiter}#{binPath}#{path.delimiter}#{corePath}"
     break
 
   return
