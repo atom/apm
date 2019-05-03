@@ -20,3 +20,7 @@ build: off
 test: off
 
 deploy: off
+
+branches:
+  only:
+  - master
