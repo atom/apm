@@ -17,15 +17,13 @@ class Command
     outputChunks = []
 
     spawned.stdout.on 'data', (chunk) ->
-      # if options?.streaming
-      if true
+      if options?.streaming
         process.stdout.write chunk
       else
         outputChunks.push(chunk)
 
     spawned.stderr.on 'data', (chunk) ->
-      # if options?.streaming
-      if true
+      if options?.streaming
         process.stderr.write chunk
       else
         errorChunks.push(chunk)

@@ -17,7 +17,7 @@ describe "apm upgrade", ->
 
   beforeEach ->
     spyOnToken()
-    silenceOutput(true)
+    silenceOutput()
 
     atomHome = temp.mkdirSync('apm-home-dir-')
     process.env.ATOM_HOME = atomHome
@@ -171,7 +171,7 @@ describe "apm upgrade", ->
       expect(console.log).toHaveBeenCalled()
       expect(console.log.argsForCall[1][0]).toContain 'multi-module 0.1.0 -> 0.3.0'
 
-  fdescribe "for outdated git packages", ->
+  describe "for outdated git packages", ->
     [pkgJsonPath] = []
 
     beforeEach ->
