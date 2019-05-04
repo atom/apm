@@ -36,9 +36,10 @@ addGitBashToEnv = (env) ->
   if env.ProgramW6432
     gitPath = path.join(env.ProgramW6432, 'Git')
 
-  # Next, check ProgramFiles - this will point to x86 Program Files
-  # when running a 32-bit process on x64, 64-bit Program Files
-  # when running a 64-bit process on x64, and x86 Program Files when running on 32-bit Windows
+  # Next, check ProgramFiles - this will point to:
+  # - x64 Program Files when running a 64-bit process on 64-bit Windows
+  # - x86 Program Files when running a 32-bit process on 64-bit Windows
+  # - x86 Program Files when running on 32-bit Windows
   unless fs.isDirectorySync(gitPath)
     if env.ProgramFiles
       gitPath = path.join(env.ProgramFiles, 'Git')
