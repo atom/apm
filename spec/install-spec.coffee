@@ -534,7 +534,7 @@ describe 'apm install', ->
       nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
 
       beforeEach ->
-        fs.cp path.join(nodeModules, 'node-gyp'), path.join(nodeModules, 'with a space')
+        fs.copySync path.join(nodeModules, 'node-gyp'), path.join(nodeModules, 'with a space')
         process.env.npm_config_node_gyp = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
         process.env.ATOM_NODE_GYP_PATH = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
 
