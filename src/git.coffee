@@ -22,6 +22,7 @@ addPortableGitToEnv = (env) ->
     corePath = path.join(githubPath, child, 'mingw64', 'libexec', 'git-core')
     unless fs.isDirectorySync(corePath)
       corePath = path.join(githubPath, child, 'mingw32', 'libexec', 'git-core')
+
     if env.Path
       env.Path += "#{path.delimiter}#{cmdPath}#{path.delimiter}#{binPath}#{path.delimiter}#{corePath}"
     else
@@ -49,16 +50,16 @@ addGitBashToEnv = (env) ->
 
   return unless fs.isDirectorySync(gitPath)
 
-  # corePath = path.join(gitPath, 'mingw64', 'libexec', 'git-core')
-  # unless fs.isDirectorySync(corePath)
-  #   corePath = path.join(gitPath, 'mingw32', 'libexec', 'git-core')
+  corePath = path.join(gitPath, 'mingw64', 'libexec', 'git-core')
+  unless fs.isDirectorySync(corePath)
+    corePath = path.join(gitPath, 'mingw32', 'libexec', 'git-core')
 
   cmdPath = path.join(gitPath, 'cmd')
   binPath = path.join(gitPath, 'bin')
   if env.Path
-    env.Path += "#{path.delimiter}#{cmdPath}#{path.delimiter}#{binPath}"
+    env.Path += "#{path.delimiter}#{cmdPath}#{path.delimiter}#{binPath}#{path.delimiter}#{corePath}"
   else
-    env.Path = "#{cmdPath}#{path.delimiter}#{binPath}"
+    env.Path = "#{cmdPath}#{path.delimiter}#{binPath}#{path.delimiter}#{corePath}"
 
 exports.addGitToEnv = (env) ->
   return if process.platform isnt 'win32'
