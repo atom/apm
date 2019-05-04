@@ -51,7 +51,6 @@ addGitBashToEnv = (env) ->
 
   return unless fs.isDirectorySync(gitPath)
 
-
   cmdPath = path.join(gitPath, 'cmd')
   binPath = path.join(gitPath, 'bin')
   corePath = path.join(gitPath, 'mingw64', 'libexec', 'git-core')
