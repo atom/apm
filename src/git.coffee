@@ -31,11 +31,9 @@ addPortableGitToEnv = (env) ->
   return
 
 addGitBashToEnv = (env) ->
-  # First check ProgramW6432, as it will _always_ point to the 64-bit Program Files directory
+  # First, check ProgramW6432, as it will _always_ point to the 64-bit Program Files directory
   if env.ProgramW6432
     gitPath = path.join(env.ProgramW6432, 'Git')
-
-  console.log(gitPath, fs.isDirectorySync(gitPath))
 
   # Next, check ProgramFiles - this will point to x86 Program Files
   # when running a 32-bit process on x64, 64-bit Program Files
@@ -44,29 +42,23 @@ addGitBashToEnv = (env) ->
     if env.ProgramFiles
       gitPath = path.join(env.ProgramFiles, 'Git')
 
-  console.log(gitPath, fs.isDirectorySync(gitPath))
-
   # Finally, check ProgramFiles(x86) to see if 32-bit Git was installed on 64-bit Windows
   unless fs.isDirectorySync(gitPath)
     if env['ProgramFiles(x86)']
       gitPath = path.join(env['ProgramFiles(x86)'], 'Git')
 
-  console.log(gitPath, fs.isDirectorySync(gitPath))
-
   return unless fs.isDirectorySync(gitPath)
 
-  corePath = path.join(gitPath, 'mingw64', 'libexec', 'git-core')
-  unless fs.isDirectorySync(corePath)
-    corePath = path.join(gitPath, 'mingw32', 'libexec', 'git-core')
-
-  process.stdout.write(corePath + ': ' + fs.isDirectorySync(corePath))
+  # corePath = path.join(gitPath, 'mingw64', 'libexec', 'git-core')
+  # unless fs.isDirectorySync(corePath)
+  #   corePath = path.join(gitPath, 'mingw32', 'libexec', 'git-core')
 
   cmdPath = path.join(gitPath, 'cmd')
   binPath = path.join(gitPath, 'bin')
   if env.Path
-    env.Path += "#{path.delimiter}#{cmdPath}#{path.delimiter}#{binPath}#{path.delimiter}#{corePath}"
+    env.Path += "#{path.delimiter}#{cmdPath}#{path.delimiter}#{binPath}"
   else
-    env.Path = "#{cmdPath}#{path.delimiter}#{binPath}#{path.delimiter}#{corePath}"
+    env.Path = "#{cmdPath}#{path.delimiter}#{binPath}"
 
 exports.addGitToEnv = (env) ->
   return if process.platform isnt 'win32'
