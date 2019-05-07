@@ -534,9 +534,12 @@ describe 'apm install', ->
       npmNodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules', 'npm', 'node_modules'))
 
       beforeEach ->
-        fs.cp path.join(npmNodeModules, 'node-gyp'), path.join(npmNodeModules, 'with a space')
+        fs.copySync path.join(npmNodeModules, 'node-gyp'), path.join(npmNodeModules, 'with a space')
         process.env.npm_config_node_gyp = path.join(npmNodeModules, 'with a space', 'bin', 'node-gyp.js')
         process.env.ATOM_NODE_GYP_PATH = path.join(npmNodeModules, 'with a space', 'bin', 'node-gyp.js')
+
+        # Read + execute permission
+        fs.chmodSync(process.env.npm_config_node_gyp, fs.constants.S_IRUSR | fs.constants.S_IXUSR)
 
       afterEach ->
         delete process.env.npm_config_node_gyp
