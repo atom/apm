@@ -69,6 +69,7 @@ var copyNodeBinToLocation = function(callback, version, targetFilename, fromDire
 
 var downloadNode = function(version, done) {
   var arch = identifyArch();
+  console.log(process.arch, arch);
   var filename = path.join(__dirname, '..', 'bin', process.platform === 'win32' ? 'node.exe' : 'node');
 
   var downloadFile = function() {
