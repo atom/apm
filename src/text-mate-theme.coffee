@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-plist = require 'plist'
+plist = require '@atom/plist'
 {ScopeSelector} = require 'first-mate'
 
 module.exports =

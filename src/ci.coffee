@@ -16,7 +16,7 @@ class Ci extends Command
     @atomDirectory = config.getAtomDirectory()
     @atomNodeDirectory = path.join(@atomDirectory, '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
-    @atomNodeGypPath = process.env.ATOM_NODE_GYP_PATH or require.resolve('node-gyp/bin/node-gyp')
+    @atomNodeGypPath = process.env.ATOM_NODE_GYP_PATH or require.resolve('npm/node_modules/node-gyp/bin/node-gyp')
 
   parseOptions: (argv) ->
     options = yargs(argv).wrap(100)
@@ -44,6 +44,7 @@ class Ci extends Command
     installNodeArgs = ['install']
     installNodeArgs.push(@getNpmBuildFlags()...)
     installNodeArgs.push("--ensure")
+    installNodeArgs.push("--verbose") if options.argv.verbose
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     env.USERPROFILE = env.HOME if config.isWin32()
