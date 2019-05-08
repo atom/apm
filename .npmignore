@@ -3,7 +3,7 @@
 .DS_Store
 npm-debug.log
 /spec
-bin/node
+/bin/node*
 .travis.yml
 .pairs
 appveyor.yml
