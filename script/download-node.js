@@ -80,10 +80,10 @@ var downloadNode = function(version, done) {
   }
 
   if (fs.existsSync(filename)) {
-    getInstallNodeVersion(filename, function(error, installedVersion) {
+    getInstallNodeVersion(filename, function(error, installedVersion, installedArch) {
       if (error != null) {
         done(error);
-      } else if (installedVersion !== version) {
+      } else if (installedVersion !== version || installedArch !== process.arch) {
         downloadFile();
       } else {
         done();
