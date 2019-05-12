@@ -334,7 +334,7 @@ class Install extends Command
   # callback - The callback function to invoke when done with an error as the
   #            first argument.
   installPackageDependencies: (options, callback) ->
-    options = _.extend({}, options, installGlobally: false, installNode: false)
+    options = _.extend({}, options, installGlobally: false)
     commands = []
     for name, version of @getPackageDependencies()
       do (name, version) =>
