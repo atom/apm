@@ -5,6 +5,7 @@ yargs = require 'yargs'
 
 config = require './apm'
 Command = require './command'
+fs = require './fs'
 Install = require './install'
 
 module.exports =
@@ -13,7 +14,8 @@ class Rebuild extends Command
 
   constructor: ->
     super()
-    @atomNodeDirectory = path.join(config.getAtomDirectory(), '.node-gyp')
+    @atomDirectory = config.getAtomDirectory()
+    @atomNodeDirectory = path.join(@atomDirectory, '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
 
   parseOptions: (argv) ->
