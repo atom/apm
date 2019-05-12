@@ -485,7 +485,7 @@ describe 'apm install', ->
           modPath = path.join(process.env.ATOM_HOME, 'packages', 'test-git-repo', 'node_modules', dep)
           expect(fs.existsSync(modPath)).toBeTruthy()
 
-    fdescribe 'when installing a Git URL and --json is specified', ->
+    describe 'when installing a Git URL and --json is specified', ->
       [cloneUrl, pkgJsonPath] = []
 
       beforeEach ->
@@ -513,7 +513,7 @@ describe 'apm install', ->
           source: cloneUrl
           sha: sha
 
-    fdescribe 'when installing a registred package and --json is specified', ->
+    describe 'when installing a registred package and --json is specified', ->
       beforeEach ->
         callback = jasmine.createSpy('callback')
         apm.run(['install', "test-module", "test-module2", "--json"], callback)
