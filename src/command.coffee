@@ -117,13 +117,6 @@ class Command
   updateWindowsEnv: (env) ->
     env.USERPROFILE = env.HOME
 
-    # Make sure node-gyp is always on the PATH
-    localModuleBins = path.resolve(__dirname, '..', 'node_modules', '.bin')
-    if env.Path
-      env.Path += "#{path.delimiter}#{localModuleBins}"
-    else
-      env.Path = localModuleBins
-
     git.addGitToEnv(env)
 
   addNodeBinToEnv: (env) ->
