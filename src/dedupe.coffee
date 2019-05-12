@@ -53,16 +53,6 @@ class Dedupe extends Command
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
 
-    # node-gyp doesn't currently have an option for this so just set the
-    # environment variable to bypass strict SSL
-    # https://github.com/TooTallNate/node-gyp/issues/448
-    useStrictSsl = @npm.config.get('strict-ssl') ? true
-    env.NODE_TLS_REJECT_UNAUTHORIZED = 0 unless useStrictSsl
-
-    # Pass through configured proxy to node-gyp
-    proxy = @npm.config.get('https-proxy') or @npm.config.get('proxy') or env.HTTPS_PROXY or env.HTTP_PROXY
-    dedupeArgs.push("--proxy=#{proxy}") if proxy
-
     dedupeOptions = {env}
     dedupeOptions.cwd = options.cwd if options.cwd
 

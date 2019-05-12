@@ -144,3 +144,13 @@ class Command
     if httpsProxy
       env.HTTPS_PROXY ?= httpsProxy
       env.https_proxy ?= httpsProxy
+
+      # node-gyp only checks HTTP_PROXY (as of May 2019)
+      env.HTTP_PROXY ?= httpsProxy
+      env.http_proxy ?= httpsProxy
+
+    # node-gyp doesn't currently have an option for this so just set the
+    # environment variable to bypass strict SSL
+    # https://github.com/nodejs/node-gyp/issues/448
+    useStrictSsl = @npm.config.get('strict-ssl') ? true
+    env.NODE_TLS_REJECT_UNAUTHORIZED = 0 unless useStrictSsl
