@@ -29,12 +29,6 @@ class Rebuild extends Command
     """
     options.alias('h', 'help').describe('help', 'Print this usage message')
 
-  installNode: (callback) ->
-    config.loadNpm (error, npm) ->
-      install = new Install()
-      install.npm = npm
-      install.loadInstalledAtomMetadata -> install.installNode(callback)
-
   forkNpmRebuild: (options, callback) ->
     process.stdout.write 'Rebuilding modules '
 
@@ -45,9 +39,21 @@ class Rebuild extends Command
     if vsArgs = @getVisualStudioFlags()
       rebuildArgs.push(vsArgs)
 
+    fs.makeTreeSync(@atomDirectory)
+
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     env.USERPROFILE = env.HOME if config.isWin32()
     @addBuildEnvVars(env)
+
+    # node-gyp doesn't currently have an option for this so just set the
+    # environment variable to bypass strict SSL
+    # https://github.com/TooTallNate/node-gyp/issues/448
+    useStrictSsl = @npm.config.get('strict-ssl') ? true
+    env.NODE_TLS_REJECT_UNAUTHORIZED = 0 unless useStrictSsl
+
+    # Pass through configured proxy to node-gyp
+    proxy = @npm.config.get('https-proxy') or @npm.config.get('proxy') or env.HTTPS_PROXY or env.HTTP_PROXY
+    rebuildArgs.push("--proxy=#{proxy}") if proxy
 
     @fork(@atomNpmPath, rebuildArgs, {env}, callback)
 
@@ -57,13 +63,10 @@ class Rebuild extends Command
 
     config.loadNpm (error, @npm) =>
       @loadInstalledAtomMetadata =>
-        @installNode (error) =>
-          return callback(error) if error?
-
-          @forkNpmRebuild options, (code, stderr='') =>
-            if code is 0
-              @logSuccess()
-              callback()
-            else
-              @logFailure()
-              callback(stderr)
+        @forkNpmRebuild options, (code, stderr='') =>
+          if code is 0
+            @logSuccess()
+            callback()
+          else
+            @logFailure()
+            callback(stderr)
