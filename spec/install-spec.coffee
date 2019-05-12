@@ -8,12 +8,12 @@ wrench = require 'wrench'
 apm = require '../lib/apm-cli'
 Install = require '../lib/install'
 
-fdescribe 'apm install', ->
+describe 'apm install', ->
   [atomHome, resourcePath] = []
 
   beforeEach ->
     spyOnToken()
-    silenceOutput(true)
+    silenceOutput()
 
     atomHome = temp.mkdirSync('apm-home-dir-')
     process.env.ATOM_HOME = atomHome
@@ -485,7 +485,7 @@ fdescribe 'apm install', ->
           modPath = path.join(process.env.ATOM_HOME, 'packages', 'test-git-repo', 'node_modules', dep)
           expect(fs.existsSync(modPath)).toBeTruthy()
 
-    describe 'when installing a Git URL and --json is specified', ->
+    fdescribe 'when installing a Git URL and --json is specified', ->
       [cloneUrl, pkgJsonPath] = []
 
       beforeEach ->
@@ -513,7 +513,7 @@ fdescribe 'apm install', ->
           source: cloneUrl
           sha: sha
 
-    describe 'when installing a registred package and --json is specified', ->
+    fdescribe 'when installing a registred package and --json is specified', ->
       beforeEach ->
         callback = jasmine.createSpy('callback')
         apm.run(['install', "test-module", "test-module2", "--json"], callback)
