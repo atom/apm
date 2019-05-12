@@ -18,7 +18,6 @@ class Dedupe extends Command
     @atomPackagesDirectory = path.join(@atomDirectory, 'packages')
     @atomNodeDirectory = path.join(@atomDirectory, '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
-    @atomNodeGypPath = require.resolve('npm/node_modules/node-gyp/bin/node-gyp')
 
   parseOptions: (argv) ->
     options = yargs(argv).wrap(100)
@@ -31,36 +30,6 @@ class Dedupe extends Command
       This command is experimental.
     """
     options.alias('h', 'help').describe('help', 'Print this usage message')
-
-  installNode: (callback) ->
-    installNodeArgs = ['install']
-    installNodeArgs.push(@getNpmBuildFlags()...)
-    installNodeArgs.push('--ensure')
-
-    env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
-    env.USERPROFILE = env.HOME if config.isWin32()
-
-    fs.makeTreeSync(@atomDirectory)
-    config.loadNpm (error, npm) =>
-      # node-gyp doesn't currently have an option for this so just set the
-      # environment variable to bypass strict SSL
-      # https://github.com/TooTallNate/node-gyp/issues/448
-      useStrictSsl = npm.config.get('strict-ssl') ? true
-      env.NODE_TLS_REJECT_UNAUTHORIZED = 0 unless useStrictSsl
-
-      # Pass through configured proxy to node-gyp
-      proxy = npm.config.get('https-proxy') or npm.config.get('proxy') or env.HTTPS_PROXY or env.HTTP_PROXY
-      installNodeArgs.push("--proxy=#{proxy}") if proxy
-
-      @fork @atomNodeGypPath, installNodeArgs, {env, cwd: @atomDirectory}, (code, stderr='', stdout='') ->
-        if code is 0
-          callback()
-        else
-          callback("#{stdout}\n#{stderr}")
-
-  getVisualStudioFlags: ->
-    if vsVersion = config.getInstalledVisualStudioFlag()
-      "--msvs_version=#{vsVersion}"
 
   dedupeModules: (options, callback) ->
     process.stdout.write 'Deduping modules '
@@ -79,8 +48,22 @@ class Dedupe extends Command
 
     dedupeArgs.push(packageName) for packageName in options.argv._
 
+    fs.makeTreeSync(@atomDirectory)
+
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     env.USERPROFILE = env.HOME if config.isWin32()
+    @addBuildEnvVars(env)
+
+    # node-gyp doesn't currently have an option for this so just set the
+    # environment variable to bypass strict SSL
+    # https://github.com/TooTallNate/node-gyp/issues/448
+    useStrictSsl = @npm.config.get('strict-ssl') ? true
+    env.NODE_TLS_REJECT_UNAUTHORIZED = 0 unless useStrictSsl
+
+    # Pass through configured proxy to node-gyp
+    proxy = @npm.config.get('https-proxy') or @npm.config.get('proxy') or env.HTTPS_PROXY or env.HTTP_PROXY
+    dedupeArgs.push("--proxy=#{proxy}") if proxy
+
     dedupeOptions = {env}
     dedupeOptions.cwd = options.cwd if options.cwd
 
@@ -99,6 +82,5 @@ class Dedupe extends Command
 
     commands = []
     commands.push (callback) => @loadInstalledAtomMetadata(callback)
-    commands.push (callback) => @installNode(callback)
     commands.push (callback) => @dedupeModules(options, callback)
     async.waterfall commands, callback

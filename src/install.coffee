@@ -59,37 +59,6 @@ class Install extends Command
     options.string('packages-file').describe('packages-file', 'A text file containing the packages to install')
     options.boolean('production').describe('production', 'Do not install dev dependencies')
 
-  installNode: (callback) =>
-    installNodeArgs = ['install']
-    installNodeArgs.push(@getNpmBuildFlags()...)
-    installNodeArgs.push("--ensure")
-    installNodeArgs.push("--verbose") if @verbose
-
-    env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
-    env.USERPROFILE = env.HOME if config.isWin32()
-
-    fs.makeTreeSync(@atomDirectory)
-
-    # node-gyp doesn't currently have an option for this so just set the
-    # environment variable to bypass strict SSL
-    # https://github.com/TooTallNate/node-gyp/issues/448
-    useStrictSsl = @npm.config.get('strict-ssl') ? true
-    env.NODE_TLS_REJECT_UNAUTHORIZED = 0 unless useStrictSsl
-
-    # Pass through configured proxy to node-gyp
-    proxy = @npm.config.get('https-proxy') or @npm.config.get('proxy') or env.HTTPS_PROXY or env.HTTP_PROXY
-    installNodeArgs.push("--proxy=#{proxy}") if proxy
-
-    opts = {env, cwd: @atomDirectory}
-    opts.streaming = true if @verbose
-
-    atomNodeGypPath = process.env.ATOM_NODE_GYP_PATH or require.resolve('npm/node_modules/node-gyp/bin/node-gyp')
-    @fork atomNodeGypPath, installNodeArgs, opts, (code, stderr='', stdout='') ->
-      if code is 0
-        callback()
-      else
-        callback("#{stdout}\n#{stderr}")
-
   installModule: (options, pack, moduleURI, callback) ->
     installGlobally = options.installGlobally ? true
 
@@ -104,8 +73,21 @@ class Install extends Command
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
 
+    fs.makeTreeSync(@atomDirectory)
+
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
+
+    # node-gyp doesn't currently have an option for this so just set the
+    # environment variable to bypass strict SSL
+    # https://github.com/TooTallNate/node-gyp/issues/448
+    useStrictSsl = @npm.config.get('strict-ssl') ? true
+    env.NODE_TLS_REJECT_UNAUTHORIZED = 0 unless useStrictSsl
+
+    # Pass through configured proxy to node-gyp
+    proxy = @npm.config.get('https-proxy') or @npm.config.get('proxy') or env.HTTPS_PROXY or env.HTTP_PROXY
+    installArgs.push("--proxy=#{proxy}") if proxy
+
     installOptions = {env}
     installOptions.streaming = true if @verbose
 
@@ -284,9 +266,6 @@ class Install extends Command
           return
 
         commands = []
-        installNode = options.installNode ? true
-        if installNode
-          commands.push @installNode
         commands.push (next) => @installModule(options, pack, tarball, next)
         if installGlobally and (packageName.localeCompare(pack.name, 'en', {sensitivity: 'accent'}) isnt 0)
           commands.push (newPack, next) => # package was renamed; delete old package folder
@@ -357,7 +336,6 @@ class Install extends Command
   installDependencies: (options, callback) ->
     options.installGlobally = false
     commands = []
-    commands.push(@installNode)
     commands.push (callback) => @installModules(options, callback)
     commands.push (callback) => @installPackageDependencies(options, callback)
 
@@ -404,29 +382,36 @@ class Install extends Command
   # and a compiler.
   checkNativeBuildTools: (callback) ->
     process.stdout.write 'Checking for native build tools '
-    @installNode (error) =>
-      if error?
-        @logFailure()
-        return callback(error)
 
-      buildArgs = ['--globalconfig', config.getGlobalConfigPath(), '--userconfig', config.getUserConfigPath(), 'build']
-      buildArgs.push(path.resolve(__dirname, '..', 'native-module'))
-      buildArgs.push(@getNpmBuildFlags()...)
+    buildArgs = ['--globalconfig', config.getGlobalConfigPath(), '--userconfig', config.getUserConfigPath(), 'build']
+    buildArgs.push(path.resolve(__dirname, '..', 'native-module'))
+    buildArgs.push(@getNpmBuildFlags()...)
 
-      if vsArgs = @getVisualStudioFlags()
-        buildArgs.push(vsArgs)
+    if vsArgs = @getVisualStudioFlags()
+      buildArgs.push(vsArgs)
 
-      env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
-      @updateWindowsEnv(env) if config.isWin32()
-      @addNodeBinToEnv(env)
-      @addProxyToEnv(env)
-      buildOptions = {env}
-      buildOptions.streaming = true if @verbose
+    fs.makeTreeSync(@atomDirectory)
 
-      fs.removeSync(path.resolve(__dirname, '..', 'native-module', 'build'))
+    env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
+    @addBuildEnvVars(env)
 
-      @fork @atomNpmPath, buildArgs, buildOptions, (args...) =>
-        @logCommandResults(callback, args...)
+    # node-gyp doesn't currently have an option for this so just set the
+    # environment variable to bypass strict SSL
+    # https://github.com/TooTallNate/node-gyp/issues/448
+    useStrictSsl = @npm.config.get('strict-ssl') ? true
+    env.NODE_TLS_REJECT_UNAUTHORIZED = 0 unless useStrictSsl
+
+    # Pass through configured proxy to node-gyp
+    proxy = @npm.config.get('https-proxy') or @npm.config.get('proxy') or env.HTTPS_PROXY or env.HTTP_PROXY
+    buildArgs.push("--proxy=#{proxy}") if proxy
+
+    buildOptions = {env}
+    buildOptions.streaming = true if @verbose
+
+    fs.removeSync(path.resolve(__dirname, '..', 'native-module', 'build'))
+
+    @fork @atomNpmPath, buildArgs, buildOptions, (args...) =>
+      @logCommandResults(callback, args...)
 
   packageNamesFromPath: (filePath) ->
     filePath = path.resolve(filePath)
