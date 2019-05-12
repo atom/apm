@@ -76,7 +76,6 @@ class Install extends Command
     fs.makeTreeSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
-    env.USERPROFILE = env.HOME if config.isWin32()
     @addBuildEnvVars(env)
 
     # node-gyp doesn't currently have an option for this so just set the
@@ -182,7 +181,6 @@ class Install extends Command
     fs.makeTreeSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
-    env.USERPROFILE = env.HOME if config.isWin32()
     @addBuildEnvVars(env)
 
     # node-gyp doesn't currently have an option for this so just set the
