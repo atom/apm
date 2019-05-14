@@ -138,7 +138,7 @@ class Command
       env.HTTPS_PROXY ?= httpsProxy
       env.https_proxy ?= httpsProxy
 
-      # node-gyp only checks HTTP_PROXY (as of May 2019)
+      # node-gyp only checks HTTP_PROXY (as of node-gyp@4.0.0)
       env.HTTP_PROXY ?= httpsProxy
       env.http_proxy ?= httpsProxy
 
