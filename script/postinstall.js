@@ -11,11 +11,13 @@ if (process.platform === 'win32') {
   script += '.sh'
 }
 
-// Read + execute permission
-fs.chmodSync(script, fs.constants.S_IRUSR | fs.constants.S_IXUSR)
-fs.chmodSync(path.join(__dirname, '..', 'bin', 'apm'), fs.constants.S_IRUSR | fs.constants.S_IXUSR)
-fs.chmodSync(path.join(__dirname, '..', 'bin', 'npm'), fs.constants.S_IRUSR | fs.constants.S_IXUSR)
-fs.chmodSync(path.join(__dirname, '..', 'bin', 'python-interceptor.sh'), fs.constants.S_IRUSR | fs.constants.S_IXUSR)
+// Make sure all the scripts have the necessary permissions when we execute them
+// (npm does not preserve permissions when publishing packages on Windows,
+// so this is especially needed to allow apm to be published successfully on Windows)
+fs.chmodSync(script, 0o755)
+fs.chmodSync(path.join(__dirname, '..', 'bin', 'apm'), 0o755)
+fs.chmodSync(path.join(__dirname, '..', 'bin', 'npm'), 0o755)
+fs.chmodSync(path.join(__dirname, '..', 'bin', 'python-interceptor.sh'), 0o755)
 
 var child = cp.spawn(script, [], { stdio: ['pipe', 'pipe', 'pipe'], shell: true })
 child.stderr.pipe(process.stderr)
