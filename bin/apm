@@ -28,17 +28,8 @@ done
 
 binDir=`pwd -P`
 
-maybe_node_gyp_path="$binDir"/../node_modules/.bin/node-gyp
-if [ -e "$maybe_node_gyp_path" ]
-then
-  # Prevent vars like NODE_CONFIG_NODE_GYP from messing this up
-  for var in $(env | grep -i ^npm_config_node_gyp=)
-  do
-    unset ${var%%=*}
-  done
-
-  export npm_config_node_gyp="$maybe_node_gyp_path"
-fi
+# Force npm to use its builtin node-gyp
+unset npm_config_node_gyp
 
 export ATOM_APM_ORIGINAL_PYTHON="${PYTHON:-}"
 
