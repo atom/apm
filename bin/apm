@@ -28,6 +28,9 @@ done
 
 binDir=`pwd -P`
 
+# Force npm to use its builtin node-gyp
+unset npm_config_node_gyp
+
 export ATOM_APM_ORIGINAL_PYTHON="${PYTHON:-}"
 
 # Assumption: env iterates through environment variables in the same order that

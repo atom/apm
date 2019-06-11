@@ -12,6 +12,9 @@ if not defined apm_git_path (
   if defined apm_git_path set "Path=!apm_git_path!;!PATH!"
 )
 
+:: Force npm to use its builtin node-gyp
+set npm_config_node_gyp=
+
 if exist "%~dp0\node.exe" (
   "%~dp0\node.exe" "%~dp0/../lib/cli.js" %*
 ) else (
