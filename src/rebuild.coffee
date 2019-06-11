@@ -5,6 +5,7 @@ yargs = require 'yargs'
 
 config = require './apm'
 Command = require './command'
+fs = require './fs'
 Install = require './install'
 
 module.exports =
@@ -13,7 +14,8 @@ class Rebuild extends Command
 
   constructor: ->
     super()
-    @atomNodeDirectory = path.join(config.getAtomDirectory(), '.node-gyp')
+    @atomDirectory = config.getAtomDirectory()
+    @atomNodeDirectory = path.join(@atomDirectory, '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
 
   parseOptions: (argv) ->
@@ -29,12 +31,6 @@ class Rebuild extends Command
     """
     options.alias('h', 'help').describe('help', 'Print this usage message')
 
-  installNode: (callback) ->
-    config.loadNpm (error, npm) ->
-      install = new Install()
-      install.npm = npm
-      install.loadInstalledAtomMetadata -> install.installNode(callback)
-
   forkNpmRebuild: (options, callback) ->
     process.stdout.write 'Rebuilding modules '
 
@@ -45,8 +41,9 @@ class Rebuild extends Command
     if vsArgs = @getVisualStudioFlags()
       rebuildArgs.push(vsArgs)
 
+    fs.makeTreeSync(@atomDirectory)
+
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
-    env.USERPROFILE = env.HOME if config.isWin32()
     @addBuildEnvVars(env)
 
     @fork(@atomNpmPath, rebuildArgs, {env}, callback)
@@ -57,13 +54,10 @@ class Rebuild extends Command
 
     config.loadNpm (error, @npm) =>
       @loadInstalledAtomMetadata =>
-        @installNode (error) =>
-          return callback(error) if error?
-
-          @forkNpmRebuild options, (code, stderr='') =>
-            if code is 0
-              @logSuccess()
-              callback()
-            else
-              @logFailure()
-              callback(stderr)
+        @forkNpmRebuild options, (code, stderr='') =>
+          if code is 0
+            @logSuccess()
+            callback()
+          else
+            @logFailure()
+            callback(stderr)
