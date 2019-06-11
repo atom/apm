@@ -16,7 +16,6 @@ class Ci extends Command
     @atomDirectory = config.getAtomDirectory()
     @atomNodeDirectory = path.join(@atomDirectory, '.node-gyp')
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
-    @atomNodeGypPath = process.env.ATOM_NODE_GYP_PATH or require.resolve('npm/node_modules/node-gyp/bin/node-gyp')
 
   parseOptions: (argv) ->
     options = yargs(argv).wrap(100)
@@ -33,41 +32,6 @@ class Ci extends Command
 
     options.alias('h', 'help').describe('help', 'Print this usage message')
     options.boolean('verbose').default('verbose', false).describe('verbose', 'Show verbose debug information')
-
-  installDependencies: (options, callback) =>
-    async.waterfall [
-      (cb) => @installNode(options, cb)
-      (cb) => @installModules(options, cb)
-    ], callback
-
-  installNode: (options, callback) =>
-    installNodeArgs = ['install']
-    installNodeArgs.push(@getNpmBuildFlags()...)
-    installNodeArgs.push("--ensure")
-    installNodeArgs.push("--verbose") if options.argv.verbose
-
-    env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
-    env.USERPROFILE = env.HOME if config.isWin32()
-
-    fs.makeTreeSync(@atomDirectory)
-
-    # node-gyp doesn't currently have an option for this so just set the
-    # environment variable to bypass strict SSL
-    # https://github.com/TooTallNate/node-gyp/issues/448
-    useStrictSsl = @npm.config.get('strict-ssl') ? true
-    env.NODE_TLS_REJECT_UNAUTHORIZED = 0 unless useStrictSsl
-
-    # Pass through configured proxy to node-gyp
-    proxy = @npm.config.get('https-proxy') or @npm.config.get('proxy') or env.HTTPS_PROXY or env.HTTP_PROXY
-    installNodeArgs.push("--proxy=#{proxy}") if proxy
-
-    opts = {env, cwd: @atomDirectory, streaming: options.argv.verbose}
-
-    @fork @atomNodeGypPath, installNodeArgs, opts, (code, stderr='', stdout='') ->
-      if code is 0
-        callback()
-      else
-        callback("#{stdout}\n#{stderr}")
 
   installModules: (options, callback) ->
     process.stdout.write 'Installing locked modules'
@@ -87,10 +51,11 @@ class Ci extends Command
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
 
+    fs.makeTreeSync(@atomDirectory)
+
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
-    @updateWindowsEnv(env) if config.isWin32()
-    @addNodeBinToEnv(env)
-    @addProxyToEnv(env)
+    @addBuildEnvVars(env)
+
     installOptions = {env, streaming: options.argv.verbose}
 
     @fork @atomNpmPath, installArgs, installOptions, (args...) =>
@@ -103,7 +68,7 @@ class Ci extends Command
     commands = []
     commands.push (callback) => config.loadNpm (error, @npm) => callback(error)
     commands.push (cb) => @loadInstalledAtomMetadata(cb)
-    commands.push (cb) => @installDependencies(opts, cb)
+    commands.push (cb) => @installModules(opts, cb)
 
     iteratee = (item, next) -> item(next)
     async.mapSeries commands, iteratee, (err) ->
