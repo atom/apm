@@ -62,6 +62,8 @@ class Uninstall extends Command
     uninstallError = null
 
     for packageName in packageNames
+      if packageName is '.'
+        packageName = path.basename(process.cwd())
       process.stdout.write "Uninstalling #{packageName} "
       try
         unless options.argv.dev
