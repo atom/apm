@@ -39,7 +39,7 @@ class Unlink extends Command
   unlinkPath: (pathToUnlink) ->
     try
       process.stdout.write "Unlinking #{pathToUnlink} "
-      fs.unlinkSync(pathToUnlink) if fs.isSymbolicLinkSync(pathToUnlink)
+      fs.unlinkSync(pathToUnlink)
       @logSuccess()
     catch error
       @logFailure()
