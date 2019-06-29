@@ -3,6 +3,18 @@ fs = require 'fs-plus'
 temp = require 'temp'
 apm = require '../lib/apm-cli'
 
+createPackage = (packageName, includeDev=false) ->
+  atomHome = temp.mkdirSync('apm-home-dir-')
+  packagePath = path.join(atomHome, 'packages', packageName)
+  fs.makeTreeSync(path.join(packagePath, 'lib'))
+  fs.writeFileSync(path.join(packagePath, 'package.json'), "{}")
+  if includeDev
+    devPackagePath = path.join(atomHome, 'dev', 'packages', packageName)
+    fs.makeTreeSync(path.join(devPackagePath, 'lib'))
+    fs.writeFileSync(path.join(devPackagePath, 'package.json'), "{}")
+  process.env.ATOM_HOME = atomHome
+  return {packagePath, devPackagePath}
+
 describe 'apm uninstall', ->
   beforeEach ->
     silenceOutput()
@@ -34,11 +46,7 @@ describe 'apm uninstall', ->
 
   describe 'when the package is installed', ->
     it 'deletes the package', ->
-      atomHome = temp.mkdirSync('apm-home-dir-')
-      packagePath = path.join(atomHome, 'packages', 'test-package')
-      fs.makeTreeSync(path.join(packagePath, 'lib'))
-      fs.writeFileSync(path.join(packagePath, 'package.json'), "{}")
-      process.env.ATOM_HOME = atomHome
+      {packagePath} = createPackage('test-package')
 
       expect(fs.existsSync(packagePath)).toBeTruthy()
       callback = jasmine.createSpy('callback')
@@ -50,16 +58,28 @@ describe 'apm uninstall', ->
       runs ->
         expect(fs.existsSync(packagePath)).toBeFalsy()
 
+    describe 'when . is specified as the package name', ->
+      it 'resolves to the basename of the cwd', ->
+        {packagePath} = createPackage('test-package')
+
+        expect(fs.existsSync(packagePath)).toBeTruthy()
+
+        oldCwd = process.cwd()
+        process.chdir(packagePath)
+
+        callback = jasmine.createSpy('callback')
+        apm.run(['uninstall', '.'], callback)
+
+        waitsFor 'waiting for command to complete', ->
+          callback.callCount > 0
+
+        runs ->
+          expect(fs.existsSync(packagePath)).toBeFalsy()
+          process.chdir(oldCwd)
+
     describe "--dev", ->
       it "deletes the packages from the dev packages folder", ->
-        atomHome = temp.mkdirSync('apm-home-dir-')
-        packagePath = path.join(atomHome, 'packages', 'test-package')
-        fs.makeTreeSync(path.join(packagePath, 'lib'))
-        fs.writeFileSync(path.join(packagePath, 'package.json'), "{}")
-        devPackagePath = path.join(atomHome, 'dev', 'packages', 'test-package')
-        fs.makeTreeSync(path.join(devPackagePath, 'lib'))
-        fs.writeFileSync(path.join(devPackagePath, 'package.json'), "{}")
-        process.env.ATOM_HOME = atomHome
+        {packagePath, devPackagePath} = createPackage('test-package', true)
 
         expect(fs.existsSync(packagePath)).toBeTruthy()
         callback = jasmine.createSpy('callback')
