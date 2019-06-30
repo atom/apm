@@ -54,7 +54,7 @@ class Publish extends Command
   #            argument and a the generated tag string as the second argument.
   versionPackage: (version, callback) ->
     process.stdout.write 'Preparing and tagging a new version '
-    versionArgs = ['version', version, '-m', 'Prepare %s release']
+    versionArgs = ['version', version, '-m', 'Prepare v%s release']
     @fork @atomNpmPath, versionArgs, (code, stderr='', stdout='') =>
       if code is 0
         @logSuccess()
