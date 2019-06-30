@@ -36,6 +36,9 @@ class Publish extends Command
       it is published to the apm registry. The HEAD branch and the new tag are
       pushed up to the remote repository automatically using this option.
 
+      If a tag is provided via the --tag flag, it must have the form `vx.y.z`.
+      For example, `apm publish -t v1.12.0`.
+
       If a new name is provided via the --rename flag, the package.json file is
       updated with the new name and the package's name is updated on Atom.io.
 
@@ -44,7 +47,7 @@ class Publish extends Command
       have published it.
     """
     options.alias('h', 'help').describe('help', 'Print this usage message')
-    options.alias('t', 'tag').string('tag').describe('tag', 'Specify a tag to publish')
+    options.alias('t', 'tag').string('tag').describe('tag', 'Specify a tag to publish. Must be of the form vx.y.z')
     options.alias('r', 'rename').string('rename').describe('rename', 'Specify a new name for the package')
 
   # Create a new version and tag use the `npm version` command.
