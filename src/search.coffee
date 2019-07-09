@@ -12,7 +12,7 @@ class Search extends Command
   @commandNames: ['search']
 
   parseOptions: (argv) ->
-    options = yargs(argv).wrap(100)
+    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth() || 100))
     options.usage """
 
       Usage: apm search <package_name>

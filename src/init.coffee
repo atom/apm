@@ -12,7 +12,7 @@ class Init extends Command
   supportedSyntaxes: ['coffeescript', 'javascript']
 
   parseOptions: (argv) ->
-    options = yargs(argv).wrap(100)
+    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth() || 100))
 
     options.usage """
       Usage:

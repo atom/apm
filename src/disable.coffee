@@ -12,7 +12,7 @@ class Disable extends Command
   @commandNames: ['disable']
 
   parseOptions: (argv) ->
-    options = yargs(argv).wrap(100)
+    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth() || 100))
     options.usage """
 
       Usage: apm disable [<package_name>]...
