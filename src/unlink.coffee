@@ -17,7 +17,7 @@ class Unlink extends Command
     @packagesPath = path.join(config.getAtomDirectory(), 'packages')
 
   parseOptions: (argv) ->
-    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth() || 100))
+    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth()))
     options.usage """
 
       Usage: apm unlink [<package_path>]

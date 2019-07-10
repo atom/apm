@@ -9,7 +9,7 @@ class Docs extends View
   @commandNames: ['docs', 'home', 'open']
 
   parseOptions: (argv) ->
-    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth() || 100))
+    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth()))
     options.usage """
 
       Usage: apm docs [options] <package_name>

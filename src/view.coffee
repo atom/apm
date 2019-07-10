@@ -12,7 +12,7 @@ class View extends Command
   @commandNames: ['view', 'show']
 
   parseOptions: (argv) ->
-    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth() || 100))
+    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth()))
     options.usage """
 
       Usage: apm view <package_name>
