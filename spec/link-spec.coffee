@@ -195,3 +195,15 @@ describe 'apm link/unlink', ->
       runs ->
         expect(console.error.mostRecentCall.args[0].length).toBeGreaterThan 0
         expect(callback.mostRecentCall.args[0]).not.toBeUndefined()
+
+  describe "when unlinking a path that does not exist", ->
+    it "logs an error and exits", ->
+      callback = jasmine.createSpy('callback')
+      apm.run(['unlink', 'a-path-that-does-not-exist'], callback)
+
+      waitsFor 'waiting for command to complete', ->
+        callback.callCount > 0
+
+      runs ->
+        expect(console.error.mostRecentCall.args[0].length).toBeGreaterThan 0
+        expect(callback.mostRecentCall.args[0]).not.toBeUndefined()
