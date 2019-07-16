@@ -58,6 +58,20 @@ describe 'apm uninstall', ->
       runs ->
         expect(fs.existsSync(packagePath)).toBeFalsy()
 
+  describe 'when the package folder exists but does not contain a package.json', ->
+    it 'does not delete the folder', ->
+      {packagePath} = createPackage('test-package')
+      fs.unlinkSync(path.join(packagePath, 'package.json'))
+
+      callback = jasmine.createSpy('callback')
+      apm.run(['uninstall', 'test-package'], callback)
+
+      waitsFor 'waiting for command to complete', ->
+        callback.callCount > 0
+
+      runs ->
+        expect(fs.existsSync(packagePath)).toBeTruthy()
+
     describe 'when . is specified as the package name', ->
       it 'resolves to the basename of the cwd', ->
         {packagePath} = createPackage('test-package')
