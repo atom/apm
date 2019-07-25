@@ -106,6 +106,11 @@ class Command
     @updateWindowsEnv(env) if config.isWin32()
     @addNodeBinToEnv(env)
     @addProxyToEnv(env)
+    env.npm_config_runtime = "electron"
+    env.npm_config_target = @electronVersion
+    env.npm_config_disturl = config.getElectronUrl()
+    env.npm_config_arch = config.getElectronArch()
+    env.npm_config_target_arch = config.getElectronArch() # for node-pre-gyp
 
   getVisualStudioFlags: ->
     if vsVersion = config.getInstalledVisualStudioFlag()
