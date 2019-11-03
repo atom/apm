@@ -9,7 +9,7 @@ describe "__PackageName__ grammar", ->
       atom.packages.activatePackage("language-__package-name__")
 
     runs ->
-      grammar = atom.syntax.grammarForScopeName("source.__package-name__")
+      grammar = atom.grammars.grammarForScopeName("source.__package-name__")
 
   it "parses the grammar", ->
     expect(grammar).toBeTruthy()
