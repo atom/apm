@@ -9,6 +9,8 @@ notifications:
 node_js:
   - "10.2.1"
 
+install: npm ci
+
 script: ./bin/npm test
 
 git:
