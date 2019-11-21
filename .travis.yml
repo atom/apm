@@ -9,7 +9,7 @@ notifications:
 node_js:
   - "10.2.1"
 
-install: npm ci
+install: npm ci --loglevel silly
 
 script: ./bin/npm test
 
