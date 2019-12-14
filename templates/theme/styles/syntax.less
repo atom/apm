@@ -1,0 +1,337 @@
+/*
+   This defines styling rules for syntax classes.
+
+   See the naming conventions for a list of syntax classes:
+   https://flight-manual.atom.io/hacking-atom/sections/syntax-naming-conventions
+
+   When styling rules conflict:
+   - The last rule overrides previous rules.
+   - The rule with most classes and pseudo-classes overrides the last rule.
+*/
+
+// if for return import
+.syntax--keyword {
+  color: @purple;
+
+  // global static let class
+  &.syntax--storage {
+    color: @purple;
+  }
+
+  // int char float
+  &.syntax--type {
+    color: @purple;
+    text-decoration: underline;
+  }
+
+  // and or new del
+  &.syntax--operator {
+    color: @very-light-gray;
+  }
+
+  // super
+  &.syntax--function {
+    color: @red;
+  }
+
+  // this self
+  &.syntax--variable {
+    color: @red;
+  }
+
+  // = + && | << ?
+  &.syntax--symbolic {
+    color: @very-light-gray;
+  }
+}
+
+// identifier
+.syntax--entity {
+  color: @very-light-gray;
+
+  // function(parameter)
+  &.syntax--parameter {
+    color: @very-light-gray;
+  }
+
+  // self cls iota
+  &.syntax--support {
+    color: @red;
+  }
+
+  // function method
+  &.syntax--function {
+    color: @blue;
+
+    // len print
+    &.syntax--support {
+      color: @cyan;
+    }
+  }
+
+  // add
+  &.syntax--operator {
+    color: @blue;
+
+    // %>% <=>
+    &.syntax--symbolic {
+      color: @very-light-gray;
+    }
+  }
+
+  // Class
+  &.syntax--type {
+    color: @light-orange;
+    text-decoration: underline;
+
+    // String List
+    &.syntax--support {
+      color: @light-orange;
+    }
+
+    // dict map float32
+    &.syntax--fundamental {
+      color: @purple;
+    }
+  }
+
+  // .class :pseudo-class
+  &.syntax--selector {
+    color: @light-orange;
+
+    // #id
+    &.syntax--id {
+      color: @blue;
+    }
+  }
+
+  // div span
+  &.syntax--tag {
+    color: @red;
+    text-decoration: underline;
+  }
+
+  // href src alt
+  &.syntax--attribute {
+    color: @orange;
+  }
+
+  // height position border
+  &.syntax--property {
+    color: @very-light-gray;
+  }
+}
+
+// () [] {} => @
+.syntax--punctuation {
+  color: @very-light-gray;
+}
+
+// "string"
+.syntax--string {
+  color: @green;
+
+  // :immutable
+  &.syntax--immutable {
+    color: @green;
+  }
+
+  // ${variable} %().2f {0:<30}
+  &.syntax--part {
+    color: darken(@green, 15%);
+  }
+
+  // /^reg[ex]?p/
+  &.syntax--regexp {
+    color: @green;
+
+    // ^ $ \b ? + i
+    &.syntax--language {
+      color: @cyan;
+    }
+
+    // <variable> \1
+    &.syntax--variable {
+      color: @cyan;
+    }
+
+    // r" /
+    &.syntax--punctuation {
+      color: @green;
+
+      // ( ) [^ ] (?= ) |
+      &.syntax--part {
+        color: @cyan;
+      }
+    }
+  }
+}
+
+// literal
+.syntax--constant {
+  color: @orange;
+
+  // &lt; 'a'
+  &.syntax--character {
+    color: @green;
+
+    // \" \' \g \.
+    &.syntax--escape {
+      color: @green;
+    }
+
+    // \u2661 \n \t \W .
+    &.syntax--code {
+      color: @cyan;
+    }
+  }
+
+  // 4 1.3 0x29
+  &.syntax--numeric {
+    color: @orange;
+
+    // px % cm hz
+    &.syntax--unit {
+      color: @orange;
+    }
+  }
+
+  // #b294bb
+  &.syntax--color {
+    color: @cyan;
+  }
+
+  // true false nil
+  &.syntax--language {
+    color: @orange;
+
+    // ...
+    &.syntax--symbolic {
+      color: @very-light-gray;
+    }
+  }
+}
+
+// text
+.syntax--text {
+  color: @very-light-gray;
+}
+
+// __formatted__
+.syntax--markup {
+  color: @red;
+
+  // # Heading
+  &.syntax--heading {
+    color: @blue;
+  }
+
+  // - item
+  &.syntax--list {
+    color: @red;
+  }
+
+  // > quote
+  &.syntax--quote {
+    color: @orange;
+  }
+
+  // **bold**
+  &.syntax--bold {
+    color: @orange;
+    font-weight: bold;
+  }
+
+  // *italic*
+  &.syntax--italic {
+    color: @purple;
+    font-style: italic;
+  }
+
+  // __underline__
+  &.syntax--underline {
+    color: @orange;
+    text-decoration: underline;
+  }
+
+  // ~~strike~~
+  &.syntax--strike {
+    color: @red;
+  }
+
+  // `raw`
+  &.syntax--raw {
+    color: @green;
+  }
+
+  // url.com (path) [reference]
+  &.syntax--link {
+    color: @orange;
+  }
+
+  // {++ inserted ++}
+  &.syntax--inserted {
+    color: @green;
+  }
+
+  // {== inserted ==}
+  &.syntax--highlighted {
+    color: @green;
+  }
+
+  // {-- deleted --}
+  &.syntax--deleted {
+    color: @red;
+  }
+
+  // {~~ from~>to ~~}
+  &.syntax--changed {
+    color: @orange;
+  }
+
+  // {>> commented <<}
+  &.syntax--commented {
+    color: @light-gray;
+  }
+}
+
+// /* comment */
+.syntax--comment {
+  color: @light-gray;
+
+  // @param TODO NOTE
+  &.syntax--caption {
+    color: lighten(@light-gray, 5);
+    font-weight: bold;
+    text-decoration: underline;
+  }
+
+  // variable function type
+  &.syntax--term {
+    color: lighten(@light-gray, 5);
+    font-weight: bold;
+  }
+
+  // { } / .
+  &.syntax--punctuation {
+    color: @light-gray;
+    font-weight: normal;
+    text-decoration: none;
+  }
+}
+
+// 0invalid
+.syntax--invalid:not(.syntax--punctuation) {
+
+  // §illegal
+  &.syntax--illegal {
+    background-color: @red;
+    color: @syntax-background-color;
+  }
+
+  // obsolete()
+  &.syntax--deprecated {
+    color: @red;
+    text-decoration: underline;
+  }
+}
