@@ -128,8 +128,10 @@ describe "apm init", ->
       runs ->
         expect(fs.existsSync(themePath)).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'styles'))).toBeTruthy()
-        expect(fs.existsSync(path.join(themePath, 'styles', 'base.less'))).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'styles', 'colors.less'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'styles', 'syntax-variables.less'))).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'styles', 'syntax.less'))).toBeTruthy()
+        expect(fs.existsSync(path.join(themePath, 'styles', 'editor.less'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'index.less'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'README.md'))).toBeTruthy()
         expect(fs.existsSync(path.join(themePath, 'package.json'))).toBeTruthy()
