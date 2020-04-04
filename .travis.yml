@@ -11,7 +11,7 @@ node_js:
 
 before_install: npm install -g npm
 
-install: npm ci
+install: npm install
 
 script: ./bin/npm test
 
