@@ -30,3 +30,4 @@ addons:
 
 env:
   - CXX=g++-4.8
+  - NO_APM_DEDUPE=1
