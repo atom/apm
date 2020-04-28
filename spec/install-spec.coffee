@@ -531,13 +531,13 @@ describe 'apm install', ->
         expect(json[1].metadata.name).toBe 'test-module2'
 
     describe "with a space in node-gyp's path", ->
-      npmNodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules', 'npm', 'node_modules'))
+      nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
 
       beforeEach ->
         # Normally npm_config_node_gyp would be ignored, but it works here because we're calling apm
         # directly and not through the scripts in bin/
-        fs.copySync path.join(npmNodeModules, 'node-gyp'), path.join(npmNodeModules, 'with a space')
-        process.env.npm_config_node_gyp = path.join(npmNodeModules, 'with a space', 'bin', 'node-gyp.js')
+        fs.copySync path.join(nodeModules, 'node-gyp'), path.join(nodeModules, 'with a space')
+        process.env.npm_config_node_gyp = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
 
         # Read + execute permission
         fs.chmodSync(process.env.npm_config_node_gyp, fs.constants.S_IRUSR | fs.constants.S_IXUSR)
