@@ -39,7 +39,7 @@ describe "apm upgrade", ->
       process.env.ATOM_HOME = atomHome
       process.env.ATOM_ELECTRON_URL = "http://localhost:3000/node"
       process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
-      process.env.ATOM_ELECTRON_VERSION = 'v0.10.3'
+      process.env.ATOM_ELECTRON_VERSION = 'v10.20.1'
       process.env.ATOM_RESOURCE_PATH = atomApp
 
       fs.writeFileSync(path.join(atomApp, 'package.json'), JSON.stringify(version: '0.10.0'))
