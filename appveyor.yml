@@ -7,12 +7,12 @@ platform:
   - x64
 
 environment:
-  nodejs_version: "10.2.1"
+  nodejs_version: "10.20.1"
 
 install:
   - ps: Install-Product node $env:nodejs_version $env:platform
   - npm install -g npm
-  - npm install
+  - npm ci
 
 build: off
 

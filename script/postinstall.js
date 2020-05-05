@@ -17,7 +17,6 @@ if (process.platform === 'win32') {
 fs.chmodSync(script, 0o755)
 fs.chmodSync(path.join(__dirname, '..', 'bin', 'apm'), 0o755)
 fs.chmodSync(path.join(__dirname, '..', 'bin', 'npm'), 0o755)
-fs.chmodSync(path.join(__dirname, '..', 'bin', 'python-interceptor.sh'), 0o755)
 
 var child = cp.spawn(script, [], { stdio: ['pipe', 'pipe', 'pipe'], shell: true })
 child.stderr.pipe(process.stderr)

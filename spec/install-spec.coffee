@@ -29,13 +29,15 @@ describe 'apm install', ->
 
     beforeEach ->
       app = express()
-      app.get '/node/v0.10.3/node-v0.10.3.tar.gz', (request, response) ->
-        response.sendFile path.join(__dirname, 'fixtures', 'node-v0.10.3.tar.gz')
-      app.get '/node/v0.10.3/node.lib', (request, response) ->
+      app.get '/node/v10.20.1/node-v10.20.1.tar.gz', (request, response) ->
+        response.sendFile path.join(__dirname, 'fixtures', 'node-v10.20.1.tar.gz')
+      app.get '/node/v10.20.1/node-v10.20.1-headers.tar.gz', (request, response) ->
+        response.sendFile path.join(__dirname, 'fixtures', 'node-v10.20.1-headers.tar.gz')
+      app.get '/node/v10.20.1/node.lib', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'node.lib')
-      app.get '/node/v0.10.3/x64/node.lib', (request, response) ->
+      app.get '/node/v10.20.1/x64/node.lib', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'node_x64.lib')
-      app.get '/node/v0.10.3/SHASUMS256.txt', (request, response) ->
+      app.get '/node/v10.20.1/SHASUMS256.txt', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'SHASUMS256.txt')
       app.get '/test-module', (request, response) ->
         response.sendFile path.join(__dirname, 'fixtures', 'install-test-module.json')
@@ -76,7 +78,7 @@ describe 'apm install', ->
         process.env.ATOM_HOME = atomHome
         process.env.ATOM_ELECTRON_URL = "http://localhost:3000/node"
         process.env.ATOM_PACKAGES_URL = "http://localhost:3000/packages"
-        process.env.ATOM_ELECTRON_VERSION = 'v0.10.3'
+        process.env.ATOM_ELECTRON_VERSION = 'v10.20.1'
         process.env.npm_config_registry = 'http://localhost:3000/'
         live = true
       waitsFor -> live
@@ -531,19 +533,20 @@ describe 'apm install', ->
         expect(json[1].metadata.name).toBe 'test-module2'
 
     describe "with a space in node-gyp's path", ->
-      npmNodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules', 'npm', 'node_modules'))
+      nodeModules = fs.realpathSync(path.join(__dirname, '..', 'node_modules'))
 
       beforeEach ->
         # Normally npm_config_node_gyp would be ignored, but it works here because we're calling apm
         # directly and not through the scripts in bin/
-        fs.copySync path.join(npmNodeModules, 'node-gyp'), path.join(npmNodeModules, 'with a space')
-        process.env.npm_config_node_gyp = path.join(npmNodeModules, 'with a space', 'bin', 'node-gyp.js')
+        fs.copySync path.join(nodeModules, 'node-gyp'), path.join(nodeModules, 'with a space')
+        process.env.npm_config_node_gyp = path.join(nodeModules, 'with a space', 'bin', 'node-gyp.js')
 
         # Read + execute permission
         fs.chmodSync(process.env.npm_config_node_gyp, fs.constants.S_IRUSR | fs.constants.S_IXUSR)
 
       afterEach ->
         delete process.env.npm_config_node_gyp
+        fs.removeSync(path.join(nodeModules, 'with a space'))
 
       it 'builds native code successfully', ->
         callback = jasmine.createSpy('callback')
@@ -564,47 +567,3 @@ describe 'apm install', ->
           if process.platform isnt 'win32'
             makefileContent = fs.readFileSync(path.join(testModuleDirectory, 'build', 'Makefile'), {encoding: 'utf-8'})
             expect(makefileContent).toMatch('node_modules/with\\ a\\ space/addon.gypi')
-
-    if process.platform isnt 'win32'
-      # Only applicable on Linux and macOS
-      describe "configurable Python binaries", ->
-        [originalPython, originalNpmConfigPython] = []
-
-        beforeEach ->
-          originalPython = process.env.PYTHON
-          originalNpmConfigPython = process.env.npm_config_python
-          delete process.env.PYTHON
-          delete process.env.npm_config_python
-
-        afterEach ->
-          process.env.PYTHON = originalPython
-          process.env.npm_config_python = originalNpmConfigPython
-
-        it 'respects ${PYTHON} if set', ->
-          process.env.PYTHON = path.join __dirname, 'fixtures', 'fake-python-1.sh'
-
-          callback = jasmine.createSpy('callback')
-          apm.run(['install', 'native-package'], callback)
-
-          waitsFor 'waiting for install to fail', 600000, ->
-            callback.callCount is 1
-
-          runs ->
-            errorText = callback.mostRecentCall.args[0]
-            expect(errorText).not.toBeNull()
-            expect(errorText).toMatch('fake-python-1 called')
-
-        it 'respects ${npm_config_python} if set', ->
-          process.env.npm_config_python = path.join __dirname, 'fixtures', 'fake-python-2.sh'
-          process.env.PYTHON = path.join __dirname, 'fixtures', 'fake-python-1.sh'
-
-          callback = jasmine.createSpy('callback')
-          apm.run(['install', 'native-package'], callback)
-
-          waitsFor 'waiting for install to fail', 600000, ->
-            callback.callCount is 1
-
-          runs ->
-            errorText = callback.mostRecentCall.args[0]
-            expect(errorText).not.toBeNull()
-            expect(errorText).toMatch('fake-python-2 called')

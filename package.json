@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "node script/check-version.js && grunt",
-    "prepublish": "grunt prepublish",
+    "prepare": "grunt prepare",
     "install": "node script/postinstall.js",
     "test": "node script/check-version.js && grunt test",
     "check-version": "node version.js"
@@ -33,7 +33,7 @@
     "keytar": "^4.0",
     "mv": "2.0.0",
     "ncp": "~0.5.1",
-    "npm": "6.2.0",
+    "npm": "^6.14.4",
     "open": "0.0.5",
     "q": "~0.9.7",
     "read": "~1.0.5",
