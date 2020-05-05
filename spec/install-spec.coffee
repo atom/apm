@@ -546,6 +546,7 @@ describe 'apm install', ->
 
       afterEach ->
         delete process.env.npm_config_node_gyp
+        fs.removeSync(path.join(nodeModules, 'with a space'))
 
       it 'builds native code successfully', ->
         callback = jasmine.createSpy('callback')
