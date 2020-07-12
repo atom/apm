@@ -88,9 +88,6 @@ module.exports =
     return '2019' if @visualStudioIsInstalled("2019")
     return '2017' if @visualStudioIsInstalled("2017")
     return '2015' if @visualStudioIsInstalled("14.0")
-    return '2013' if @visualStudioIsInstalled("12.0")
-    return '2012' if @visualStudioIsInstalled("11.0")
-    return '2010' if @visualStudioIsInstalled("10.0")
 
   visualStudioIsInstalled: (version) ->
     if version < 2017
