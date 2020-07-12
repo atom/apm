@@ -70,9 +70,6 @@ class Install extends Command
     installArgs.push('--quiet') if options.argv.quiet
     installArgs.push('--production') if options.argv.production
 
-    if vsArgs = @getVisualStudioFlags()
-      installArgs.push(vsArgs)
-
     fs.makeTreeSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
@@ -164,9 +161,6 @@ class Install extends Command
     installArgs.push('--silent') if options.argv.silent
     installArgs.push('--quiet') if options.argv.quiet
     installArgs.push('--production') if options.argv.production
-
-    if vsArgs = @getVisualStudioFlags()
-      installArgs.push(vsArgs)
 
     fs.makeTreeSync(@atomDirectory)
 
@@ -377,9 +371,6 @@ class Install extends Command
     buildArgs = ['--globalconfig', config.getGlobalConfigPath(), '--userconfig', config.getUserConfigPath(), 'build']
     buildArgs.push(path.resolve(__dirname, '..', 'native-module'))
     buildArgs.push(@getNpmBuildFlags()...)
-
-    if vsArgs = @getVisualStudioFlags()
-      buildArgs.push(vsArgs)
 
     fs.makeTreeSync(@atomDirectory)
 
