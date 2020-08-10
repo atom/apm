@@ -182,3 +182,28 @@ describe 'apm link/unlink', ->
 
       runs ->
         expect(fs.existsSync(path.join(atomHome, 'packages', packageName))).toBeFalsy()
+
+  describe "when unlinking a path that is not a symbolic link", ->
+    it "logs an error and exits", ->
+      callback = jasmine.createSpy('callback')
+      process.chdir(temp.mkdirSync('not-a-symlink'))
+      apm.run(['unlink'], callback)
+
+      waitsFor 'waiting for command to complete', ->
+        callback.callCount > 0
+
+      runs ->
+        expect(console.error.mostRecentCall.args[0].length).toBeGreaterThan 0
+        expect(callback.mostRecentCall.args[0]).not.toBeUndefined()
+
+  describe "when unlinking a path that does not exist", ->
+    it "logs an error and exits", ->
+      callback = jasmine.createSpy('callback')
+      apm.run(['unlink', 'a-path-that-does-not-exist'], callback)
+
+      waitsFor 'waiting for command to complete', ->
+        callback.callCount > 0
+
+      runs ->
+        expect(console.error.mostRecentCall.args[0].length).toBeGreaterThan 0
+        expect(callback.mostRecentCall.args[0]).not.toBeUndefined()

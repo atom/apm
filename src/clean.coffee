@@ -17,7 +17,7 @@ class Clean extends Command
     @atomNpmPath = require.resolve('npm/bin/npm-cli')
 
   parseOptions: (argv) ->
-    options = yargs(argv).wrap(100)
+    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth()))
 
     options.usage """
       Usage: apm clean

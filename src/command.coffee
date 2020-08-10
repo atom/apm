@@ -106,23 +106,21 @@ class Command
     @updateWindowsEnv(env) if config.isWin32()
     @addNodeBinToEnv(env)
     @addProxyToEnv(env)
+    env.npm_config_runtime = "electron"
+    env.npm_config_target = @electronVersion
+    env.npm_config_disturl = config.getElectronUrl()
+    env.npm_config_arch = config.getElectronArch()
+    env.npm_config_target_arch = config.getElectronArch() # for node-pre-gyp
 
   getVisualStudioFlags: ->
     if vsVersion = config.getInstalledVisualStudioFlag()
       "--msvs_version=#{vsVersion}"
 
   getNpmBuildFlags: ->
-    ["--runtime=electron", "--target=#{@electronVersion}", "--dist-url=#{config.getElectronUrl()}", "--arch=#{config.getElectronArch()}"]
+    ["--target=#{@electronVersion}", "--disturl=#{config.getElectronUrl()}", "--arch=#{config.getElectronArch()}"]
 
   updateWindowsEnv: (env) ->
     env.USERPROFILE = env.HOME
-
-    # Make sure node-gyp is always on the PATH
-    localModuleBins = path.resolve(__dirname, '..', 'node_modules', '.bin')
-    if env.Path
-      env.Path += "#{path.delimiter}#{localModuleBins}"
-    else
-      env.Path = localModuleBins
 
     git.addGitToEnv(env)
 
@@ -144,3 +142,13 @@ class Command
     if httpsProxy
       env.HTTPS_PROXY ?= httpsProxy
       env.https_proxy ?= httpsProxy
+
+      # node-gyp only checks HTTP_PROXY (as of node-gyp@4.0.0)
+      env.HTTP_PROXY ?= httpsProxy
+      env.http_proxy ?= httpsProxy
+
+    # node-gyp doesn't currently have an option for this so just set the
+    # environment variable to bypass strict SSL
+    # https://github.com/nodejs/node-gyp/issues/448
+    useStrictSsl = @npm.config.get('strict-ssl') ? true
+    env.NODE_TLS_REJECT_UNAUTHORIZED = 0 unless useStrictSsl

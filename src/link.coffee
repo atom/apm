@@ -12,7 +12,7 @@ class Link extends Command
   @commandNames: ['link', 'ln']
 
   parseOptions: (argv) ->
-    options = yargs(argv).wrap(100)
+    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth()))
     options.usage """
 
       Usage: apm link [<package_path>] [--name <package_name>]

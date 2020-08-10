@@ -76,6 +76,19 @@ describe 'apm list', ->
       expect(lines[10]).toMatch /git-package@1\.0\.0/
       expect(lines.join("\n")).not.toContain '.bin' # ensure invalid packages aren't listed
 
+  it 'lists the installed packages without versions with --no-versions', ->
+    listPackages ['--no-versions'], ->
+      lines = console.log.argsForCall.map((arr) -> arr.join(' '))
+      expect(lines[0]).toMatch /Built-in Atom Packages.*1/
+      expect(lines[1]).toMatch /test-module/
+      expect(lines[3]).toMatch /Dev Packages.*1/
+      expect(lines[4]).toMatch /dev-package/
+      expect(lines[6]).toMatch /Community Packages.*1/
+      expect(lines[7]).toMatch /user-package/
+      expect(lines[9]).toMatch /Git Packages.*1/
+      expect(lines[10]).toMatch /git-package/
+      expect(lines.join("\n")).not.toContain '.bin' # ensure invalid packages aren't listed
+
   describe 'enabling and disabling packages', ->
     beforeEach ->
       packagesPath = path.join(atomHome, 'packages')
@@ -110,6 +123,22 @@ describe 'apm list', ->
       expect(json.dev).toEqual [name: 'dev-package', version: '1.0.0']
       expect(json.git).toEqual [name: 'git-package', version: '1.0.0', apmInstallSource: apmInstallSource]
       expect(json.user).toEqual [name: 'user-package', version: '1.0.0']
+
+  it 'lists packages in bare format when --bare is passed', ->
+    listPackages ['--bare'], ->
+      lines = console.log.argsForCall.map((arr) -> arr.join(' '))
+      expect(lines[0]).toMatch /test-module@1\.0\.0/
+      expect(lines[1]).toMatch /dev-package@1\.0\.0/
+      expect(lines[2]).toMatch /user-package@1\.0\.0/
+      expect(lines[3]).toMatch /git-package@1\.0\.0/
+
+  it 'list packages in bare format without versions when --bare --no-versions is passed', ->
+    listPackages ['--bare', '--no-versions'], ->
+      lines = console.log.argsForCall.map((arr) -> arr.join(' '))
+      expect(lines[0]).toMatch /test-module/
+      expect(lines[1]).toMatch /dev-package/
+      expect(lines[2]).toMatch /user-package/
+      expect(lines[3]).toMatch /git-package/
 
   describe 'when a section is empty', ->
     it 'does not list anything for Dev and Git sections', ->

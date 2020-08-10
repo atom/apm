@@ -2,31 +2,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export PATH="$SCRIPT_DIR:$PATH"
 
-export ATOM_APM_ORIGINAL_PYTHON="${PYTHON:-}"
-
-# Assumption: env iterates through environment variables in the same order that
-# process.env iterates through properties within npm. So, we take the last match.
-for var in $(env | grep -i ^npm_config_python=)
-do
-  ATOM_APM_ORIGINAL_PYTHON="${var#*=}"
-done
-if [ -z "${ATOM_APM_ORIGINAL_PYTHON}" ] && [ -n "${PYTHON:-}" ]
-then
-  ATOM_APM_ORIGINAL_PYTHON="${PYTHON}"
-fi
-
-export npm_config_python="${SCRIPT_DIR}/python-interceptor.sh"
-
-maybe_node_gyp_path="$SCRIPT_DIR"/../node_modules/npm/node_modules/.bin/node-gyp
-if [ -e "$maybe_node_gyp_path" ]
-then
-  # Prevent vars like NODE_CONFIG_NODE_GYP from messing this up
-  for var in $(env | grep -i ^npm_config_node_gyp=)
-  do
-    unset ${var%%=*}
-  done
-
-  export npm_config_node_gyp="$maybe_node_gyp_path"
-fi
+# Force npm to use its builtin node-gyp
+unset npm_config_node_gyp
 
 "$SCRIPT_DIR"/../node_modules/.bin/npm $@

@@ -24,7 +24,7 @@ class List extends Command
     @disabledPackages ?= []
 
   parseOptions: (argv) ->
-    options = yargs(argv).wrap(100)
+    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth()))
     options.usage """
 
       Usage: apm list
@@ -47,6 +47,7 @@ class List extends Command
     options.alias('l', 'links').boolean('links').default('links', true).describe('links', 'Include linked packages')
     options.alias('t', 'themes').boolean('themes').describe('themes', 'Only list themes')
     options.alias('p', 'packages').boolean('packages').describe('packages', 'Only list packages')
+    options.alias('v', 'versions').boolean('versions').default('versions', true).describe('versions', 'Include version of each package')
 
   isPackageDisabled: (name) ->
     @disabledPackages.indexOf(name) isnt -1
@@ -55,12 +56,12 @@ class List extends Command
     if options.argv.bare
       for pack in packages
         packageLine = pack.name
-        packageLine += "@#{pack.version}" if pack.version?
+        packageLine += "@#{pack.version}" if pack.version? and options.argv.versions
         console.log packageLine
     else
       tree packages, (pack) =>
         packageLine = pack.name
-        packageLine += "@#{pack.version}" if pack.version?
+        packageLine += "@#{pack.version}" if pack.version? and options.argv.versions
         if pack.apmInstallSource?.type is 'git'
           repo = getRepository(pack)
           shaLine = "##{pack.apmInstallSource.sha.substr(0, 8)}"
@@ -68,7 +69,7 @@ class List extends Command
           packageLine += " (#{shaLine})".grey
         packageLine += ' (disabled)' if @isPackageDisabled(pack.name) and not options.argv.disabled
         packageLine
-    console.log()
+      console.log()
 
   checkExclusiveOptions: (options, positive_option, negative_option, value) ->
     if options.argv[positive_option]

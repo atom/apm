@@ -1,7 +1,7 @@
 {
   "name": "atom-package-manager",
   "description": "Atom package manager",
-  "version": "2.2.2",
+  "version": "2.5.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "node script/check-version.js && grunt",
-    "prepublish": "grunt prepublish",
+    "prepare": "grunt prepare",
     "install": "node script/postinstall.js",
     "test": "node script/check-version.js && grunt test",
     "check-version": "node version.js"
@@ -27,13 +27,13 @@
     "async": "~0.2.8",
     "colors": "~0.6.1",
     "expand-tilde": "^2.0.2",
-    "first-mate": "6.2.0",
-    "fs-extra": "^7.0.1",
-    "git-utils": "^4.0",
+    "first-mate": "^7.4.1",
+    "fs-plus": "2.x",
+    "git-utils": "^5.6.2",
     "hosted-git-info": "^2.1.4",
     "keytar": "^4.0",
     "klaw-sync": "^6.0.0",
-    "npm": "6.2.0",
+    "npm": "^6.14.4",
     "open": "0.0.5",
     "q": "~0.9.7",
     "read": "~1.0.5",

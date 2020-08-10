@@ -26,7 +26,7 @@ class Upgrade extends Command
     @atomPackagesDirectory = path.join(@atomDirectory, 'packages')
 
   parseOptions: (argv) ->
-    options = yargs(argv).wrap(100)
+    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth()))
     options.usage """
 
       Usage: apm upgrade

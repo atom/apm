@@ -15,7 +15,7 @@ class Uninstall extends Command
   @commandNames: ['deinstall', 'delete', 'erase', 'remove', 'rm', 'uninstall']
 
   parseOptions: (argv) ->
-    options = yargs(argv).wrap(100)
+    options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth()))
     options.usage """
 
       Usage: apm uninstall <package_name>...
@@ -62,17 +62,20 @@ class Uninstall extends Command
     uninstallError = null
 
     for packageName in packageNames
+      if packageName is '.'
+        packageName = path.basename(process.cwd())
       process.stdout.write "Uninstalling #{packageName} "
       try
         unless options.argv.dev
           packageDirectory = path.join(packagesDirectory, packageName)
-          if fs.existsSync(packageDirectory)
+          packageManifestPath = path.join(packageDirectory, 'package.json')
+          if fs.existsSync(packageManifestPath)
             packageVersion = @getPackageVersion(packageDirectory)
             fs.removeSync(packageDirectory)
             if packageVersion
               uninstallsToRegister.push({packageName, packageVersion})
           else if not options.argv.hard
-            throw new Error("Does not exist")
+            throw new Error("No package.json found at #{packageManifestPath}")
 
         if options.argv.hard or options.argv.dev
           packageDirectory = path.join(devPackagesDirectory, packageName)

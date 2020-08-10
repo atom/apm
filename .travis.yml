@@ -1,6 +1,5 @@
 language: node_js
 dist: trusty
-sudo: required
 
 notifications:
   email:
@@ -8,7 +7,11 @@ notifications:
     on_failure: change
 
 node_js:
-  - "8.9.3"
+  - "10.20.1"
+
+before_install: npm install -g npm
+
+install: npm install
 
 script: ./bin/npm test
 
