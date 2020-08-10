@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 
 _ = require 'underscore-plus'
@@ -5,7 +6,6 @@ yargs = require 'yargs'
 
 config = require './apm'
 Command = require './command'
-fs = require './fs'
 Install = require './install'
 
 module.exports =
@@ -41,7 +41,7 @@ class Rebuild extends Command
     if vsArgs = @getVisualStudioFlags()
       rebuildArgs.push(vsArgs)
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)

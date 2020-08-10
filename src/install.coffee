@@ -74,7 +74,7 @@ class Install extends Command
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
@@ -176,7 +176,7 @@ class Install extends Command
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
@@ -389,7 +389,7 @@ class Install extends Command
     if vsArgs = @getVisualStudioFlags()
       buildArgs.push(vsArgs)
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)

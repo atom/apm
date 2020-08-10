@@ -48,7 +48,7 @@ class Dedupe extends Command
 
     dedupeArgs.push(packageName) for packageName in options.argv._
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
