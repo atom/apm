@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 url = require 'url'
 
@@ -5,7 +6,6 @@ yargs = require 'yargs'
 Git = require 'git-utils'
 semver = require 'semver'
 
-fs = require './fs'
 config = require './apm'
 Command = require './command'
 Login = require './login'
@@ -228,7 +228,10 @@ class Publish extends Command
 
   loadMetadata: ->
     metadataPath = path.resolve('package.json')
-    unless fs.isFileSync(metadataPath)
+    try
+      unless fs.statSync(metadataPath).isFile()
+        throw new Error("No package.json file found at #{process.cwd()}/package.json")
+    catch error
       throw new Error("No package.json file found at #{process.cwd()}/package.json")
 
     try

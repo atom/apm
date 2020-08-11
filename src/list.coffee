@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 
 _ = require 'underscore-plus'
@@ -5,7 +6,6 @@ CSON = require 'season'
 yargs = require 'yargs'
 
 Command = require './command'
-fs = require './fs'
 config = require './apm'
 tree = require './tree'
 {getRepository} = require "./packages"
@@ -85,21 +85,30 @@ class List extends Command
 
   listPackages: (directoryPath, options) ->
     packages = []
-    for child in fs.list(directoryPath)
-      continue unless fs.isDirectorySync(path.join(directoryPath, child))
-      continue if child.match /^\./
-      unless options.argv.links
-        continue if fs.isSymbolicLinkSync(path.join(directoryPath, child))
-
-      manifest = null
-      if manifestPath = CSON.resolve(path.join(directoryPath, child, 'package'))
+    try
+      for child in fs.readdirSync(directoryPath)
+        stats = null
         try
-          manifest = CSON.readFileSync(manifestPath)
-      manifest ?= {}
-      manifest.name = child
+          stats = fs.lstatSync(path.join(directoryPath, child))
+        catch error
+          continue
 
-      continue unless @isPackageVisible(options, manifest)
-      packages.push(manifest)
+        continue unless stats.isDirectory()
+        continue if child.match /^\./
+        unless options.argv.links
+          continue if stats.isSymbolicLink()
+
+        manifest = null
+        if manifestPath = CSON.resolve(path.join(directoryPath, child, 'package'))
+          try
+            manifest = CSON.readFileSync(manifestPath)
+        manifest ?= {}
+        manifest.name = child
+
+        continue unless @isPackageVisible(options, manifest)
+        packages.push(manifest)
+    catch error
+      # readdir failed - just fall through and return an empty array
 
     packages
 

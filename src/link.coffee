@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 
 CSON = require 'season'
@@ -5,7 +6,6 @@ yargs = require 'yargs'
 
 Command = require './command'
 config = require './apm'
-fs = require './fs'
 
 module.exports =
 class Link extends Command
@@ -47,8 +47,10 @@ class Link extends Command
       return
 
     try
-      fs.unlinkSync(targetPath) if fs.isSymbolicLinkSync(targetPath)
-      fs.makeTreeSync path.dirname(targetPath)
+      if fs.existsSync(targetPath) and fs.lstatSync(targetPath).isSymbolicLink()
+        fs.unlinkSync(targetPath)
+
+      fs.mkdirpSync path.dirname(targetPath)
       fs.symlinkSync(linkPath, targetPath, 'junction')
       console.log "#{targetPath} -> #{linkPath}"
       callback()

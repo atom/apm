@@ -1,4 +1,5 @@
 assert = require 'assert'
+fs = require 'fs-extra'
 path = require 'path'
 
 _ = require 'underscore-plus'
@@ -6,13 +7,13 @@ async = require 'async'
 CSON = require 'season'
 yargs = require 'yargs'
 Git = require 'git-utils'
+klawSync = require 'klaw-sync'
 semver = require 'semver'
 temp = require 'temp'
 hostedGitInfo = require 'hosted-git-info'
 
 config = require './apm'
 Command = require './command'
-fs = require './fs'
 RebuildModuleCache = require './rebuild-module-cache'
 request = require './request'
 {isDeprecatedPackage} = require './deprecated-packages'
@@ -73,7 +74,7 @@ class Install extends Command
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
@@ -84,20 +85,27 @@ class Install extends Command
     if installGlobally
       installDirectory = temp.mkdirSync('apm-install-dir-')
       nodeModulesDirectory = path.join(installDirectory, 'node_modules')
-      fs.makeTreeSync(nodeModulesDirectory)
+      fs.mkdirpSync(nodeModulesDirectory)
       installOptions.cwd = installDirectory
 
     @fork @atomNpmPath, installArgs, installOptions, (code, stderr='', stdout='') =>
       if code is 0
         if installGlobally
           commands = []
-          children = fs.readdirSync(nodeModulesDirectory)
-            .filter (dir) -> dir isnt ".bin"
+          children = fs.readdirSync(nodeModulesDirectory).filter (dir) -> dir isnt ".bin"
           assert.equal(children.length, 1, "Expected there to only be one child in node_modules")
           child = children[0]
           source = path.join(nodeModulesDirectory, child)
           destination = path.join(@atomPackagesDirectory, child)
-          commands.push (next) -> fs.cp(source, destination, next)
+          commands.push (next) ->
+            # emptyDir will pass `destination` as the first callback argument if it doesn't exist
+            # We expect the first argument to always be the next callback function,
+            # so don't call emptyDir unless `destination` exists
+            if fs.existsSync(destination)
+              fs.emptyDir(destination, next)
+            else
+              next()
+          commands.push (next) -> fs.copy(source, destination, next)
           commands.push (next) => @buildModuleCache(pack.name, next)
           commands.push (next) => @warmCompileCache(pack.name, next)
 
@@ -168,7 +176,7 @@ class Install extends Command
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
@@ -364,9 +372,9 @@ class Install extends Command
       undefined
 
   createAtomDirectories: ->
-    fs.makeTreeSync(@atomDirectory)
-    fs.makeTreeSync(@atomPackagesDirectory)
-    fs.makeTreeSync(@atomNodeDirectory)
+    fs.mkdirpSync(@atomDirectory)
+    fs.mkdirpSync(@atomPackagesDirectory)
+    fs.mkdirpSync(@atomNodeDirectory)
 
   # Compile a sample native module to see if a useable native build toolchain
   # is instlalled and successfully detected. This will include both Python
@@ -381,7 +389,7 @@ class Install extends Command
     if vsArgs = @getVisualStudioFlags()
       buildArgs.push(vsArgs)
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
@@ -397,7 +405,11 @@ class Install extends Command
   packageNamesFromPath: (filePath) ->
     filePath = path.resolve(filePath)
 
-    unless fs.isFileSync(filePath)
+    isFile = false
+    try
+      isFile = fs.statSync(filePath).isFile()
+
+    unless isFile
       throw new Error("File '#{filePath}' does not exist")
 
     packages = fs.readFileSync(filePath, 'utf8')
@@ -417,14 +429,13 @@ class Install extends Command
       try
         CompileCache = require(path.join(resourcePath, 'src', 'compile-cache'))
 
-        onDirectory = (directoryPath) ->
+        isntNodeModules = ({path: directoryPath}) ->
           path.basename(directoryPath) isnt 'node_modules'
 
-        onFile = (filePath) =>
-          try
-            CompileCache.addPathToCache(filePath, @atomDirectory)
-
-        fs.traverseTreeSync(packageDirectory, onFile, onDirectory)
+        for {path: childPath, stats} in klawSync(packageDirectory, {filter: isntNodeModules})
+          if stats.isFile()
+            try
+              CompileCache.addPathToCache(childPath, @atomDirectory)
       callback(null)
 
   isBundledPackage: (packageName, callback) ->
@@ -499,13 +510,17 @@ class Install extends Command
       {name} = data.metadata
       targetDir = path.join(@atomPackagesDirectory, name)
       process.stdout.write "Moving #{name} to #{targetDir} " unless options.argv.json
-      fs.cp cloneDir, targetDir, (err) =>
+      fs.emptyDir targetDir, (err) =>
         if err
           next(err)
         else
-          @logSuccess() unless options.argv.json
-          json = {installPath: targetDir, metadata: data.metadata}
-          next(null, json)
+          fs.copy cloneDir, targetDir, (err) =>
+            if err
+              next(err)
+            else
+              @logSuccess() unless options.argv.json
+              json = {installPath: targetDir, metadata: data.metadata}
+              next(null, json)
 
     iteratee = (currentData, task, next) -> task(currentData, next)
     async.reduce tasks, {}, iteratee, callback

@@ -1,10 +1,10 @@
+fs = require 'fs-extra'
 path = require 'path'
 
 yargs = require 'yargs'
 temp = require 'temp'
 
 Command = require './command'
-fs = require './fs'
 
 module.exports =
 class Test extends Command

@@ -1,6 +1,6 @@
 path = require 'path'
 express = require 'express'
-fs = require 'fs-plus'
+fs = require 'fs-extra'
 http = require 'http'
 temp = require 'temp'
 apm = require '../lib/apm-cli'

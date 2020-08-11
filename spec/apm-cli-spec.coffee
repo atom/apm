@@ -1,6 +1,6 @@
+fs = require 'fs-extra'
 path = require 'path'
 temp = require 'temp'
-fs = require 'fs'
 apm = require '../lib/apm-cli'
 
 describe 'apm command line interface', ->

@@ -1,5 +1,4 @@
-fs = require 'fs-plus'
-wrench = require 'wrench'
+fs = require 'fs-extra'
 path = require 'path'
 temp = require 'temp'
 CSON = require 'season'
@@ -25,10 +24,10 @@ describe 'apm disable', ->
 
     packagesPath = path.join(atomHome, 'packages')
     packageSrcPath = path.join(__dirname, 'fixtures')
-    fs.makeTreeSync(packagesPath)
-    wrench.copyDirSyncRecursive(path.join(packageSrcPath, 'test-module'), path.join(packagesPath, 'test-module'))
-    wrench.copyDirSyncRecursive(path.join(packageSrcPath, 'test-module-two'), path.join(packagesPath, 'test-module-two'))
-    wrench.copyDirSyncRecursive(path.join(packageSrcPath, 'test-module-three'), path.join(packagesPath, 'test-module-three'))
+    fs.mkdirpSync(packagesPath)
+    fs.copySync(path.join(packageSrcPath, 'test-module'), path.join(packagesPath, 'test-module'))
+    fs.copySync(path.join(packageSrcPath, 'test-module-two'), path.join(packagesPath, 'test-module-two'))
+    fs.copySync(path.join(packageSrcPath, 'test-module-three'), path.join(packagesPath, 'test-module-three'))
 
     runs ->
       apm.run(['disable', 'test-module-two', 'not-installed', 'test-module-three'], callback)

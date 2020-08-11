@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 
 CSON = require 'season'
@@ -5,7 +6,6 @@ yargs = require 'yargs'
 
 Command = require './command'
 config = require './apm'
-fs = require './fs'
 
 module.exports =
 class Unlink extends Command
@@ -47,13 +47,14 @@ class Unlink extends Command
 
   unlinkAll: (options, callback) ->
     try
-      for child in fs.list(@devPackagesPath)
+      for child in fs.readdirSync(@devPackagesPath)
         packagePath = path.join(@devPackagesPath, child)
-        @unlinkPath(packagePath) if fs.isSymbolicLinkSync(packagePath)
+        @unlinkPath(packagePath)
+
       unless options.argv.dev
-        for child in fs.list(@packagesPath)
+        for child in fs.readdirSync(@packagesPath)
           packagePath = path.join(@packagesPath, child)
-          @unlinkPath(packagePath) if fs.isSymbolicLinkSync(packagePath)
+          @unlinkPath(packagePath)
       callback()
     catch error
       callback(error)

@@ -1,10 +1,10 @@
+fs = require 'fs-extra'
 path = require 'path'
 
 yargs = require 'yargs'
 
 Command = require './command'
 config = require './apm'
-fs = require './fs'
 tree = require './tree'
 
 module.exports =
@@ -33,9 +33,14 @@ class Links extends Command
 
   getSymlinks: (directoryPath) ->
     symlinks = []
-    for directory in fs.list(directoryPath)
-      symlinkPath = path.join(directoryPath, directory)
-      symlinks.push(symlinkPath) if fs.isSymbolicLinkSync(symlinkPath)
+    try
+      for directory in fs.readdirSync(directoryPath)
+        symlinkPath = path.join(directoryPath, directory)
+        try
+          symlinks.push(symlinkPath) if fs.lstatSync(symlinkPath).isSymbolicLink()
+    catch error
+      # readdir failed - just fall through and return an empty array
+
     symlinks
 
   logLinks: (directoryPath) ->

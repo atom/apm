@@ -1,5 +1,5 @@
 path = require 'path'
-fs = require 'fs-plus'
+fs = require 'fs-extra'
 temp = require 'temp'
 apm = require '../lib/apm-cli'
 
@@ -30,7 +30,7 @@ describe "apm config", ->
 
   describe "apm config set", ->
     it "sets the value in the user config", ->
-      expect(fs.isFileSync(userConfigPath)).toBe false
+      expect(fs.existsSync(userConfigPath)).toBe false
 
       callback = jasmine.createSpy('callback')
       apm.run(['config', 'set', 'foo', 'bar'], callback)
@@ -39,7 +39,7 @@ describe "apm config", ->
         callback.callCount is 1
 
       runs ->
-        expect(fs.isFileSync(userConfigPath)).toBe true
+        expect(fs.statSync(userConfigPath).isFile()).toBe true
 
         callback.reset()
         apm.run(['config', 'get', 'foo'], callback)

@@ -1,5 +1,5 @@
 path = require 'path'
-fs = require 'fs-plus'
+fs = require 'fs-extra'
 temp = require 'temp'
 apm = require '../lib/apm-cli'
 
@@ -60,7 +60,7 @@ describe "apm develop", ->
 
   describe "when the repository has already been cloned", ->
     it "links it to ATOM_HOME/dev/packages", ->
-      fs.makeTreeSync(repoPath)
+      fs.mkdirpSync(repoPath)
       fs.writeFileSync(path.join(repoPath, "package.json"), "")
       callback = jasmine.createSpy('callback')
       apm.run(['develop', "fake-package"], callback)

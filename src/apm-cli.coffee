@@ -1,4 +1,5 @@
 {spawn} = require 'child_process'
+fs = require 'fs-extra'
 path = require 'path'
 
 _ = require 'underscore-plus'
@@ -6,22 +7,22 @@ colors = require 'colors'
 npm = require 'npm'
 yargs = require 'yargs'
 wordwrap = require 'wordwrap'
+expandTilde = require 'expand-tilde'
 
 # Enable "require" scripts in asar archives
 require 'asar-require'
 
 config = require './apm'
-fs = require './fs'
 git = require './git'
 
 setupTempDirectory = ->
   temp = require 'temp'
   tempDirectory = require('os').tmpdir()
   # Resolve ~ in tmp dir atom/atom#2271
-  tempDirectory = path.resolve(fs.absolute(tempDirectory))
+  tempDirectory = expandTilde(tempDirectory)
   temp.dir = tempDirectory
   try
-    fs.makeTreeSync(temp.dir)
+    fs.mkdirpSync(temp.dir)
   temp.track()
 
 setupTempDirectory()
@@ -153,7 +154,8 @@ getPythonVersion = (callback) ->
       rootDir = process.env.SystemDrive ? 'C:\\'
       rootDir += '\\' unless rootDir[rootDir.length - 1] is '\\'
       pythonExe = path.resolve(rootDir, 'Python27', 'python.exe')
-      python = pythonExe if fs.isFileSync(pythonExe)
+      try
+        python = pythonExe if fs.statSync(pythonExe).isFile()
 
     python ?= 'python'
 

@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 url = require 'url'
 zlib = require 'zlib'
@@ -9,7 +10,6 @@ plist = require '@atom/plist'
 tar = require 'tar'
 temp = require 'temp'
 
-fs = require './fs'
 request = require './request'
 
 # Convert a TextMate bundle to an Atom package
@@ -116,7 +116,10 @@ class PackageConverter
     @writeFileSync(destinationPath, contents)
 
   normalizeFilenames: (directoryPath) ->
-    return unless fs.isDirectorySync(directoryPath)
+    try
+      return unless fs.statSync(directoryPath).isDirectory()
+    catch error
+      return
 
     for child in fs.readdirSync(directoryPath)
       childPath = path.join(directoryPath, child)
@@ -137,9 +140,16 @@ class PackageConverter
 
   convertSnippets: (packageName, source) ->
     sourceSnippets = path.join(source, 'snippets')
-    unless fs.isDirectorySync(sourceSnippets)
+    try
+      unless fs.statSync(sourceSnippets).isDirectory()
+        sourceSnippets = path.join(source, 'Snippets')
+    catch error
       sourceSnippets = path.join(source, 'Snippets')
-    return unless fs.isDirectorySync(sourceSnippets)
+
+    try
+      return unless fs.statSync(sourceSnippets).isDirectory()
+    catch error
+      return
 
     snippetsBySelector = {}
     destination = path.join(@destinationPath, 'snippets')
@@ -177,9 +187,16 @@ class PackageConverter
 
   convertPreferences: (packageName, source) ->
     sourcePreferences = path.join(source, 'preferences')
-    unless fs.isDirectorySync(sourcePreferences)
+    try
+      unless fs.statSync(sourcePreferences).isDirectory()
+        sourcePreferences = path.join(source, 'Preferences')
+    catch error
       sourcePreferences = path.join(source, 'Preferences')
-    return unless fs.isDirectorySync(sourcePreferences)
+
+    try
+      return unless fs.statSync(sourcePreferences).isDirectory()
+    catch error
+      return
 
     preferencesBySelector = {}
     destination = path.join(@destinationPath, 'settings')
@@ -205,13 +222,20 @@ class PackageConverter
 
   convertGrammars: (source) ->
     sourceSyntaxes = path.join(source, 'syntaxes')
-    unless fs.isDirectorySync(sourceSyntaxes)
+    try
+      unless fs.statSync(sourceSyntaxes).isDirectory()
+        sourceSyntaxes = path.join(source, 'Syntaxes')
+    catch error
       sourceSyntaxes = path.join(source, 'Syntaxes')
-    return unless fs.isDirectorySync(sourceSyntaxes)
+
+    try
+      return unless fs.statSync(sourceSyntaxes).isDirectory()
+    catch error
+      return
 
     destination = path.join(@destinationPath, 'grammars')
     for child in fs.readdirSync(sourceSyntaxes)
       childPath = path.join(sourceSyntaxes, child)
-      @convertFile(childPath, destination) if fs.isFileSync(childPath)
+      @convertFile(childPath, destination) if fs.statSync(childPath).isFile()
 
     @normalizeFilenames(destination)

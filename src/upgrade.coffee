@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 
 _ = require 'underscore-plus'
@@ -9,7 +10,6 @@ Git = require 'git-utils'
 
 Command = require './command'
 config = require './apm'
-fs = require './fs'
 Install = require './install'
 Packages = require './packages'
 request = require './request'
@@ -47,9 +47,12 @@ class Upgrade extends Command
 
   getInstalledPackages: (options) ->
     packages = []
-    for name in fs.list(@atomPackagesDirectory)
-      if pack = @getIntalledPackage(name)
-        packages.push(pack)
+    try
+      for name in fs.readdirSync(@atomPackagesDirectory)
+        if pack = @getIntalledPackage(name)
+          packages.push(pack)
+    catch error
+      # readdir failed - just fall through and use an empty array for packages
 
     packageNames = @packageNamesFromArgv(options.argv)
     if packageNames.length > 0
@@ -59,7 +62,11 @@ class Upgrade extends Command
 
   getIntalledPackage: (name) ->
     packageDirectory = path.join(@atomPackagesDirectory, name)
-    return if fs.isSymbolicLinkSync(packageDirectory)
+    try
+      return if fs.lstatSync(packageDirectory).isSymbolicLink()
+    catch error
+      return
+
     try
       metadata = JSON.parse(fs.readFileSync(path.join(packageDirectory, 'package.json')))
       return metadata if metadata?.name and metadata?.version

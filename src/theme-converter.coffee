@@ -1,6 +1,6 @@
+fs = require 'fs-extra'
 path = require 'path'
 url = require 'url'
-fs = require './fs'
 request = require './request'
 TextMateTheme = require './text-mate-theme'
 
@@ -25,10 +25,13 @@ class ThemeConverter
           callback(null, body)
     else
       sourcePath = path.resolve(@sourcePath)
-      if fs.isFileSync(sourcePath)
-        callback(null, fs.readFileSync(sourcePath, 'utf8'))
-      else
-        callback("TextMate theme file not found: #{sourcePath}")
+      try
+        if fs.statSync(sourcePath).isFile()
+          callback(null, fs.readFileSync(sourcePath, 'utf8'))
+          return
+
+      # Not a file, or we errored
+      callback("TextMate theme file not found: #{sourcePath}")
 
   convert: (callback) ->
     @readTheme (error, themeContents) =>
@@ -39,6 +42,8 @@ class ThemeConverter
       catch error
         return callback(error)
 
-      fs.writeFileSync(path.join(@destinationPath, 'styles', 'base.less'), theme.getStylesheet())
-      fs.writeFileSync(path.join(@destinationPath, 'styles', 'syntax-variables.less'), theme.getSyntaxVariables())
+      stylesPath = path.join(@destinationPath, 'styles')
+      fs.mkdirpSync(stylesPath)
+      fs.writeFileSync(path.join(stylesPath, 'base.less'), theme.getStylesheet())
+      fs.writeFileSync(path.join(stylesPath, 'syntax-variables.less'), theme.getSyntaxVariables())
       callback()

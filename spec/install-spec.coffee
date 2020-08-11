@@ -1,10 +1,9 @@
 path = require 'path'
 CSON = require 'season'
-fs = require '../lib/fs'
+fs = require 'fs-extra'
 temp = require 'temp'
 express = require 'express'
 http = require 'http'
-wrench = require 'wrench'
 apm = require '../lib/apm-cli'
 Install = require '../lib/install'
 
@@ -103,7 +102,7 @@ describe 'apm install', ->
     describe 'when a package name is specified', ->
       it 'installs the package', ->
         testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
-        fs.makeTreeSync(testModuleDirectory)
+        fs.mkdirpSync(testModuleDirectory)
         existingTestModuleFile = path.join(testModuleDirectory, 'will-be-deleted.js')
         fs.writeFileSync(existingTestModuleFile, '')
         expect(fs.existsSync(existingTestModuleFile)).toBeTruthy()
@@ -167,7 +166,7 @@ describe 'apm install', ->
           it 'installs the package with the new name and removes the old package', ->
             testRenameDirectory = path.join(atomHome, 'packages', 'test-rename')
             testModuleDirectory = path.join(atomHome, 'packages', 'test-module')
-            fs.makeTreeSync(testRenameDirectory)
+            fs.mkdirpSync(testRenameDirectory)
             expect(fs.existsSync(testRenameDirectory)).toBeTruthy()
             expect(fs.existsSync(testModuleDirectory)).toBeFalsy()
 
@@ -222,7 +221,7 @@ describe 'apm install', ->
     describe 'when no path is specified', ->
       it 'installs all dependent modules', ->
         moduleDirectory = path.join(temp.mkdirSync('apm-test-module-'), 'test-module-with-dependencies')
-        wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
+        fs.copySync(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
         process.chdir(moduleDirectory)
         callback = jasmine.createSpy('callback')
         apm.run(['install'], callback)
@@ -261,10 +260,10 @@ describe 'apm install', ->
           callback.callCount is 1
 
         runs ->
-          expect(fs.isFileSync(path.join(testModuleDirectory, 'index.js'))).toBeTruthy()
+          expect(fs.statSync(path.join(testModuleDirectory, 'index.js')).isFile()).toBeTruthy()
 
           if process.platform is 'win32'
-            expect(fs.isFileSync(path.join(testModuleDirectory, 'node_modules', '.bin', 'abin'))).toBeTruthy()
+            expect(fs.statSync(path.join(testModuleDirectory, 'node_modules', '.bin', 'abin')).isFile()).toBeTruthy()
           else
             expect(fs.realpathSync(path.join(testModuleDirectory, 'node_modules', '.bin', 'abin'))).toBe fs.realpathSync(path.join(testModuleDirectory, 'node_modules', 'test-module-with-bin', 'bin', 'abin.js'))
 
@@ -281,7 +280,7 @@ describe 'apm install', ->
 
         runs ->
           expect(callback.argsForCall[0][0]).toBeFalsy()
-          expect(fs.isFileSync(path.join(testModuleDirectory, 'package.json'))).toBeTruthy()
+          expect(fs.statSync(path.join(testModuleDirectory, 'package.json')).isFile()).toBeTruthy()
 
     describe 'when a packages file is specified', ->
       it 'installs all the packages listed in the file', ->
@@ -319,8 +318,8 @@ describe 'apm install', ->
         atomRepoPath = temp.mkdirSync('apm-repo-dir-')
         CSON.writeFileSync(path.join(atomRepoPath, 'package.json'), packageDependencies: 'test-module-with-dependencies': 'file:./packages/test-module-with-dependencies')
         packageDirectory = path.join(atomRepoPath, 'packages', 'test-module-with-dependencies')
-        fs.makeTreeSync(path.join(atomRepoPath, 'packages'))
-        wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), packageDirectory)
+        fs.mkdirpSync(path.join(atomRepoPath, 'packages'))
+        fs.copySync(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), packageDirectory)
         originalPath = process.cwd()
         process.chdir(atomRepoPath)
 

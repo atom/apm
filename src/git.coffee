@@ -1,9 +1,10 @@
 {spawn} = require 'child_process'
+fs = require 'fs-extra'
 path = require 'path'
+
 _ = require 'underscore-plus'
 npm = require 'npm'
 config = require './apm'
-fs = require './fs'
 
 addPortableGitToEnv = (env) ->
   localAppData = env.LOCALAPPDATA
@@ -31,11 +32,18 @@ addGitBashToEnv = (env) ->
   if env.ProgramFiles
     gitPath = path.join(env.ProgramFiles, 'Git')
 
-  unless fs.isDirectorySync(gitPath)
+  try
+    unless fs.statSync(gitPath).isDirectory()
+      if env['ProgramFiles(x86)']
+        gitPath = path.join(env['ProgramFiles(x86)'], 'Git')
+  catch error
     if env['ProgramFiles(x86)']
       gitPath = path.join(env['ProgramFiles(x86)'], 'Git')
 
-  return unless fs.isDirectorySync(gitPath)
+  try
+    return unless fs.statSync(gitPath).isDirectory()
+  catch error
+    return
 
   cmdPath = path.join(gitPath, 'cmd')
   binPath = path.join(gitPath, 'bin')

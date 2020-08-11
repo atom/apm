@@ -1,4 +1,3 @@
-fs = require 'fs'
 path = require 'path'
 temp = require 'temp'
 CSON = require 'season'

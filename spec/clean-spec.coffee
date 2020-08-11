@@ -1,9 +1,8 @@
 path = require 'path'
-fs = require 'fs-plus'
+fs = require 'fs-extra'
 temp = require 'temp'
 express = require 'express'
 http = require 'http'
-wrench = require 'wrench'
 apm = require '../lib/apm-cli'
 
 describe 'apm clean', ->
@@ -42,7 +41,7 @@ describe 'apm clean', ->
       process.env.npm_config_registry = 'http://localhost:3000/'
 
       moduleDirectory = path.join(temp.mkdirSync('apm-test-module-'), 'test-module-with-dependencies')
-      wrench.copyDirSyncRecursive(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
+      fs.copySync(path.join(__dirname, 'fixtures', 'test-module-with-dependencies'), moduleDirectory)
       process.chdir(moduleDirectory)
       live = true
     waitsFor -> live
@@ -54,7 +53,7 @@ describe 'apm clean', ->
 
   it 'uninstalls any packages not referenced in the package.json', ->
     removedPath = path.join(moduleDirectory, 'node_modules', 'will-be-removed')
-    fs.makeTreeSync(removedPath)
+    fs.mkdirpSync(removedPath)
     fs.writeFileSync(
       path.join(removedPath, 'package.json'),
       '{"name": "will-be-removed", "version": "1.0.0", "dependencies": {}}',
@@ -73,7 +72,7 @@ describe 'apm clean', ->
 
   it 'uninstalls a scoped package', ->
     removedPath = path.join(moduleDirectory, 'node_modules/@types/atom')
-    fs.makeTreeSync(removedPath)
+    fs.mkdirpSync(removedPath)
     fs.writeFileSync(
       path.join(removedPath, 'package.json'),
       '{"name": "@types/atom", "version": "1.0.0", "dependencies": {}}',

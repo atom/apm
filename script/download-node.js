@@ -1,5 +1,4 @@
-var fs = require('fs');
-var mv = require('mv');
+var fs = require('fs-extra');
 var zlib = require('zlib');
 var path = require('path');
 
@@ -56,7 +55,7 @@ var copyNodeBinToLocation = function(callback, version, targetFilename, fromDire
   var arch = identifyArch();
   var subDir = "node-" + version + "-" + process.platform + "-" + arch;
   var downloadedNodePath = path.join(fromDirectory, subDir, 'bin', 'node');
-  return mv(downloadedNodePath, targetFilename, {mkdirp: true}, function(err) {
+  fs.move(downloadedNodePath, targetFilename, function(err) {
     if (err) {
       callback(err);
       return;

@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 
 async = require 'async'
@@ -6,7 +7,6 @@ yargs = require 'yargs'
 
 config = require './apm'
 Command = require './command'
-fs = require './fs'
 
 module.exports =
 class Dedupe extends Command
@@ -48,7 +48,7 @@ class Dedupe extends Command
 
     dedupeArgs.push(packageName) for packageName in options.argv._
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
@@ -59,8 +59,8 @@ class Dedupe extends Command
     @fork(@atomNpmPath, dedupeArgs, dedupeOptions, callback)
 
   createAtomDirectories: ->
-    fs.makeTreeSync(@atomDirectory)
-    fs.makeTreeSync(@atomNodeDirectory)
+    fs.mkdirpSync(@atomDirectory)
+    fs.mkdirpSync(@atomNodeDirectory)
 
   run: (options) ->
     {callback, cwd} = options

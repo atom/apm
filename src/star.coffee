@@ -1,3 +1,4 @@
+fs = require 'fs-extra'
 path = require 'path'
 
 _ = require 'underscore-plus'
@@ -7,7 +8,6 @@ yargs = require 'yargs'
 
 config = require './apm'
 Command = require './command'
-fs = require './fs'
 Login = require './login'
 Packages = require './packages'
 request = require './request'
@@ -53,16 +53,22 @@ class Star extends Command
         callback()
 
   getInstalledPackageNames: ->
-    installedPackages = []
     userPackagesDirectory = path.join(config.getAtomDirectory(), 'packages')
-    for child in fs.list(userPackagesDirectory)
-      continue unless fs.isDirectorySync(path.join(userPackagesDirectory, child))
-
-      if manifestPath = CSON.resolve(path.join(userPackagesDirectory, child, 'package'))
+    installedPackages = []
+    try
+      for child in fs.readdirSync(userPackagesDirectory)
         try
-          metadata = CSON.readFileSync(manifestPath) ? {}
-          if metadata.name and Packages.getRepository(metadata)
-            installedPackages.push metadata.name
+          continue unless fs.statSync(path.join(userPackagesDirectory, child)).isDirectory()
+        catch error
+          continue
+
+        if manifestPath = CSON.resolve(path.join(userPackagesDirectory, child, 'package'))
+          try
+            metadata = CSON.readFileSync(manifestPath) ? {}
+            if metadata.name and Packages.getRepository(metadata)
+              installedPackages.push metadata.name
+    catch error
+      # readdir failed - just fall through and use an empty array for installedPackages
 
     _.uniq(installedPackages)
 

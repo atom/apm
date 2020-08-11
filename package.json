@@ -26,13 +26,13 @@
     "asar-require": "0.3.0",
     "async": "~0.2.8",
     "colors": "~0.6.1",
+    "expand-tilde": "^2.0.2",
     "first-mate": "^7.4.1",
     "fs-plus": "2.x",
     "git-utils": "^5.6.2",
     "hosted-git-info": "^2.1.4",
     "keytar": "^4.0",
-    "mv": "2.0.0",
-    "ncp": "~0.5.1",
+    "klaw-sync": "^6.0.0",
     "npm": "^6.14.4",
     "open": "0.0.5",
     "q": "~0.9.7",
@@ -45,7 +45,6 @@
     "temp": "^0.8.3",
     "underscore-plus": "1.x",
     "wordwrap": "0.0.2",
-    "wrench": "~1.5.1",
     "yargs": "^3.23.0"
   },
   "devDependencies": {

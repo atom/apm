@@ -1,5 +1,5 @@
 path = require 'path'
-fs = require './fs'
+fs = require 'fs-extra'
 yargs = require 'yargs'
 async = require 'async'
 _ = require 'underscore-plus'
@@ -51,7 +51,7 @@ class Ci extends Command
     if vsArgs = @getVisualStudioFlags()
       installArgs.push(vsArgs)
 
-    fs.makeTreeSync(@atomDirectory)
+    fs.mkdirpSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})
     @addBuildEnvVars(env)
