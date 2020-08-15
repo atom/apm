@@ -1,1 +1,7 @@
+# Shell scripts (Unix-style line endings)
 *.sh    text eol=lf
+bin/apm text eol=lf
+bin/npm text eol=lf
+
+# Batch files (Windows-style line endings)
+*.cmd   text eol=crlf
