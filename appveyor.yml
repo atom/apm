@@ -1,10 +1,10 @@
+# Used only to test x86
 version: "{build}"
 
 image: Visual Studio 2015
 
 platform:
   - x86
-  - x64
 
 environment:
   nodejs_version: "10.20.1"
