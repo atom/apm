@@ -1,7 +1,7 @@
 # apm - Atom Package Manager
 
-[![Linux Build Status](https://travis-ci.org/atom/apm.svg?branch=master)](https://travis-ci.org/atom/apm)
-[![Windows Build Status](https://ci.appveyor.com/api/projects/status/j6ixw374a397ugkb/branch/master?svg=true)](https://ci.appveyor.com/project/Atom/apm/branch/master)
+![Build Status](https://github.com/atom-ide-community/apm/workflows/CI/badge.svg)
+[![Windows x86 Build Status](https://ci.appveyor.com/api/projects/status/j6ixw374a397ugkb/branch/master?svg=true)](https://ci.appveyor.com/project/Atom/apm/branch/master)
 [![Dependency Status](https://david-dm.org/atom/apm.svg)](https://david-dm.org/atom/apm)
 
 Discover and install Atom packages powered by [atom.io](https://atom.io)
