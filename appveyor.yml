@@ -1,4 +1,6 @@
 # Used only to test x86
+
+shallow_clone: true
 version: "{build}"
 
 image: Visual Studio 2015
