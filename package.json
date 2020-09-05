@@ -17,8 +17,9 @@
   "scripts": {
     "clean": "shx rm -rf lib bin/node_darwin_x64 && shx mkdir -p lib",
     "lint": "coffeelint src spec",
-    "build": "node script/check-version.js && grunt",
-    "prepare": "grunt prepare",
+    "coffee": "coffee --compile --output lib src",
+    "build": "npm run clean && npm run coffee",
+    "prepare": "npm run build",
     "postinstall": "node script/postinstall.js",
     "test": "node script/check-version.js && grunt test",
     "check-version": "node version.js"
