@@ -15,14 +15,14 @@
     "apm": "./bin/apm"
   },
   "scripts": {
+    "check-version": "node script/check-version.js",
     "clean": "shx rm -rf lib bin/node_darwin_x64 && shx mkdir -p lib",
     "lint": "coffeelint src spec",
     "coffee": "coffee --compile --output lib src",
     "build": "npm run clean && npm run coffee",
     "prepare": "npm run build",
     "postinstall": "node script/postinstall.js",
-    "test": "node script/check-version.js && npm run lint && jasmine-focused --captureExceptions --coffee spec",
-    "check-version": "node version.js"
+    "test": "npm run check-version && npm run lint && jasmine-focused --captureExceptions --coffee spec"
   },
   "dependencies": {
     "@atom/plist": "0.4.4",
