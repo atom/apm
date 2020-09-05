@@ -21,7 +21,7 @@
     "build": "npm run clean && npm run coffee",
     "prepare": "npm run build",
     "postinstall": "node script/postinstall.js",
-    "test": "node script/check-version.js && grunt test",
+    "test": "node script/check-version.js && npm run lint && jasmine-focused --captureExceptions --coffee spec",
     "check-version": "node version.js"
   },
   "dependencies": {
