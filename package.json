@@ -15,6 +15,7 @@
     "apm": "./bin/apm"
   },
   "scripts": {
+    "lint": "coffeelint src spec",
     "build": "node script/check-version.js && grunt",
     "prepare": "grunt prepare",
     "postinstall": "node script/postinstall.js",
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "coffee-script": "^1.12.7",
+    "coffeelint": "<2.0",
     "express": "^4.16.3",
     "grunt": "^1.0.3",
     "grunt-cli": "^1.2.0",
