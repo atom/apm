@@ -16,10 +16,12 @@
   },
   "scripts": {
     "check-version": "node script/check-version.js",
-    "clean": "shx rm -rf lib bin/node_darwin_x64 && shx mkdir -p lib",
+    "clean:bin": "shx rm -rf bin/node_darwin_x64 bin/node.exe bin/node",
+    "clean:lib": "shx rm -rf lib && shx mkdir -p lib",
+    "clean": "npm run clean:lib && npm run clean:bin",
     "lint": "coffeelint src spec",
     "coffee": "coffee --compile --output lib src",
-    "build": "npm run clean && npm run coffee",
+    "build": "npm run clean:lib && npm run coffee",
     "prepare": "npm run build",
     "postinstall": "node script/postinstall.js",
     "test": "npm run check-version && npm run lint && jasmine-focused --captureExceptions --coffee spec"
