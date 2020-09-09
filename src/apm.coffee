@@ -3,6 +3,7 @@ fs = require './fs'
 path = require 'path'
 npm = require 'npm'
 semver = require 'semver'
+glob = require 'glob'
 
 module.exports =
   getHomeDirectory: ->
@@ -49,6 +50,15 @@ module.exports =
         unless fs.existsSync(appLocation)
           appLocation = '/usr/share/atom/resources/app.asar'
         process.nextTick -> callback(appLocation)
+      else # Windows
+        pattern = "/Users/#{process.env.USERNAME}/AppData/Local/atom/app-+([0-9]).+([0-9]).+([0-9])/resources/app.asar"
+        glob pattern, null, (er, appLocations) ->
+          # appLocations is an array of '/absolute/paths/to/app.asar'.
+          # Array elements are sorted; Newer Atom installs are higher-versioned,
+          # So they should be sorted later in the array.
+          # If nothing was found, then appLocation is an empty array.
+          # er is an error object or null.
+          callback(appLocations.pop()) # Use the newest Atom install found (last element of appLocations).
 
   getReposDirectory: ->
     process.env.ATOM_REPOS_HOME ? path.join(@getHomeDirectory(), 'github')
