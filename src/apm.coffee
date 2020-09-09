@@ -57,6 +57,8 @@ module.exports =
           asarPaths = glob.sync(pattern, null) # [] | a sorted array of locations with the newest version being last
           asarPath = asarPaths.pop()
         return process.nextTick -> callback(asarPath)
+      else
+        return process.nextTick -> callback('')
 
   getReposDirectory: ->
     process.env.ATOM_REPOS_HOME ? path.join(@getHomeDirectory(), 'github')
