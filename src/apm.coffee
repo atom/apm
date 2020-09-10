@@ -25,6 +25,9 @@ module.exports =
     if process.env.ATOM_RESOURCE_PATH
       return process.nextTick -> callback(process.env.ATOM_RESOURCE_PATH)
 
+    if asarPath # already calculated
+      return process.nextTick -> callback(asarPath)
+
     apmFolder = path.resolve(__dirname, '..')
     appFolder = path.dirname(apmFolder)
     if path.basename(apmFolder) is 'apm' and path.basename(appFolder) is 'app'
@@ -51,11 +54,10 @@ module.exports =
           appLocation = '/usr/share/atom/resources/app.asar'
         process.nextTick -> callback(appLocation)
       when 'win32'
-        if (asarPath is null)
-          glob = require 'glob'
-          pattern = "/Users/#{process.env.USERNAME}/AppData/Local/atom/app-+([0-9]).+([0-9]).+([0-9])/resources/app.asar"
-          asarPaths = glob.sync(pattern, null) # [] | a sorted array of locations with the newest version being last
-          asarPath = asarPaths[asarPaths.length - 1]
+        glob = require 'glob'
+        pattern = "/Users/#{process.env.USERNAME}/AppData/Local/atom/app-+([0-9]).+([0-9]).+([0-9])/resources/app.asar"
+        asarPaths = glob.sync(pattern, null) # [] | a sorted array of locations with the newest version being last
+        asarPath = asarPaths[asarPaths.length - 1]
         return process.nextTick -> callback(asarPath)
       else
         return process.nextTick -> callback('')
