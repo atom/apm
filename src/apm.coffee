@@ -55,7 +55,7 @@ module.exports =
           glob = require 'glob'
           pattern = "/Users/#{process.env.USERNAME}/AppData/Local/atom/app-+([0-9]).+([0-9]).+([0-9])/resources/app.asar"
           asarPaths = glob.sync(pattern, null) # [] | a sorted array of locations with the newest version being last
-          asarPath = asarPaths.pop()
+          asarPath = asarPaths[asarPaths.length - 1]
         return process.nextTick -> callback(asarPath)
       else
         return process.nextTick -> callback('')
