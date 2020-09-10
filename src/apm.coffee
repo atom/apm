@@ -47,7 +47,8 @@ module.exports =
         child_process.exec 'mdfind "kMDItemCFBundleIdentifier == \'com.github.atom\'"', (error, stdout='', stderr) ->
           [appLocation] = stdout.split('\n') unless error
           appLocation = '/Applications/Atom.app' unless appLocation
-          callback("#{appLocation}/Contents/Resources/app.asar")
+          asarPath = "#{appLocation}/Contents/Resources/app.asar"
+          return process.nextTick -> callback(asarPath)
       when 'linux'
         appLocation = '/usr/local/share/atom/resources/app.asar'
         unless fs.existsSync(appLocation)
