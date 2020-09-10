@@ -51,7 +51,7 @@ module.exports =
           return process.nextTick -> callback(asarPath)
       when 'linux'
         asarPath = '/usr/local/share/atom/resources/app.asar'
-        unless fs.existsSync(appLocation)
+        unless fs.existsSync(asarPath)
           asarPath = '/usr/share/atom/resources/app.asar'
         return process.nextTick -> callback(asarPath)
       when 'win32'
