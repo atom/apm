@@ -50,10 +50,10 @@ module.exports =
           asarPath = "#{appLocation}/Contents/Resources/app.asar"
           return process.nextTick -> callback(asarPath)
       when 'linux'
-        appLocation = '/usr/local/share/atom/resources/app.asar'
+        asarPath = '/usr/local/share/atom/resources/app.asar'
         unless fs.existsSync(appLocation)
-          appLocation = '/usr/share/atom/resources/app.asar'
-        process.nextTick -> callback(appLocation)
+          asarPath = '/usr/share/atom/resources/app.asar'
+        return process.nextTick -> callback(asarPath)
       when 'win32'
         glob = require 'glob'
         pattern = "/Users/#{process.env.USERNAME}/AppData/Local/atom/app-+([0-9]).+([0-9]).+([0-9])/resources/app.asar"
