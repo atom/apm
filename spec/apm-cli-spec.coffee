@@ -44,6 +44,24 @@ describe 'apm command line interface', ->
         expect(lines[2]).toBe "node #{process.versions.node} #{process.arch}"
         expect(lines[3]).toBe "atom #{testAtomVersion}"
 
+  describe 'when the version flag is specified but env.ATOM_RESOURCE_PATH is not set', ->
+    it 'finds the installed Atom and prints the version', ->
+      callback = jasmine.createSpy('callback')
+      apm.run(['-v', '--no-color'], callback)
+
+      process.env.ATOM_RESOURCE_PATH = ''
+
+      waitsFor ->
+        callback.callCount is 1
+
+      runs ->
+        expect(console.error).not.toHaveBeenCalled()
+        expect(console.log).toHaveBeenCalled()
+        lines = console.log.argsForCall[0][0].split('\n')
+        expect(lines[0]).toBe "apm  #{require('../package.json').version}"
+        expect(lines[1]).toBe "npm  #{require('npm/package.json').version}"
+        expect(lines[2]).toBe "node #{process.versions.node} #{process.arch}"
+
     describe 'when the version flag is specified and apm is unable find package.json on the resourcePath', ->
       it 'prints unknown atom version', ->
         callback = jasmine.createSpy('callback')
