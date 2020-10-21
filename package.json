@@ -15,11 +15,16 @@
     "apm": "./bin/apm"
   },
   "scripts": {
-    "build": "node script/check-version.js && grunt",
-    "prepare": "grunt prepare",
-    "install": "node script/postinstall.js",
-    "test": "node script/check-version.js && grunt test",
-    "check-version": "node version.js"
+    "check-version": "node script/check-version.js",
+    "clean:bin": "shx rm -rf bin/node_darwin_x64 bin/node.exe bin/node",
+    "clean:lib": "shx rm -rf lib && shx mkdir -p lib",
+    "clean": "npm run clean:lib && npm run clean:bin",
+    "lint": "coffeelint src spec",
+    "coffee": "coffee --compile --output lib src",
+    "build": "npm run clean:lib && npm run coffee",
+    "prepare": "npm run build",
+    "postinstall": "node script/postinstall.js",
+    "test": "npm run check-version && npm run lint && jasmine-focused --captureExceptions --coffee spec"
   },
   "dependencies": {
     "@atom/plist": "0.4.4",
@@ -29,6 +34,7 @@
     "first-mate": "^7.4.1",
     "fs-plus": "2.x",
     "git-utils": "^5.6.2",
+    "glob": "^7.1.6",
     "hosted-git-info": "^2.1.4",
     "keytar": "^4.13.0",
     "mv": "2.0.0",
@@ -49,14 +55,11 @@
     "yargs": "^3.23.0"
   },
   "devDependencies": {
-    "coffee-script": "^1.8.0",
+    "coffee-script": "^1.12.7",
+    "coffeelint": "<2.0",
     "express": "^4.16.3",
-    "grunt": "^1.0.3",
-    "grunt-cli": "^1.2.0",
-    "grunt-coffeelint": "0.0.16",
-    "grunt-contrib-coffee": "^2.0.0",
-    "grunt-shell": "^1.3.0",
     "jasmine-focused": ">=1.0.7 <2.0",
+    "shx": "^0.3.2",
     "node-gyp": "^5.1.1"
   }
 }
