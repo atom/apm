@@ -53,7 +53,7 @@ class PackageConverter
         if statusCode isnt 200
           callback("Download failed (#{headers.status})")
 
-      readStream.pipe(zlib.createGunzip()).pipe(tar.Extract(path: tempPath))
+      readStream.pipe(zlib.createGunzip()).pipe(tar.extract(cwd: tempPath))
         .on 'error', (error) -> callback(error)
         .on 'end', =>
           sourcePath = path.join(tempPath, fs.readdirSync(tempPath)[0])
