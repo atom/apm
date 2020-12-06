@@ -174,14 +174,7 @@ module.exports =
     options = parseOptions(args)
 
     unless options.argv.color
-      colors.setTheme
-        blue: 'stripColors'
-        cyan: 'stripColors'
-        green: 'stripColors'
-        magenta: 'stripColors'
-        red: 'stripColors'
-        yellow: 'stripColors'
-        rainbow: 'stripColors'
+      colors.disable()
 
     callbackCalled = false
     options.callback = (error) ->
