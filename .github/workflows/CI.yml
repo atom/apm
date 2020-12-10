@@ -19,13 +19,20 @@ jobs:
           - 10
           - 12
           - 14
+        node_arch:
+          - x64
+        include:
+          - os: windows-2016
+            node_version: 12
+            node_arch: x86
     steps:
       - uses: actions/checkout@v2
 
       - name: Install Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2-beta
         with:
           node-version: ${{ matrix.node_version }}
+          architecture: ${{ matrix.node_arch }}
 
       - name: Install npm
         run: npm install -g npm
