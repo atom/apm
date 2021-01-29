@@ -48,9 +48,6 @@ class Ci extends Command
     ]
     installArgs.push('--verbose') if options.argv.verbose
 
-    if vsArgs = @getVisualStudioFlags()
-      installArgs.push(vsArgs)
-
     fs.makeTreeSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})

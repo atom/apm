@@ -112,10 +112,6 @@ class Command
     env.npm_config_arch = config.getElectronArch()
     env.npm_config_target_arch = config.getElectronArch() # for node-pre-gyp
 
-  getVisualStudioFlags: ->
-    if vsVersion = config.getInstalledVisualStudioFlag()
-      "--msvs_version=#{vsVersion}"
-
   getNpmBuildFlags: ->
     ["--target=#{@electronVersion}", "--disturl=#{config.getElectronUrl()}", "--arch=#{config.getElectronArch()}"]
 

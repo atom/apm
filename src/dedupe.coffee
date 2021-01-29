@@ -43,9 +43,6 @@ class Dedupe extends Command
     dedupeArgs.push('--silent') if options.argv.silent
     dedupeArgs.push('--quiet') if options.argv.quiet
 
-    if vsArgs = @getVisualStudioFlags()
-      dedupeArgs.push(vsArgs)
-
     dedupeArgs.push(packageName) for packageName in options.argv._
 
     fs.makeTreeSync(@atomDirectory)

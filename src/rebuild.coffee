@@ -38,9 +38,6 @@ class Rebuild extends Command
     rebuildArgs.push(@getNpmBuildFlags()...)
     rebuildArgs.push(options.argv._...)
 
-    if vsArgs = @getVisualStudioFlags()
-      rebuildArgs.push(vsArgs)
-
     fs.makeTreeSync(@atomDirectory)
 
     env = _.extend({}, process.env, {HOME: @atomNodeDirectory, RUSTUP_HOME: config.getRustupHomeDirPath()})

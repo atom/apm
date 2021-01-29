@@ -98,13 +98,15 @@ module.exports =
     # Use the explictly-configured version when set
     return process.env.GYP_MSVS_VERSION if process.env.GYP_MSVS_VERSION
 
+    return '2019' if @visualStudioIsInstalled("2019")
+    return '2017' if @visualStudioIsInstalled("2017")
     return '2015' if @visualStudioIsInstalled("14.0")
-    return '2013' if @visualStudioIsInstalled("12.0")
-    return '2012' if @visualStudioIsInstalled("11.0")
-    return '2010' if @visualStudioIsInstalled("10.0")
 
   visualStudioIsInstalled: (version) ->
-    fs.existsSync(path.join(@x86ProgramFilesDirectory(), "Microsoft Visual Studio #{version}", "Common7", "IDE"))
+    if version < 2017
+      fs.existsSync(path.join(@x86ProgramFilesDirectory(), "Microsoft Visual Studio #{version}", "Common7", "IDE"))
+    else
+      fs.existsSync(path.join(@x86ProgramFilesDirectory(), "Microsoft Visual Studio", "#{version}", "BuildTools", "Common7", "IDE")) or fs.existsSync(path.join(@x86ProgramFilesDirectory(), "Microsoft Visual Studio", "#{version}", "Community", "Common7", "IDE")) or fs.existsSync(path.join(@x86ProgramFilesDirectory(), "Microsoft Visual Studio", "#{version}", "Enterprise", "Common7", "IDE")) or fs.existsSync(path.join(@x86ProgramFilesDirectory(), "Microsoft Visual Studio", "#{version}", "Professional", "Common7", "IDE")) or fs.existsSync(path.join(@x86ProgramFilesDirectory(), "Microsoft Visual Studio", "#{version}", "WDExpress", "Common7", "IDE"))
 
   loadNpm: (callback) ->
     npmOptions =
