@@ -518,16 +518,17 @@ class Install extends Command
       ]
 
   cloneFirstValidGitUrl: (urls, cloneDir, options, callback) ->
-    async.detectSeries urls, (url, next) =>
+    async.detectSeries(urls, (url, next) =>
       @cloneNormalizedUrl url, cloneDir, options, (error) ->
-        next(not error)
-    , (result) ->
-      if not result
+        next(null, not error)
+    , (err, result) ->
+      if err or not result
         invalidUrls = "Couldn't clone #{urls.join(' or ')}"
         invalidUrlsError = new Error(invalidUrls)
         callback(invalidUrlsError)
       else
         callback()
+    )
 
   cloneNormalizedUrl: (url, cloneDir, options, callback) ->
     # Require here to avoid circular dependency
