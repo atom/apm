@@ -1,21 +1,6 @@
-version: "{build}"
-
-image: Visual Studio 2015
-
-platform:
-  - x86
-  - x64
-
-environment:
-  nodejs_version: "10.20.1"
-
-install:
-  - ps: Install-Product node $env:nodejs_version $env:platform
-  - npm install -g npm
-  - npm ci
-
+# empty appveyor
 build: off
 
-test: off
-
-deploy: off
+branches:
+  only:
+  - non-existing
