@@ -251,7 +251,7 @@ class Publish extends Command
 
     if currentBranch = repo.getShortHead()
       remoteName = repo.getConfigValue("branch.#{currentBranch}.remote")
-    remoteName ?= repo.getConfigValue('branch.master.remote')
+    remoteName ?= repo.getConfigValue('branch.main.remote')
 
     upstreamUrl = repo.getConfigValue("remote.#{remoteName}.url") if remoteName
     upstreamUrl ?= repo.getConfigValue('remote.origin.url')
