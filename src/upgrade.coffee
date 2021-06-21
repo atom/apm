@@ -5,7 +5,8 @@ async = require 'async'
 yargs = require 'yargs'
 read = require 'read'
 semver = require 'semver'
-Git = require 'git-utils'
+Git = require 'nodegit'
+
 
 Command = require './command'
 config = require './apm'
@@ -115,8 +116,11 @@ class Upgrade extends Command
       git.addGitToEnv(process.env)
       @spawn command, args, {cwd: repoPath}, (code, stderr='', stdout='') ->
         return callback(new Error('Exit code: ' + code + ' - ' + stderr)) unless code is 0
-        repo = Git.open(repoPath)
-        sha = repo.getReferenceTarget(repo.getUpstreamBranch('refs/heads/master'))
+        repo = await Git.Repository.open(repoPath)
+
+        commit = await repository.getReferenceCommit('refs/remotes/origin/master')
+
+        sha = commit.sha()
         if sha isnt pack.apmInstallSource.sha
           callback(null, sha)
         else

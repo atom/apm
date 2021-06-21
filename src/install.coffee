@@ -5,7 +5,7 @@ _ = require 'underscore-plus'
 async = require 'async'
 CSON = require 'season'
 yargs = require 'yargs'
-Git = require 'git-utils'
+Git = require 'nodegit'
 semver = require 'semver'
 temp = require 'temp'
 hostedGitInfo = require 'hosted-git-info'
@@ -544,8 +544,9 @@ class Install extends Command
 
   getRepositoryHeadSha: (repoDir, callback) ->
     try
-      repo = Git.open(repoDir)
-      sha = repo.getReferenceTarget("HEAD")
+      repo = await Git.Repository.open(repoDir)
+      commit = await repo.getHeadCommit()
+      sha = commit.sha()
       callback(null, sha)
     catch err
       callback(err)

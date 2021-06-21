@@ -2,7 +2,7 @@ path = require 'path'
 url = require 'url'
 
 yargs = require 'yargs'
-Git = require 'git-utils'
+Git = require 'nodegit'
 semver = require 'semver'
 
 fs = require './fs'
@@ -244,17 +244,17 @@ class Publish extends Command
   loadRepository: ->
     currentDirectory = process.cwd()
 
-    repo = Git.open(currentDirectory)
-    unless repo?.isWorkingDirectory(currentDirectory)
+    repo = await Git.Repository.open(currentDirectory)
+    unless await repo?.isWorktree()
       throw new Error('Package must be in a Git repository before publishing: https://help.github.com/articles/create-a-repo')
 
 
     if currentBranch = repo.getShortHead()
-      remoteName = repo.getConfigValue("branch.#{currentBranch}.remote")
-    remoteName ?= repo.getConfigValue('branch.master.remote')
+      remoteName = await repo.config.getEntry("branch.#{currentBranch}.remote")
+    remoteName ?= await repo.config().getEntry('branch.master.remote')
 
-    upstreamUrl = repo.getConfigValue("remote.#{remoteName}.url") if remoteName
-    upstreamUrl ?= repo.getConfigValue('remote.origin.url')
+    upstreamUrl = await repo.config().getEntry("remote.#{remoteName}.url") if remoteName
+    upstreamUrl ?= await repo.config().getEntry('remote.origin.url')
 
     unless upstreamUrl
       throw new Error('Package must be pushed up to GitHub before publishing: https://help.github.com/articles/create-a-repo')
