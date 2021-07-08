@@ -31,7 +31,7 @@
     "asar-require": "0.3.0",
     "async": "^3.2.0",
     "colors": "~1.4.0",
-    "first-mate": "^7.4.1",
+    "first-mate": "^7.4.3",
     "fs-plus": "3.x",
     "git-utils": "^5.7.2",
     "glob": "^7.1.6",
