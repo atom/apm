@@ -18,7 +18,7 @@ git = require './git'
 
 module.exports =
 class Upgrade extends Command
-  @commandNames: ['upgrade', 'outdated', 'update']
+  @commandNames: ['upgrade', 'outdated', 'update', 'up']
 
   constructor: ->
     super()

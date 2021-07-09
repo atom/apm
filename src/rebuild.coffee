@@ -10,7 +10,7 @@ Install = require './install'
 
 module.exports =
 class Rebuild extends Command
-  @commandNames: ['rebuild']
+  @commandNames: ['rebuild', 'rb']
 
   constructor: ->
     super()

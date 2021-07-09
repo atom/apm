@@ -6,7 +6,7 @@ Command = require './command'
 
 module.exports =
 class Config extends Command
-  @commandNames: ['config']
+  @commandNames: ['config', 'c']
 
   constructor: ->
     super()
