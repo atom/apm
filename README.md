@@ -67,3 +67,19 @@ You can run `apm config get https-proxy` to verify it has been set correctly.
 ## Viewing configuration
 
 You can also run `apm config list` to see all the custom config settings.
+
+## Troubleshooting
+
+If publishing a version fails with an error message like:
+
+```
+Preparing and tagging a new version ✓
+Pushing v0.0.4 tag ✗
+error: src refspec v0.0.4 does not match any.
+error: failed to push some refs to 'git@github.com:repo/pkg.git'
+```
+
+You have `git-tag-version` disabled in your `~/.npmrc` config file.
+`apm` relies on `npm` tagging the GIT repos after versioning it.
+To fix this, either remove `git-tag-version=false` on `~/.npmrc` or make a new
+`.npmrc` file in your project's directory to override it with `git-tag-version=true`.
