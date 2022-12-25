@@ -8,7 +8,7 @@ fs = require './fs'
 
 module.exports =
 class Test extends Command
-  @commandNames: ['test']
+  @commandNames: ['test', 't', 'tst']
 
   parseOptions: (argv) ->
     options = yargs(argv).wrap(Math.min(100, yargs.terminalWidth()))
